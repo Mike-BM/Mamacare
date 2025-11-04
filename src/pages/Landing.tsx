@@ -2,27 +2,32 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart } from "lucide-react";
-import carousel1 from "@/assets/carousel-1.jpg";
-import carousel2 from "@/assets/carousel-2.jpg";
-import carousel3 from "@/assets/carousel-3.jpg";
-import carousel4 from "@/assets/carousel-4.jpg";
+import { Heart, Volume2, VolumeX } from "lucide-react";
+import africanMother1 from "@/assets/african-mother-1.jpg";
+import africanMother2 from "@/assets/african-mother-2.jpg";
+import africanBaby1 from "@/assets/african-baby-1.jpg";
+import maternityClinic from "@/assets/maternity-clinic.jpg";
+import familyMoment from "@/assets/family-moment.jpg";
 
 const carouselSlides = [
   {
-    image: carousel1,
+    image: africanMother1,
     text: "Every life begins with care.",
   },
   {
-    image: carousel2,
+    image: africanMother2,
     text: "Connecting mothers to trusted hospitals.",
   },
   {
-    image: carousel3,
+    image: africanBaby1,
     text: "MamaCare — your pregnancy companion.",
   },
   {
-    image: carousel4,
+    image: maternityClinic,
+    text: "Professional care, compassionate hearts.",
+  },
+  {
+    image: familyMoment,
     text: "Together, we nurture new beginnings.",
   },
 ];
@@ -31,6 +36,7 @@ const Landing = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSoundOn, setIsSoundOn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,17 +54,48 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
-      {/* Carousel Background */}
+      {/* Sound Toggle Button */}
+      <button
+        onClick={() => setIsSoundOn(!isSoundOn)}
+        className="fixed top-6 right-6 z-50 backdrop-blur-xl bg-card/80 border border-border/50 rounded-full p-3 hover:bg-card transition-all duration-300 hover:scale-110 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        aria-label={isSoundOn ? "Mute sound" : "Unmute sound"}
+      >
+        {isSoundOn ? (
+          <Volume2 className="w-6 h-6 text-primary" />
+        ) : (
+          <VolumeX className="w-6 h-6 text-muted-foreground" />
+        )}
+      </button>
+
+      {/* Navigation Links */}
+      <div className="fixed top-6 left-6 z-50 flex gap-3">
+        <Button
+          variant="glass"
+          onClick={() => navigate("/about")}
+          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        >
+          About
+        </Button>
+        <Button
+          variant="glass"
+          onClick={() => navigate("/features")}
+          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        >
+          Features
+        </Button>
+      </div>
+
+      {/* Carousel Background with zoom animation */}
       {carouselSlides.map((slide, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-opacity duration-1000 ${
-            index === currentSlide ? "opacity-100" : "opacity-0"
+          className={`absolute inset-0 transition-all duration-[1500ms] ease-in-out ${
+            index === currentSlide ? "opacity-100 scale-105" : "opacity-0 scale-100"
           }`}
         >
           <img
             src={slide.image}
-            alt={`Slide ${index + 1}`}
+            alt={`African mother and newborn - ${slide.text}`}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
