@@ -14,7 +14,299 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          created_at: string | null
+          hospital_id: string | null
+          id: string
+          message: string | null
+          mother_id: string | null
+          resolved_at: string | null
+          response_time: string | null
+          severity: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          hospital_id?: string | null
+          id?: string
+          message?: string | null
+          mother_id?: string | null
+          resolved_at?: string | null
+          response_time?: string | null
+          severity?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          hospital_id?: string | null
+          id?: string
+          message?: string | null
+          mother_id?: string | null
+          resolved_at?: string | null
+          response_time?: string | null
+          severity?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_mother_id_fkey"
+            columns: ["mother_id"]
+            isOneToOne: false
+            referencedRelation: "mothers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointments: {
+        Row: {
+          appointment_date: string
+          appointment_type: string | null
+          created_at: string | null
+          hospital_id: string | null
+          id: string
+          mother_id: string | null
+          notes: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_date: string
+          appointment_type?: string | null
+          created_at?: string | null
+          hospital_id?: string | null
+          id?: string
+          mother_id?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          appointment_type?: string | null
+          created_at?: string | null
+          hospital_id?: string | null
+          id?: string
+          mother_id?: string | null
+          notes?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_hospital_id_fkey"
+            columns: ["hospital_id"]
+            isOneToOne: false
+            referencedRelation: "hospitals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_mother_id_fkey"
+            columns: ["mother_id"]
+            isOneToOne: false
+            referencedRelation: "mothers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          role: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_id: string | null
+          category: string | null
+          content: string
+          created_at: string | null
+          id: string
+          likes: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hospitals: {
+        Row: {
+          available_slots: number | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: string
+          location: string | null
+          name: string
+          specialists: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          available_slots?: number | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          specialists?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          available_slots?: number | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          specialists?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hospitals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mothers: {
+        Row: {
+          created_at: string | null
+          due_date: string | null
+          health_data: Json | null
+          id: string
+          last_checkup: string | null
+          pregnancy_stage: number | null
+          sos_status: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          due_date?: string | null
+          health_data?: Json | null
+          id?: string
+          last_checkup?: string | null
+          pregnancy_stage?: number | null
+          sos_status?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          due_date?: string | null
+          health_data?: Json | null
+          id?: string
+          last_checkup?: string | null
+          pregnancy_stage?: number | null
+          sos_status?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mothers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

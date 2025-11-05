@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { AIChat } from "@/components/AIChat";
+import { AudioPlayer } from "@/components/AudioPlayer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MotherDashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
   const pregnancyWeeks = 24;
   const totalWeeks = 40;
@@ -80,20 +82,55 @@ const MotherDashboard = () => {
               </Button>
             </Card>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary transition-all duration-300 cursor-pointer">
-                <MessageCircle className="w-8 h-8 text-primary mb-3" />
-                <h4 className="font-semibold mb-1">Chat Assistant</h4>
-                <p className="text-sm text-muted-foreground">Ask health questions</p>
-              </Card>
+            {/* Quick Actions & AI Chat */}
+            <Tabs defaultValue="overview" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-6">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="chat">AI Assistant</TabsTrigger>
+                <TabsTrigger value="sounds">Baby Sounds</TabsTrigger>
+              </TabsList>
               
-              <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-secondary transition-all duration-300 cursor-pointer">
-                <BookOpen className="w-8 h-8 text-secondary mb-3" />
-                <h4 className="font-semibold mb-1">Health Tips</h4>
-                <p className="text-sm text-muted-foreground">Weekly guidance</p>
-              </Card>
-            </div>
+              <TabsContent value="overview">
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary transition-all duration-300 cursor-pointer">
+                    <MessageCircle className="w-8 h-8 text-primary mb-3" />
+                    <h4 className="font-semibold mb-1">Chat Assistant</h4>
+                    <p className="text-sm text-muted-foreground">Ask health questions</p>
+                  </Card>
+                  
+                  <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-secondary transition-all duration-300 cursor-pointer">
+                    <BookOpen className="w-8 h-8 text-secondary mb-3" />
+                    <h4 className="font-semibold mb-1">Health Tips</h4>
+                    <p className="text-sm text-muted-foreground">Weekly guidance</p>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="chat">
+                <AIChat />
+              </TabsContent>
+
+              <TabsContent value="sounds">
+                <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
+                  <h3 className="text-lg font-semibold mb-4">Baby Sounds</h3>
+                  <div className="space-y-4">
+                    <AudioPlayer 
+                      src="/sounds/baby-cry.mp3" 
+                      label="Baby Crying Sound"
+                      loop
+                    />
+                    <AudioPlayer 
+                      src="/sounds/baby-laugh.mp3" 
+                      label="Baby Laughing Sound"
+                      loop
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Listen to these sounds to familiarize yourself with your baby's cues
+                  </p>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </div>
 
           {/* Right Column - Side Panel */}

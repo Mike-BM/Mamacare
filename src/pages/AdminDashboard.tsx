@@ -2,6 +2,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Users, Building2, AlertCircle, BookOpen, TrendingUp, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Analytics } from "@/components/Analytics";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -62,42 +64,40 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Analytics Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              Platform Growth
-            </h3>
-            <div className="h-64 flex items-center justify-center text-muted-foreground">
-              <p className="text-center">
-                Chart visualization<br />
-                <span className="text-sm">(Analytics Dashboard)</span>
-              </p>
-            </div>
-          </Card>
+        {/* Analytics Dashboard */}
+        <Tabs defaultValue="analytics" className="w-full mb-8">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mb-6">
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="analytics">
+            <Analytics />
+          </TabsContent>
 
-          <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-            <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
-            <div className="space-y-4">
-              {[
-                { action: "New hospital registered", time: "5 mins ago", type: "success" },
-                { action: "Emergency alert resolved", time: "15 mins ago", type: "info" },
-                { action: "New educational post published", time: "1 hour ago", type: "success" },
-                { action: "System maintenance scheduled", time: "2 hours ago", type: "warning" },
-              ].map((activity, index) => (
-                <div
-                  key={index}
-                  className="p-3 rounded-lg border border-border/50 bg-muted/20 animate-fade-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
+          <TabsContent value="activity">
+            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
+              <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
+              <div className="space-y-4">
+                {[
+                  { action: "New hospital registered", time: "5 mins ago", type: "success" },
+                  { action: "Emergency alert resolved", time: "15 mins ago", type: "info" },
+                  { action: "New educational post published", time: "1 hour ago", type: "success" },
+                  { action: "System maintenance scheduled", time: "2 hours ago", type: "warning" },
+                ].map((activity, index) => (
+                  <div
+                    key={index}
+                    className="p-3 rounded-lg border border-border/50 bg-muted/20 animate-fade-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Management Actions */}
         <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
