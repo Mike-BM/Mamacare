@@ -8,53 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* MamaCare Dark Theme - Deep charcoal with warm pink and trust blue */
-    --background: 210 20% 6%;
-    --foreground: 0 0% 92%;
+    /* MamaCare Enhanced Dark Theme - Deep charcoal with emotional accents */
+    --background: 220 18% 5%;
+    --foreground: 0 0% 95%;
 
-    --card: 210 20% 10%;
-    --card-foreground: 0 0% 92%;
+    --card: 220 18% 9%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 210 20% 8%;
-    --popover-foreground: 0 0% 92%;
+    --popover: 220 18% 7%;
+    --popover-foreground: 0 0% 95%;
 
     /* Maternal Pink - Primary accent */
     --primary: 345 100% 72%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 345 95% 80%;
 
-    /* Medical Blue - Trust accent */
-    --secondary: 212 73% 59%;
+    /* Baby Blue - Trust accent */
+    --secondary: 190 75% 62%;
     --secondary-foreground: 0 0% 100%;
+    --secondary-glow: 190 70% 70%;
 
-    --muted: 210 20% 15%;
-    --muted-foreground: 0 0% 65%;
+    /* Soft Violet - Tertiary accent */
+    --tertiary: 265 60% 70%;
+    --tertiary-foreground: 0 0% 100%;
+    --tertiary-glow: 265 55% 78%;
 
-    --accent: 340 82% 85%;
-    --accent-foreground: 210 20% 10%;
+    --muted: 220 18% 14%;
+    --muted-foreground: 0 0% 68%;
 
-    --destructive: 0 84.2% 60.2%;
+    --accent: 340 85% 88%;
+    --accent-foreground: 220 18% 10%;
+
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 20%;
-    --input: 210 20% 15%;
+    --border: 220 18% 18%;
+    --input: 220 18% 14%;
     --ring: 345 100% 72%;
 
     --radius: 1rem;
 
-    /* Gradients */
+    /* Enhanced Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(345 100% 72%), hsl(212 73% 59%));
-    --gradient-glow: linear-gradient(135deg, hsl(345 100% 72% / 0.2), hsl(212 73% 59% / 0.2));
-    --gradient-glass: linear-gradient(135deg, hsl(210 20% 15% / 0.7), hsl(210 20% 10% / 0.5));
+    --gradient-pregnancy: linear-gradient(90deg, hsl(345 100% 72%), hsl(190 75% 62%));
+    --gradient-glow: linear-gradient(135deg, hsl(345 100% 72% / 0.2), hsl(190 75% 62% / 0.2));
+    --gradient-glass: linear-gradient(135deg, hsl(220 18% 14% / 0.8), hsl(220 18% 9% / 0.6));
+    --gradient-violet: linear-gradient(135deg, hsl(265 60% 70% / 0.3), hsl(345 100% 72% / 0.3));
 
-    /* Shadows */
-    --shadow-glow-pink: 0 0 40px hsl(345 100% 72% / 0.3);
-    --shadow-glow-blue: 0 0 40px hsl(212 73% 59% / 0.3);
-    --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.5);
-    --shadow-glass: 0 8px 32px 0 hsl(0 0% 0% / 0.37);
+    /* Enhanced Shadows */
+    --shadow-glow-pink: 0 0 50px hsl(345 100% 72% / 0.4);
+    --shadow-glow-blue: 0 0 50px hsl(190 75% 62% / 0.4);
+    --shadow-glow-violet: 0 0 50px hsl(265 60% 70% / 0.4);
+    --shadow-elegant: 0 15px 40px -15px hsl(0 0% 0% / 0.6);
+    --shadow-glass: 0 8px 32px 0 hsl(0 0% 0% / 0.4);
+    --shadow-float: 0 20px 60px -20px hsl(345 100% 72% / 0.5);
 
-    /* Animation */
+    /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-glow: all 0.4s ease-in-out;
+    --transition-glow: all 0.5s ease-in-out;
+    --transition-lift: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }
 

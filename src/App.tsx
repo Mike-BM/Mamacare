@@ -10,6 +10,8 @@ import Features from "./pages/Features";
 import MotherDashboard from "./pages/MotherDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import MyJourney from "./pages/MyJourney";
+import MamaCircle from "./pages/MamaCircle";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/mother-dashboard" element={<MotherDashboard />} />
           <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/my-journey" element={<MyJourney />} />
+          <Route path="/mama-circle" element={<MamaCircle />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

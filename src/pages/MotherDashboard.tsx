@@ -2,11 +2,16 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut } from "lucide-react";
+import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut, Map } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DynamicGreeting } from "@/components/DynamicGreeting";
+import { BabyDevelopment } from "@/components/BabyDevelopment";
+import { AppointmentCountdown } from "@/components/AppointmentCountdown";
+import { WeeklyTips } from "@/components/WeeklyTips";
+import { MoodTracker } from "@/components/MoodTracker";
 
 const MotherDashboard = () => {
   const navigate = useNavigate();
@@ -32,18 +37,15 @@ const MotherDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8 animate-fade-in-up">
-          <h2 className="text-3xl font-bold mb-2">Welcome back, Sarah 💕</h2>
-          <p className="text-muted-foreground">Let's take care of you and your little one</p>
-        </div>
+        {/* Dynamic Greeting */}
+        <DynamicGreeting userName="Sarah" />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Quick Stats */}
           <div className="lg:col-span-2 space-y-6">
             {/* Pregnancy Progress */}
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 backdrop-blur-sm animate-scale-in">
+            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 backdrop-blur-sm animate-scale-in hover:shadow-[var(--shadow-glow-pink)] transition-all duration-500">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2">
                   <Baby className="w-5 h-5 text-primary" />
@@ -51,36 +53,38 @@ const MotherDashboard = () => {
                 </h3>
                 <span className="text-2xl font-bold text-primary">{pregnancyWeeks} weeks</span>
               </div>
-              <Progress value={progressPercent} className="h-3 mb-2" />
+              <div className="relative">
+                <Progress 
+                  value={progressPercent} 
+                  className="h-4 mb-2 bg-gradient-to-r from-primary/20 to-secondary/20" 
+                />
+                <div 
+                  className="absolute top-0 h-4 rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
               <p className="text-sm text-muted-foreground">
                 {totalWeeks - pregnancyWeeks} weeks to go • You're in your second trimester
               </p>
-            </Card>
-
-            {/* Next Appointment */}
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
-              <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
-                <Calendar className="w-5 h-5 text-secondary" />
-                Next Appointment
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Date & Time</span>
-                  <span className="font-medium">Dec 15, 2024 • 10:00 AM</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Doctor</span>
-                  <span className="font-medium">Dr. Emily Chen</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Hospital</span>
-                  <span className="font-medium">City Medical Center</span>
-                </div>
-              </div>
-              <Button variant="outline" className="w-full mt-4">
-                View Details
+              <Button 
+                variant="outline" 
+                className="w-full mt-4 hover:shadow-[var(--shadow-glow-pink)]"
+                onClick={() => navigate("/my-journey")}
+              >
+                View Full Journey
               </Button>
             </Card>
+
+            {/* Baby Development */}
+            <BabyDevelopment week={pregnancyWeeks} />
+
+            {/* Next Appointment with Countdown */}
+            <AppointmentCountdown 
+              date="Dec 15, 2024"
+              time="10:00 AM"
+              doctor="Dr. Emily Chen"
+              hospital="City Medical Center"
+            />
 
             {/* Quick Actions & AI Chat */}
             <Tabs defaultValue="overview" className="w-full">
@@ -92,16 +96,22 @@ const MotherDashboard = () => {
               
               <TabsContent value="overview">
                 <div className="grid grid-cols-2 gap-4">
-                  <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary transition-all duration-300 cursor-pointer">
-                    <MessageCircle className="w-8 h-8 text-primary mb-3" />
-                    <h4 className="font-semibold mb-1">Chat Assistant</h4>
-                    <p className="text-sm text-muted-foreground">Ask health questions</p>
+                  <Card 
+                    className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary hover:shadow-[var(--shadow-glow-pink)] transition-all duration-500 cursor-pointer group"
+                    onClick={() => navigate("/mama-circle")}
+                  >
+                    <MessageCircle className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-semibold mb-1">MamaCircle</h4>
+                    <p className="text-sm text-muted-foreground">Connect with mothers</p>
                   </Card>
                   
-                  <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-secondary transition-all duration-300 cursor-pointer">
-                    <BookOpen className="w-8 h-8 text-secondary mb-3" />
-                    <h4 className="font-semibold mb-1">Health Tips</h4>
-                    <p className="text-sm text-muted-foreground">Weekly guidance</p>
+                  <Card 
+                    className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-secondary hover:shadow-[var(--shadow-glow-blue)] transition-all duration-500 cursor-pointer group"
+                    onClick={() => navigate("/my-journey")}
+                  >
+                    <Map className="w-8 h-8 text-secondary mb-3 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-semibold mb-1">My Journey</h4>
+                    <p className="text-sm text-muted-foreground">Track your progress</p>
                   </Card>
                 </div>
               </TabsContent>
@@ -135,31 +145,11 @@ const MotherDashboard = () => {
 
           {/* Right Column - Side Panel */}
           <div className="space-y-6">
-            {/* Baby Milestones */}
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-              <h3 className="text-lg font-semibold mb-4">This Week's Milestone</h3>
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-                  <p className="text-sm font-medium mb-1">Baby's Size</p>
-                  <p className="text-xs text-muted-foreground">About the size of a papaya 🥭</p>
-                </div>
-                <div className="p-3 rounded-lg bg-secondary/10 border border-secondary/20">
-                  <p className="text-sm font-medium mb-1">Development</p>
-                  <p className="text-xs text-muted-foreground">Baby can hear your voice now!</p>
-                </div>
-              </div>
-            </Card>
-
             {/* Weekly Tips */}
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-              <h3 className="text-lg font-semibold mb-4">Weekly Tip</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Stay hydrated! Drink at least 8-10 glasses of water daily for optimal health.
-              </p>
-              <Button variant="link" className="p-0 h-auto text-primary">
-                Read more tips →
-              </Button>
-            </Card>
+            <WeeklyTips />
+
+            {/* Mood Tracker */}
+            <MoodTracker />
           </div>
         </div>
       </div>
