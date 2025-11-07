@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut, Map } from "lucide-react";
+import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut, Map, BookHeart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { AudioPlayer } from "@/components/AudioPlayer";
@@ -116,6 +116,15 @@ const MotherDashboard = () => {
                     <Map className="w-8 h-8 text-secondary mb-3 group-hover:scale-110 transition-transform" />
                     <h4 className="font-semibold mb-1">My Journey</h4>
                     <p className="text-sm text-muted-foreground">Track your progress</p>
+                  </Card>
+
+                  <Card 
+                    className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-tertiary hover:shadow-[var(--shadow-glow-violet)] transition-all duration-500 cursor-pointer group"
+                    onClick={() => navigate("/journal")}
+                  >
+                    <BookHeart className="w-8 h-8 text-tertiary mb-3 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-semibold mb-1">My Journal</h4>
+                    <p className="text-sm text-muted-foreground">Write daily entries</p>
                   </Card>
                 </div>
               </TabsContent>
