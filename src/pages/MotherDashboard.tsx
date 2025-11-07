@@ -12,6 +12,7 @@ import { BabyDevelopment } from "@/components/BabyDevelopment";
 import { AppointmentCountdown } from "@/components/AppointmentCountdown";
 import { WeeklyTips } from "@/components/WeeklyTips";
 import { MoodTracker } from "@/components/MoodTracker";
+import { BackgroundMedia } from "@/components/BackgroundMedia";
 
 const MotherDashboard = () => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const MotherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Background Media */}
+      <BackgroundMedia />
+      
       {/* Header */}
       <header className="border-b border-border/50 backdrop-blur-lg bg-card/30 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -158,7 +162,8 @@ const MotherDashboard = () => {
       <Button
         variant="sos"
         size="lg"
-        className="fixed bottom-8 right-8 rounded-full w-16 h-16 shadow-2xl z-50"
+        className="fixed bottom-8 right-8 rounded-full w-16 h-16 shadow-2xl z-50 animate-pulse hover:scale-110 transition-transform duration-300"
+        onClick={() => window.open('tel:911')}
       >
         <AlertCircle className="w-8 h-8" />
       </Button>
