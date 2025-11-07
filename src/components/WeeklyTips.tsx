@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lightbulb, BookmarkPlus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const tips = [
   {
@@ -29,15 +31,41 @@ const tips = [
 
 export const WeeklyTips = () => {
   const [currentTip, setCurrentTip] = useState(tips[0]);
+  const navigate = useNavigate();
 
   const refreshTip = () => {
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
     setCurrentTip(randomTip);
   };
 
-  const saveTip = () => {
+  const saveTip = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Please sign in to save tips");
+      return;
+    }
+
+    const { error } = await supabase.from("journal_entries").insert({
+      user_id: user.id,
+      title: "Health Tip",
+      content: currentTip.tip,
+      mood: "grateful",
+      tags: ["health tip", "wellness"],
+      entry_date: new Date().toISOString().split("T")[0],
+    });
+
+    if (error) {
+      toast.error("Failed to save tip");
+      return;
+    }
+
     toast.success("Tip saved to your journal!", {
-      description: "You can view all saved tips in your Journey page.",
+      description: "View it in your Journal page.",
+      action: {
+        label: "View Journal",
+        onClick: () => navigate("/journal"),
+      },
     });
   };
 

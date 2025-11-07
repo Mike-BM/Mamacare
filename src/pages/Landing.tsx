@@ -54,6 +54,13 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
+      {/* Ambient Background Audio */}
+      {isSoundOn && (
+        <audio autoPlay loop className="hidden">
+          <source src="/sounds/baby-laugh.mp3" type="audio/mpeg" />
+        </audio>
+      )}
+
       {/* Sound Toggle Button */}
       <button
         onClick={() => setIsSoundOn(!isSoundOn)}

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import africanMother1 from "@/assets/african-mother-1.jpg";
+import africanMother2 from "@/assets/african-mother-2.jpg";
+import familyMoment from "@/assets/family-moment.jpg";
+import maternityClinic from "@/assets/maternity-clinic.jpg";
 
 const mediaSlides = [
-  "/src/assets/african-mother-1.jpg",
-  "/src/assets/african-mother-2.jpg",
-  "/src/assets/family-moment.jpg",
-  "/src/assets/maternity-clinic.jpg",
+  africanMother1,
+  africanMother2,
+  familyMoment,
+  maternityClinic,
 ];
 
 export const BackgroundMedia = () => {
