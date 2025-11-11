@@ -13,6 +13,7 @@ import { AppointmentCountdown } from "@/components/AppointmentCountdown";
 import { WeeklyTips } from "@/components/WeeklyTips";
 import { MoodTracker } from "@/components/MoodTracker";
 import { BackgroundMedia } from "@/components/BackgroundMedia";
+import { PregnancyProgressTabs } from "@/components/PregnancyProgressTabs";
 
 const MotherDashboard = () => {
   const navigate = useNavigate();
@@ -48,47 +49,8 @@ const MotherDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Quick Stats */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Pregnancy Progress */}
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 backdrop-blur-sm animate-scale-in hover:shadow-[var(--shadow-glow-pink)] transition-all duration-500">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold flex items-center gap-2">
-                  <Baby className="w-5 h-5 text-primary" />
-                  Pregnancy Progress
-                </h3>
-                <span className="text-2xl font-bold text-primary">{pregnancyWeeks} weeks</span>
-              </div>
-              <div className="relative">
-                <Progress 
-                  value={progressPercent} 
-                  className="h-4 mb-2 bg-gradient-to-r from-primary/20 to-secondary/20" 
-                />
-                <div 
-                  className="absolute top-0 h-4 rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {totalWeeks - pregnancyWeeks} weeks to go • You're in your second trimester
-              </p>
-              <Button 
-                variant="outline" 
-                className="w-full mt-4 hover:shadow-[var(--shadow-glow-pink)]"
-                onClick={() => navigate("/my-journey")}
-              >
-                View Full Journey
-              </Button>
-            </Card>
-
-            {/* Baby Development */}
-            <BabyDevelopment week={pregnancyWeeks} />
-
-            {/* Next Appointment with Countdown */}
-            <AppointmentCountdown 
-              date="Dec 15, 2024"
-              time="10:00 AM"
-              doctor="Dr. Emily Chen"
-              hospital="City Medical Center"
-            />
+            {/* Enhanced Pregnancy Progress with Tabs */}
+            <PregnancyProgressTabs currentWeek={pregnancyWeeks} totalWeeks={totalWeeks} />
 
             {/* Quick Actions & AI Chat */}
             <Tabs defaultValue="overview" className="w-full">
