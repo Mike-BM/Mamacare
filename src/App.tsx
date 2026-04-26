@@ -11,8 +11,10 @@ import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyJourney from "./pages/MyJourney";
 import MamaCircle from "./pages/MamaCircle";
+import Community from "./pages/Community";
 import Journal from "./pages/Journal";
 import NotFound from "./pages/NotFound";
+import { OfflineBadge } from "./components/OfflineBadge";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +23,7 @@ const App = () => (
     <Toaster />
     <Sonner />
     <BrowserRouter>
+      <OfflineBadge />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
@@ -31,6 +34,7 @@ const App = () => (
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/my-journey" element={<MyJourney />} />
         <Route path="/mama-circle" element={<MamaCircle />} />
+        <Route path="/community" element={<Community />} />
         <Route path="/journal" element={<Journal />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
