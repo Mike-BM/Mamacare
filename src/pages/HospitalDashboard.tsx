@@ -171,6 +171,8 @@ const HospitalDashboard = () => {
             </Card>
           </div>
         </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
