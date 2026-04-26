@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Calendar, Users, AlertCircle, Bell, LogOut } from "lucide-react";
+import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BloodDonorNetwork } from "@/components/BloodDonorNetwork";
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
@@ -78,6 +80,15 @@ const HospitalDashboard = () => {
           </Card>
         </div>
 
+        <Tabs defaultValue="overview" className="mb-6">
+          <TabsList>
+            <TabsTrigger value="overview"><Calendar className="w-4 h-4 mr-1" /> Overview</TabsTrigger>
+            <TabsTrigger value="donors"><Droplet className="w-4 h-4 mr-1" /> Blood Donors</TabsTrigger>
+          </TabsList>
+          <TabsContent value="donors" className="mt-6">
+            <BloodDonorNetwork />
+          </TabsContent>
+          <TabsContent value="overview" className="mt-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Appointments List */}
           <div className="lg:col-span-2">
@@ -160,6 +171,8 @@ const HospitalDashboard = () => {
             </Card>
           </div>
         </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

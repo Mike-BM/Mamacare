@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut, Map, BookHeart } from "lucide-react";
+import { Heart, Calendar, MessageCircle, BookOpen, Baby, AlertCircle, Menu, LogOut, Map, BookHeart, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { AudioPlayer } from "@/components/AudioPlayer";
@@ -14,6 +14,8 @@ import { WeeklyTips } from "@/components/WeeklyTips";
 import { MoodTracker } from "@/components/MoodTracker";
 import { BackgroundMedia } from "@/components/BackgroundMedia";
 import { PregnancyProgressTabs } from "@/components/PregnancyProgressTabs";
+import { EmergencySOS } from "@/components/EmergencySOS";
+import { SymptomTriageBubble } from "@/components/SymptomTriageBubble";
 
 const MotherDashboard = () => {
   const navigate = useNavigate();
@@ -88,6 +90,15 @@ const MotherDashboard = () => {
                     <h4 className="font-semibold mb-1">My Journal</h4>
                     <p className="text-sm text-muted-foreground">Write daily entries</p>
                   </Card>
+
+                  <Card 
+                    className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:border-primary hover:shadow-[var(--shadow-glow-pink)] transition-all duration-500 cursor-pointer group"
+                    onClick={() => navigate("/community")}
+                  >
+                    <Users className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
+                    <h4 className="font-semibold mb-1">Community</h4>
+                    <p className="text-sm text-muted-foreground">Trimester rooms & stories</p>
+                  </Card>
                 </div>
               </TabsContent>
 
@@ -129,15 +140,9 @@ const MotherDashboard = () => {
         </div>
       </div>
 
-      {/* Floating SOS Button */}
-      <Button
-        variant="sos"
-        size="lg"
-        className="fixed bottom-8 right-8 rounded-full w-16 h-16 shadow-2xl z-50 animate-pulse hover:scale-110 transition-transform duration-300"
-        onClick={() => window.open('tel:911')}
-      >
-        <AlertCircle className="w-8 h-8" />
-      </Button>
+      {/* Hold-to-trigger Emergency SOS (right) + AI Triage bubble (left) */}
+      <EmergencySOS />
+      <SymptomTriageBubble />
     </div>
   );
 };
