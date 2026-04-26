@@ -16,6 +16,10 @@ import { BackgroundMedia } from "@/components/BackgroundMedia";
 import { PregnancyProgressTabs } from "@/components/PregnancyProgressTabs";
 import { EmergencySOS } from "@/components/EmergencySOS";
 import { SymptomTriageBubble } from "@/components/SymptomTriageBubble";
+import { FinancialLayer } from "@/components/FinancialLayer";
+import { TelemedicineSuite } from "@/components/TelemedicineSuite";
+import { WearableMedicationWidgets } from "@/components/WearableMedicationWidgets";
+import { AchievementsTab } from "@/components/AchievementsTab";
 
 const MotherDashboard = () => {
   const navigate = useNavigate();
@@ -56,10 +60,12 @@ const MotherDashboard = () => {
 
             {/* Quick Actions & AI Chat */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-5 mb-6">
                 <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="chat">AI Assistant</TabsTrigger>
-                <TabsTrigger value="sounds">Baby Sounds</TabsTrigger>
+                <TabsTrigger value="chat">AI</TabsTrigger>
+                <TabsTrigger value="health">Health</TabsTrigger>
+                <TabsTrigger value="achievements">Awards</TabsTrigger>
+                <TabsTrigger value="sounds">Sounds</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview">
@@ -106,6 +112,14 @@ const MotherDashboard = () => {
                 <AIChat />
               </TabsContent>
 
+              <TabsContent value="health">
+                <WearableMedicationWidgets />
+              </TabsContent>
+
+              <TabsContent value="achievements">
+                <AchievementsTab />
+              </TabsContent>
+
               <TabsContent value="sounds">
                 <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
                   <h3 className="text-lg font-semibold mb-4">Baby Sounds</h3>
@@ -131,10 +145,9 @@ const MotherDashboard = () => {
 
           {/* Right Column - Side Panel */}
           <div className="space-y-6">
-            {/* Weekly Tips */}
+            <FinancialLayer />
+            <TelemedicineSuite />
             <WeeklyTips />
-
-            {/* Mood Tracker */}
             <MoodTracker />
           </div>
         </div>
