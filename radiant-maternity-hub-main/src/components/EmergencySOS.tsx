@@ -89,14 +89,14 @@ export const EmergencySOS = () => {
   useEffect(() => () => clearHold(), []);
 
   // Arc calculation for the hold ring
-  const radius = 38;
+  const radius = 32;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
 
   return (
     <>
-      <div className="fixed bottom-8 right-8 z-50 flex flex-col items-center justify-center">
-        <div className="relative flex items-center justify-center w-24 h-24">
+      <div className="fixed bottom-8 left-8 z-50 flex flex-col items-center justify-center">
+        <div className="relative flex items-center justify-center w-[72px] h-[72px]">
           
           {/* Radial Menu */}
           {showRadialMenu && (
@@ -123,10 +123,10 @@ export const EmergencySOS = () => {
           )}
 
           {/* Progress Ring */}
-          <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none z-10" viewBox="0 0 84 84">
+          <svg className="absolute inset-0 w-full h-full -rotate-90 pointer-events-none z-10" viewBox="0 0 72 72">
             <circle
-              cx="42"
-              cy="42"
+              cx="36"
+              cy="36"
               r={radius}
               stroke="transparent"
               strokeWidth="4"
@@ -134,8 +134,8 @@ export const EmergencySOS = () => {
             />
             {holding && (
               <circle
-                cx="42"
-                cy="42"
+                cx="36"
+                cy="36"
                 r={radius}
                 stroke="#e74c3c"
                 strokeWidth="4"
@@ -157,7 +157,7 @@ export const EmergencySOS = () => {
                   variant="sos"
                   size="lg"
                   aria-label="Emergency SOS - hold 2 seconds"
-                  className={`relative rounded-[32px] w-20 h-20 shadow-[0_0_30px_rgba(231,76,60,0.4)] transition-all duration-300 select-none touch-none z-20 overflow-hidden ${holding ? 'scale-95 bg-red-600' : 'hover:scale-105 hover:bg-red-500'} ${!holding && !showRadialMenu ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
+                  className={`relative rounded-full w-14 h-14 shadow-[0_0_20px_rgba(231,76,60,0.3)] transition-all duration-300 select-none touch-none z-20 overflow-hidden ${holding ? 'scale-95 bg-red-600' : 'hover:scale-105 hover:bg-red-500'} ${!holding && !showRadialMenu ? 'animate-[pulse_3s_ease-in-out_infinite]' : ''}`}
                   onMouseDown={startHold}
                   onMouseUp={cancelHold}
                   onMouseLeave={cancelHold}
@@ -170,8 +170,7 @@ export const EmergencySOS = () => {
                 >
                   {showRadialMenu ? <X className="w-8 h-8" /> : (
                     <div className="flex flex-col items-center justify-center">
-                      <span className="font-black text-2xl tracking-widest text-white leading-none">SOS</span>
-                      <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider mt-1 whitespace-nowrap">Hold for help</span>
+                      <span className="font-black text-lg tracking-widest text-white leading-none">SOS</span>
                     </div>
                   )}
                   

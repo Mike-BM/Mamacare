@@ -92,7 +92,7 @@ export const VoiceInterface = ({ userContext }: { userContext?: any }) => {
   return (
     <>
       <motion.button
-        className={`fixed bottom-24 md:bottom-8 right-4 md:right-6 z-50 flex items-center justify-center shadow-lg transition-all duration-500 overflow-hidden ${
+        className={`fixed bottom-8 right-8 z-50 flex items-center justify-center shadow-lg transition-all duration-500 overflow-hidden ${
           isIdle ? 'w-4 h-4 rounded-full opacity-60 hover:opacity-100 hover:scale-[2]' : 'w-12 h-12 rounded-full'
         } ${
           isListening 

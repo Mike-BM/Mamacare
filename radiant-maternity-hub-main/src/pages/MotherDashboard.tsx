@@ -223,8 +223,8 @@ export default function MotherDashboard() {
           </div>
           
           <div className="hidden md:flex flex-col justify-center">
-            <span className="text-lg font-medium">Good Evening, Eliza ✨</span>
-            <span key={messageIndex} className="text-xs text-primary font-medium animate-fade-in-up">
+            <h1 className="text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">Good Evening, Eliza ✨</h1>
+            <span key={messageIndex} className="text-sm text-primary font-medium animate-fade-in-up mt-1">
               {SUPPORTIVE_MESSAGES[messageIndex]}
             </span>
           </div>
@@ -236,9 +236,9 @@ export default function MotherDashboard() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative hover:bg-white/5 rounded-full">
-                  <Bell className="w-5 h-5 text-white/80" />
-                  <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_5px_#e74c3c]" />
+                <Button variant="ghost" size="icon" className="relative hover:bg-white/5 rounded-full transition-transform active:scale-95">
+                  <Bell className="w-6 h-6 text-white/80" />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(231,76,60,0.6)]" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 glass-card border-white/10">

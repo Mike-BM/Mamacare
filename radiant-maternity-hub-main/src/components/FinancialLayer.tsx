@@ -109,6 +109,21 @@ export const FinancialLayer = () => {
               </AccordionItem>
             </Accordion>
 
+            <div className="text-center space-y-2">
+              <p className="text-xs font-bold text-tertiary">Every contribution sponsors a mother in need 🤝</p>
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-[10px] text-white/40">Why free?</p>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="w-3 h-3 text-white/30 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[200px] bg-card border-white/10 text-[10px]">
+                    We believe safe care is a right. Partners and members fund access for those who can't afford it.
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -172,7 +187,7 @@ export const FinancialLayer = () => {
             <div className="flex justify-center items-center gap-4 text-[10px] text-white/50 font-bold uppercase tracking-widest mt-4">
                <span className="flex items-center gap-1"><Smartphone className="w-3 h-3 text-green-400"/> M-Pesa</span>
                <span>|</span>
-               <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-blue-400"/> Secure</span>
+               <span className="flex items-center gap-1">UNFPA Partner</span>
                <span>|</span>
                <span className="text-primary">❤️ No Ads</span>
             </div>
