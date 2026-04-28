@@ -10,7 +10,7 @@ const HospitalDashboard = () => {
   const navigate = useNavigate();
 
   const appointments = [
-    { id: 1, patient: "Sarah Johnson", time: "10:00 AM", status: "pending", type: "Checkup" },
+    { id: 1, patient: "Eliza Keith", time: "10:00 AM", status: "pending", type: "Checkup" },
     { id: 2, patient: "Maria Garcia", time: "11:30 AM", status: "confirmed", type: "Ultrasound" },
     { id: 3, patient: "Emily Chen", time: "2:00 PM", status: "pending", type: "Consultation" },
   ];

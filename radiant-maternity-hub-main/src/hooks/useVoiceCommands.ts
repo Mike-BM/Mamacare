@@ -19,7 +19,7 @@ export const useVoiceCommands = () => {
         
       case 'call':
         return {
-          response: "Connecting you to your provider, Dr. Sarah Johnson. One moment please.",
+          response: "Connecting you to your provider, Dr. Eliza Keith. One moment please.",
           action: () => window.open('tel:+254712345678'),
           requiresConfirmation: true
         };
@@ -70,7 +70,7 @@ export const useVoiceCommands = () => {
         
       case 'appointment':
         return {
-          response: "Your next appointment is a telehealth checkup with Dr. Sarah Johnson on December 15th at 10 AM. Would you like me to remind you 1 hour before?",
+          response: "Your next appointment is a telehealth checkup with Dr. Eliza Keith on December 15th at 10 AM. Would you like me to remind you 1 hour before?",
           action: () => navigate('/mother-dashboard/appointments'),
           isInfo: true
         };

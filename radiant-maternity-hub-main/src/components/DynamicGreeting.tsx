@@ -13,7 +13,7 @@ const motivationalPhrases = [
   "Your journey is beautiful 💖",
 ];
 
-export const DynamicGreeting = ({ userName = "Sarah" }: DynamicGreetingProps) => {
+export const DynamicGreeting = ({ userName = "Eliza" }: DynamicGreetingProps) => {
   const [greeting, setGreeting] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [typedText, setTypedText] = useState("");

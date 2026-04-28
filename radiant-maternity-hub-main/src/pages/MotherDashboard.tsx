@@ -188,8 +188,8 @@ export default function MotherDashboard() {
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-background" />
                 </div>
                 <div className="flex flex-col flex-1 overflow-hidden">
-                  <span className="text-sm font-bold text-white truncate">Sarah Johnson</span>
-                  <span className="text-xs text-white/50 truncate">sarah@example.com</span>
+                  <span className="text-sm font-bold text-white truncate">Eliza Keith</span>
+                  <span className="text-xs text-white/50 truncate">eliza@example.com</span>
                 </div>
               </button>
             </DropdownMenuTrigger>
@@ -214,7 +214,7 @@ export default function MotherDashboard() {
           </div>
           
           <div className="hidden md:flex flex-col justify-center">
-            <span className="text-lg font-medium">Good Evening, Sarah ✨</span>
+            <span className="text-lg font-medium">Good Evening, Eliza ✨</span>
             <span key={messageIndex} className="text-xs text-primary font-medium animate-fade-in-up">
               {SUPPORTIVE_MESSAGES[messageIndex]}
             </span>
@@ -291,7 +291,7 @@ export default function MotherDashboard() {
             
             {activeTab === "overview" && (
               <div className="space-y-6">
-                <DynamicGreeting userName="Sarah" />
+                <DynamicGreeting userName="Eliza" />
                 
                 <div className="grid grid-cols-1 gap-8">
                   {/* Full Width: Pregnancy Progress */}
@@ -428,7 +428,7 @@ export default function MotherDashboard() {
                         </div>
                         <div>
                           <h4 className="font-bold text-lg">Telehealth Checkup</h4>
-                          <p className="text-white/70 text-sm">Dr. Sarah Johnson • Routine check</p>
+                          <p className="text-white/70 text-sm">Dr. Eliza Keith • Routine check</p>
                           <p className="text-primary text-sm font-medium mt-1">Today, 2:00 PM</p>
                         </div>
                       </div>
@@ -519,7 +519,7 @@ export default function MotherDashboard() {
                             <div className="w-12 h-12 rounded-full bg-primary/30 flex items-center justify-center text-xl">🤰</div>
                             <div>
                               <h4 className="font-bold flex items-center gap-2">3rd Trimester Mamas <span className="w-2 h-2 rounded-full bg-green-500"></span></h4>
-                              <p className="text-sm text-white/70">Sarah J: Does anyone else feel like... </p>
+                              <p className="text-sm text-white/70">Eliza J: Does anyone else feel like... </p>
                             </div>
                           </div>
                           <div className="text-right">

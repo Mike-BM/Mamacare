@@ -63,7 +63,7 @@ export default function BabaDashboard() {
                 <span className="text-sm text-white/80">Next Appointment</span>
                 <span className="text-sm font-semibold flex items-center gap-1 text-secondary"><Calendar className="w-4 h-4" /> Tomorrow, 2 PM</span>
               </div>
-              <p className="text-xs text-white/50 text-center pt-2">Health metrics are set to read-only by Sarah</p>
+              <p className="text-xs text-white/50 text-center pt-2">Health metrics are set to read-only by Eliza</p>
             </div>
           </Card>
         </div>
@@ -91,12 +91,12 @@ export default function BabaDashboard() {
               How to Help Today
             </h3>
             <div className="space-y-4 text-sm text-white/80">
-              <p>💡 Sarah mentioned she's having trouble sleeping. Suggest a back massage before bed.</p>
+              <p>💡 Eliza mentioned she's having trouble sleeping. Suggest a back massage before bed.</p>
               <p>💧 Ensure she drinks at least 8 glasses of water today.</p>
               <p>🎵 Play some calming music; the baby will react to it!</p>
             </div>
             <Button className="w-full mt-6 bg-tertiary hover:bg-tertiary/90 text-white shadow-[0_0_15px_rgba(255,160,122,0.4)]">
-              Message Sarah <ArrowRight className="w-4 h-4 ml-2" />
+              Message Eliza <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Card>
         </div>
