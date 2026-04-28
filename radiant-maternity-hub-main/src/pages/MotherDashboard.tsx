@@ -465,37 +465,37 @@ export default function MotherDashboard() {
                     <Badge variant="outline" className="text-white/70 cursor-pointer hover:bg-white/10">Missed</Badge>
                   </div>
                   <div className="space-y-4">
-                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group">
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                          <Video className="w-6 h-6 text-primary" />
+                        <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                          <Video className="w-7 h-7 text-primary" />
                         </div>
-                        <div>
-                          <h4 className="font-bold text-lg">Telehealth Checkup</h4>
-                          <p className="text-white/70 text-sm">Dr. Eliza Keith • Routine check</p>
-                          <p className="text-primary text-sm font-medium mt-1">Today, 2:00 PM</p>
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-xl text-white">Telehealth Checkup</h4>
+                          <p className="text-white/60 text-sm font-medium">Dr. Eliza Keith • Routine check</p>
+                          <p className="text-primary text-sm font-bold mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md">Today, 2:00 PM</p>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button className="bg-primary hover:bg-primary/90 text-white">Join Call</Button>
-                        <Button variant="outline" className="border-white/20"><Car className="w-4 h-4 mr-2" /> Book MamaRide</Button>
-                        <Button variant="outline" className="border-white/20">Reschedule</Button>
+                      <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                        <Button className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl">Join Call</Button>
+                        <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5 whitespace-nowrap"><Car className="w-4 h-4 mr-2" /> Book MamaRide</Button>
+                        <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
                       </div>
                     </div>
-                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group">
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
-                          <Activity className="w-6 h-6 text-secondary" />
+                        <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                          <Activity className="w-7 h-7 text-secondary" />
                         </div>
-                        <div>
-                          <h4 className="font-bold text-lg">Detailed Ultrasound</h4>
-                          <p className="text-white/70 text-sm">Dr. Emily Chen • Imaging Dept</p>
-                          <p className="text-secondary text-sm font-medium mt-1">Next Week, Tue 10:00 AM</p>
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-xl text-white">Detailed Ultrasound</h4>
+                          <p className="text-white/60 text-sm font-medium">Dr. Emily Chen • Imaging Dept</p>
+                          <p className="text-secondary text-sm font-bold mt-1 bg-secondary/10 inline-block px-2 py-0.5 rounded-md">Next Week, Tue 10:00 AM</p>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" className="border-white/20">Prep Instructions</Button>
-                        <Button variant="outline" className="border-white/20 text-white/50">Reschedule</Button>
+                      <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                        <Button variant="outline" className="border-white/20 h-11 px-6 rounded-xl hover:bg-white/5 whitespace-nowrap">Prep Instructions</Button>
+                        <Button variant="outline" className="border-white/20 text-white/50 h-11 px-6 rounded-xl hover:bg-white/5">Reschedule</Button>
                       </div>
                     </div>
                   </div>
@@ -588,20 +588,24 @@ export default function MotherDashboard() {
                     <Card className="p-6 glass-card border-white/10">
                       <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-tertiary" /> Community Pulse</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-tertiary/50 transition-colors cursor-pointer">
-                          <span className="text-tertiary text-sm font-bold">#ThirdTrimesterSleep</span>
-                          <p className="text-sm text-white/80 mt-2 mb-3">Has anyone found a good pregnancy pillow that actually supports your back?</p>
-                          <div className="flex items-center justify-between text-xs text-white/50">
+                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 hover:border-tertiary/50 transition-all cursor-pointer flex flex-col justify-between h-[180px] group">
+                          <div>
+                            <span className="text-tertiary text-xs font-black uppercase tracking-wider">#ThirdTrimesterSleep</span>
+                            <p className="text-sm text-white/80 mt-3 leading-relaxed line-clamp-3 italic">"Has anyone found a good pregnancy pillow that actually supports your back?"</p>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider pt-4 border-t border-white/5 mt-auto">
                             <span>12 mamas discussing</span>
-                            <span>Join →</span>
+                            <span className="text-tertiary group-hover:translate-x-1 transition-transform">Join →</span>
                           </div>
                         </div>
-                        <div className="bg-white/5 p-4 rounded-xl border border-white/10 hover:border-tertiary/50 transition-colors cursor-pointer">
-                          <span className="text-tertiary text-sm font-bold">#HospitalBag</span>
-                          <p className="text-sm text-white/80 mt-2 mb-3">What are the absolute essentials you packed for delivery?</p>
-                          <div className="flex items-center justify-between text-xs text-white/50">
+                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 hover:border-tertiary/50 transition-all cursor-pointer flex flex-col justify-between h-[180px] group">
+                          <div>
+                            <span className="text-tertiary text-xs font-black uppercase tracking-wider">#HospitalBag</span>
+                            <p className="text-sm text-white/80 mt-3 leading-relaxed line-clamp-3 italic">"What are the absolute essentials you packed for delivery?"</p>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider pt-4 border-t border-white/5 mt-auto">
                             <span>45 mamas discussing</span>
-                            <span>Join →</span>
+                            <span className="text-tertiary group-hover:translate-x-1 transition-transform">Join →</span>
                           </div>
                         </div>
                       </div>
