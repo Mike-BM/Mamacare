@@ -116,24 +116,21 @@ export default function MotherDashboard() {
           </h1>
         </div>
 
-        {/* Quick Stats Mini */}
-        <div className="mb-8 space-y-4">
-          <div className="bg-white/5 p-3 rounded-xl border border-white/10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">24</div>
-            <div>
-              <p className="text-sm font-semibold text-white/90">Weeks Pregnant</p>
-              <p className="text-xs text-white/50">112 days to go!</p>
-            </div>
+        {/* Quick Stats Mini - More Subtle */}
+        <div className="mb-8 px-2">
+          <div className="flex items-center justify-between text-[10px] text-white/40 uppercase tracking-widest mb-3">
+            <span>Vital Signs</span>
+            <span>Updated 2 days ago</span>
           </div>
-          
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-white/5 p-2 rounded-lg border border-white/10 text-center">
-              <p className="text-xs text-white/50 mb-1">Weight</p>
-              <p className="text-sm font-semibold">68 kg</p>
+          <div className="flex items-center gap-4 text-sm text-white/80">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/40 uppercase">Weight</span>
+              <span className="font-bold">68kg</span>
             </div>
-            <div className="bg-white/5 p-2 rounded-lg border border-white/10 text-center">
-              <p className="text-xs text-white/50 mb-1">BP</p>
-              <p className="text-sm font-semibold">110/70</p>
+            <div className="w-px h-6 bg-white/10"></div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-white/40 uppercase">BP</span>
+              <span className="font-bold">110/70</span>
             </div>
           </div>
         </div>
@@ -156,8 +153,20 @@ export default function MotherDashboard() {
           ))}
         </nav>
 
+        {/* Baba Mode Invite */}
+        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-br from-secondary/10 to-primary/5 border border-white/10">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center">
+              <QrCode className="w-4 h-4 text-secondary" />
+            </div>
+            <h4 className="text-xs font-bold text-white">Baba Mode</h4>
+          </div>
+          <p className="text-[10px] text-white/60 mb-3 leading-relaxed">Inviting your partner helps them track baby's growth and support you better.</p>
+          <Button variant="glass" size="sm" className="w-full h-7 text-[10px] rounded-lg">Invite Partner</Button>
+        </div>
+
         {/* Daily Tasks inside Sidebar */}
-        <div className="mt-auto mb-6 space-y-3">
+        <div className="mb-6 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-semibold text-white/70 uppercase tracking-wider">Daily Tasks</h4>
             <span className="text-xs text-primary">{completedTasks}/{tasks.length}</span>
@@ -247,7 +256,13 @@ export default function MotherDashboard() {
               const isActive = activeTab === t.id;
               
               let previewContent = null;
-              if (t.id === 'appointments') previewContent = (
+              if (t.id === 'overview') previewContent = (
+                <div className="flex flex-col w-full mt-1.5"><span className="text-[10px] text-primary font-bold">60% complete</span><span className="text-[10px] text-white/50 truncate">Next: Viability Milestone</span></div>
+              );
+              else if (t.id === 'health') previewContent = (
+                <div className="flex flex-col w-full mt-1.5"><span className="text-[10px] text-green-400 font-bold">Last log: Yesterday</span><span className="text-[10px] text-white/50 flex items-center gap-1">Vitals stable <Activity className="w-2 h-2" /></span></div>
+              );
+              else if (t.id === 'appointments') previewContent = (
                 <div className="flex items-center justify-between w-full mt-1.5"><span className="text-[10px] text-white/70">Today, 2:00 PM</span><Badge className="h-4 text-[8px] px-1.5 py-0 bg-primary hover:bg-primary/90 transition-colors animate-pulse">Join Call</Badge></div>
               );
               else if (t.id === 'ai') previewContent = (
@@ -293,64 +308,93 @@ export default function MotherDashboard() {
               <div className="space-y-6">
                 <DynamicGreeting userName="Eliza" />
                 
-                <div className="grid grid-cols-1 gap-8">
-                  {/* Full Width: Pregnancy Progress */}
-                  <div className="w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left: Pregnancy Progress (2/3 width) */}
+                  <div className="lg:col-span-2">
                     <PregnancyProgressTabs currentWeek={24} totalWeeks={40} />
                   </div>
 
-                  {/* Bottom: Quick Access Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                    {/* AI Assistant Preview */}
-                    <Card className="p-6 glass-card border-white/10 hover:border-primary/50 transition-colors cursor-pointer group flex flex-col shadow-lg" onClick={() => handleTabChange('ai')}>
-                      <div className="flex items-center gap-4 mb-5">
-                        <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <Bot className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white/90 text-lg">Dr. Nneka AI</h4>
-                          <p className="text-sm text-white/50">Your 24/7 Virtual Midwife</p>
-                        </div>
+                  {/* Right: Next Appointment Preview (1/3 width) */}
+                  <Card className="p-6 glass-card border-white/10 hover:border-primary/50 transition-colors cursor-pointer group flex flex-col shadow-lg" onClick={() => handleTabChange('appointments')}>
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <Calendar className="w-6 h-6 text-primary" />
                       </div>
-                      <div className="bg-white/5 p-5 rounded-xl border border-white/10 flex-1 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
-                        <p className="text-sm text-white/80 relative z-10 italic leading-relaxed">"Feeling fatigued? Try replacing standard greens with nutrient-rich Sukuma Wiki today."</p>
-                        <div className="mt-5 flex gap-2 relative z-10">
-                          <Badge variant="outline" className="border-white/20 hover:bg-white/10 text-xs py-1 px-3">Headache</Badge>
-                          <Badge variant="outline" className="border-white/20 hover:bg-white/10 text-xs py-1 px-3">Cramps</Badge>
-                        </div>
+                      <div>
+                        <h4 className="font-bold text-white/90">Next Appointment</h4>
+                        <p className="text-xs text-white/50 italic">Telehealth Checkup</p>
                       </div>
-                    </Card>
+                    </div>
+                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex-1 flex flex-col justify-center">
+                      <p className="text-lg font-black text-white mb-1">Today, 2:00 PM</p>
+                      <p className="text-sm text-white/70 mb-4">Dr. Eliza Keith • Routine check</p>
+                      <Button size="sm" variant="hero" className="w-full h-8 text-xs animate-pulse">Join Call Now</Button>
+                    </div>
+                  </Card>
+                </div>
 
-                    {/* Community Pulse Preview */}
-                    <Card className="p-6 glass-card border-white/10 hover:border-tertiary/50 transition-colors cursor-pointer group flex flex-col shadow-lg" onClick={() => handleTabChange('community')}>
-                       <div className="flex items-center gap-4 mb-5">
-                        <div className="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <TrendingUp className="w-6 h-6 text-tertiary" />
+                {/* Row 2: Daily Tasks (Full Width) */}
+                <Card className="p-4 glass-card border-white/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                      <h4 className="font-bold text-white/90">Daily Tasks ({completedTasks}/{tasks.length})</h4>
+                    </div>
+                    <div className="w-48 h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary transition-all duration-500" style={{ width: `${taskProgress}%` }}></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {tasks.map(task => (
+                      <div 
+                        key={task.id} 
+                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${task.done ? 'bg-primary/10 border-primary/20 opacity-70' : 'bg-white/5 border-white/10 hover:bg-white/15'}`}
+                        onClick={() => setTasks(tasks.map(t => t.id === task.id ? {...t, done: !t.done} : t))}
+                      >
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${task.done ? 'bg-primary border-primary' : 'border-white/30'}`}>
+                          {task.done && <CheckCircle2 className="w-3 h-3 text-white" />}
                         </div>
-                        <div>
-                          <h4 className="font-bold text-white/90 text-lg">Community Pulse</h4>
-                          <p className="text-sm text-white/50">Connect with local mothers</p>
-                        </div>
+                        <span className={`text-sm ${task.done ? 'text-white/50 line-through' : 'text-white/90 font-medium'}`}>{task.label}</span>
                       </div>
-                      <div className="bg-white/5 p-5 rounded-xl border border-white/10 flex-1 flex flex-col justify-between">
-                        <div>
-                          <span className="text-tertiary text-xs font-black uppercase tracking-wider">Trending Topic</span>
-                          <p className="text-sm text-white/90 mt-2 font-medium line-clamp-2">#ThirdTrimesterSleep is currently trending in your groups.</p>
+                    ))}
+                  </div>
+                </Card>
+
+                {/* Row 3: Community Pulse (Scrollable Cards) */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-tertiary" />
+                      <h4 className="font-bold text-white/90">Community Pulse</h4>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-xs text-tertiary font-bold hover:bg-tertiary/10" onClick={() => handleTabChange('community')}>View All Discussions →</Button>
+                  </div>
+                  
+                  <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x">
+                    {[
+                      { id: 1, topic: "#ThirdTrimesterSleep", mamas: 12, text: "I've found that using a C-shaped pillow helps with the back pain. Anyone else struggling with side-sleeping positions lately?", trending: true },
+                      { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
+                      { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
+                    ].map(topic => (
+                      <Card key={topic.id} className="min-w-[280px] md:min-w-[320px] p-5 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col group h-[180px]">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
+                          {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
                         </div>
-                        <div className="mt-5 flex items-center justify-between">
-                          <div className="flex -space-x-2">
-                            {[1, 2, 3].map(i => (
-                              <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-white/10 flex items-center justify-center shadow-sm">
-                                <span className="text-[10px]">🤰</span>
-                              </div>
-                            ))}
-                            <div className="w-8 h-8 rounded-full border-2 border-background bg-white/10 flex items-center justify-center text-[10px] text-white/70 shadow-sm font-bold">+12</div>
+                        <p className="text-sm text-white/80 line-clamp-3 mb-auto italic leading-relaxed">"{topic.text}"</p>
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center gap-2">
+                            <div className="flex -space-x-2">
+                              {[1, 2].map(i => (
+                                <div key={i} className="w-6 h-6 rounded-full border-2 border-background bg-white/10 flex items-center justify-center text-[8px] shadow-sm">🤰</div>
+                              ))}
+                            </div>
+                            <span className="text-[10px] text-white/50 font-bold">{topic.mamas} mamas discussing</span>
                           </div>
-                          <span className="text-xs text-tertiary font-bold hover:underline">Join Conversation →</span>
+                          <span className="text-xs text-tertiary font-bold group-hover:translate-x-1 transition-transform">Join →</span>
                         </div>
-                      </div>
-                    </Card>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               </div>

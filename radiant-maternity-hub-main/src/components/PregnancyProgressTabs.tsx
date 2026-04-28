@@ -44,9 +44,23 @@ export const PregnancyProgressTabs = ({ currentWeek, totalWeeks = 40 }: Pregnanc
             <span>Due Date</span>
           </div>
 
-          <p className="text-lg md:text-xl font-medium text-white/90">
-            "Your baby is the size of an ear of corn 🌽"
-          </p>
+          <div className="space-y-1">
+            <p className="text-lg md:text-xl font-medium text-white/90">
+              "Your baby is the size of an ear of corn 🌽"
+            </p>
+            <p className="text-sm text-white/60 italic">
+              Baby's lungs are developing — they can hear your voice!
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button size="sm" variant="hero" className="rounded-full h-8 px-4 text-xs">
+              This Week's Tips
+            </Button>
+            <Button size="sm" variant="glass" className="rounded-full h-8 px-4 text-xs">
+              Log Symptoms
+            </Button>
+          </div>
         </div>
 
         <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 shrink-0 self-center md:self-end">
