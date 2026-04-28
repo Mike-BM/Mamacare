@@ -11,13 +11,13 @@ const HospitalDashboard = () => {
 
   const appointments = [
     { id: 1, patient: "Eliza Keith", time: "10:00 AM", status: "pending", type: "Checkup" },
-    { id: 2, patient: "Maria Garcia", time: "11:30 AM", status: "confirmed", type: "Ultrasound" },
-    { id: 3, patient: "Emily Chen", time: "2:00 PM", status: "pending", type: "Consultation" },
+    { id: 2, patient: "Stacy Mutheu", time: "11:30 AM", status: "confirmed", type: "Ultrasound" },
+    { id: 3, patient: "Emily Brian", time: "2:00 PM", status: "pending", type: "Consultation" },
   ];
 
   const sosAlerts = [
-    { id: 1, patient: "Jane Smith", severity: "high", time: "5 mins ago" },
-    { id: 2, patient: "Lisa Brown", severity: "medium", time: "12 mins ago" },
+    { id: 1, patient: "Jane John", severity: "high", time: "5 mins ago" },
+    { id: 2, patient: "Lisa Wanjiru", severity: "medium", time: "12 mins ago" },
   ];
 
   return (
