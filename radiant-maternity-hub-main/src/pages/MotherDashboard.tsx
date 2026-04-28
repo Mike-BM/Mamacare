@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { PaywallOverlay } from "@/components/PaywallOverlay";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: Home },
@@ -39,6 +40,30 @@ export default function MotherDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLiteMode, setIsLiteMode] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isPremium, setIsPremium] = useState(false);
+  const [paywallConfig, setPaywallConfig] = useState<{
+    isOpen: boolean;
+    featureName: string;
+    featureValue: string;
+    perks: string[];
+    price: number;
+    onSuccess: () => void;
+  }>({
+    isOpen: false,
+    featureName: "",
+    featureValue: "",
+    perks: [],
+    price: 7,
+    onSuccess: () => {}
+  });
+
+  const triggerPaywall = (config: Partial<typeof paywallConfig>) => {
+    setPaywallConfig(prev => ({
+      ...prev,
+      ...config,
+      isOpen: true
+    }));
+  };
 
   const SUPPORTIVE_MESSAGES = [
     "You're doing amazing, Mama 💕",
@@ -162,7 +187,24 @@ export default function MotherDashboard() {
             <h4 className="text-xs font-bold text-white">Baba Mode</h4>
           </div>
           <p className="text-[10px] text-white/60 mb-3 leading-relaxed">Inviting your partner helps them track baby's growth and support you better.</p>
-          <Button variant="glass" size="sm" className="w-full h-7 text-[10px] rounded-lg">Invite Partner</Button>
+          <Button 
+            variant="glass" 
+            size="sm" 
+            className="w-full h-7 text-[10px] rounded-lg"
+            onClick={() => {
+              if (!isPremium) {
+                triggerPaywall({
+                  featureName: "Baba Mode",
+                  featureValue: "Share this journey together",
+                  perks: ["✓ Partner sync", "✓ Shared countdown", "✓ Daily support tips for him", "✓ Private family chat"],
+                  price: 7,
+                  onSuccess: () => setIsPremium(true)
+                });
+              }
+            }}
+          >
+            Invite Partner
+          </Button>
         </div>
 
         {/* Daily Tasks inside Sidebar */}
@@ -328,7 +370,25 @@ export default function MotherDashboard() {
                     <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex-1 flex flex-col justify-center">
                       <p className="text-lg font-black text-white mb-1">Today, 2:00 PM</p>
                       <p className="text-sm text-white/70 mb-4">Dr. Eliza Keith • Routine check</p>
-                      <Button size="sm" variant="hero" className="w-full h-8 text-xs animate-pulse">Join Call Now</Button>
+                      <Button 
+                        size="sm" 
+                        variant="hero" 
+                        className="w-full h-8 text-xs animate-pulse"
+                        onClick={(e) => {
+                          if (!isPremium) {
+                            e.stopPropagation();
+                            triggerPaywall({
+                              featureName: "Telehealth Video Call",
+                              featureValue: "See your doctor from home",
+                              perks: ["✓ 3 video calls/month", "✓ Priority booking", "✓ Secure data storage", "✓ Direct chat with doctor"],
+                              price: 7,
+                              onSuccess: () => setIsPremium(true)
+                            });
+                          }
+                        }}
+                      >
+                        Join Call Now
+                      </Button>
                     </div>
                   </Card>
                 </div>
@@ -415,7 +475,24 @@ export default function MotherDashboard() {
                           <Activity className="w-5 h-5 text-green-400" />
                           <h4 className="font-semibold">Apple Watch</h4>
                         </div>
-                        <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">Connected</Badge>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 h-7 text-[10px]"
+                          onClick={() => {
+                            if (!isPremium) {
+                              triggerPaywall({
+                                featureName: "Wearable Sync",
+                                featureValue: "Track baby's heartbeat & your health",
+                                perks: ["✓ Real-time sync", "✓ Automatic health logs", "✓ Abnormal heart rate alerts", "✓ Sleep quality tracking"],
+                                price: 7,
+                                onSuccess: () => setIsPremium(true)
+                              });
+                            }
+                          }}
+                        >
+                          Connect Device
+                        </Button>
                       </div>
                       <div className="flex items-end justify-between">
                         <div>
@@ -477,7 +554,22 @@ export default function MotherDashboard() {
                         </div>
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                        <Button className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl">Join Call</Button>
+                        <Button 
+                          className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl"
+                          onClick={() => {
+                            if (!isPremium) {
+                              triggerPaywall({
+                                featureName: "Telehealth Video Call",
+                                featureValue: "See your doctor from home",
+                                perks: ["✓ 3 video calls/month", "✓ Priority booking", "✓ Secure data storage", "✓ Direct chat with doctor"],
+                                price: 7,
+                                onSuccess: () => setIsPremium(true)
+                              });
+                            }
+                          }}
+                        >
+                          Join Call
+                        </Button>
                         <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5 whitespace-nowrap"><Car className="w-4 h-4 mr-2" /> Book MamaRide</Button>
                         <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
                       </div>
@@ -518,7 +610,29 @@ export default function MotherDashboard() {
                     </div>
                     <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">Online</Badge>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-0">
+                  <div className="flex-1 overflow-y-auto p-0 relative">
+                    {!isPremium && (
+                      <div className="absolute inset-0 z-10 bg-background/20 backdrop-blur-sm flex items-center justify-center p-6">
+                        <div className="glass-card p-6 border border-white/20 rounded-2xl text-center max-w-sm">
+                          <Bot className="w-12 h-12 text-primary mx-auto mb-4 animate-bounce" />
+                          <h4 className="text-lg font-bold mb-2">Dr. Nneka is here 24/7</h4>
+                          <p className="text-sm text-white/70 mb-6">You've used your 5 free messages for today. Unlock unlimited chat to get instant support anytime.</p>
+                          <Button 
+                            className="w-full bg-primary hover:bg-primary/90 h-12 font-bold rounded-xl"
+                            onClick={() => triggerPaywall({
+                              featureName: "Unlimited AI Chat",
+                              featureValue: "Dr. Nneka is here 24/7",
+                              perks: ["✓ Unlimited AI chat", "✓ Real-time risk assessment", "✓ Personalized nutrition plans", "✓ Priority support"],
+                              price: 7,
+                              onSuccess: () => setIsPremium(true)
+                            })}
+                          >
+                            Unlock Unlimited Chat for $7/mo
+                          </Button>
+                          <button className="text-xs text-white/40 mt-4 hover:text-white" onClick={() => setActiveTab('overview')}>Maybe tomorrow</button>
+                        </div>
+                      </div>
+                    )}
                     <AIChat />
                   </div>
                 </div>
@@ -553,8 +667,24 @@ export default function MotherDashboard() {
                           <Users className="w-6 h-6 text-primary" /> Group Chat Rooms
                         </h3>
                         <div className="flex gap-2">
-                          <Badge className="bg-white/10 hover:bg-white/20 cursor-pointer">My Groups</Badge>
-                          <Badge variant="outline" className="border-white/10 hover:bg-white/10 cursor-pointer">Browse</Badge>
+                          <Button 
+                            size="sm" 
+                            className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-lg"
+                            onClick={() => {
+                              if (!isPremium) {
+                                triggerPaywall({
+                                  featureName: "Community Posting",
+                                  featureValue: "Join the conversation with 2,400+ mamas",
+                                  perks: ["✓ Post in community", "✓ Get replies & support", "✓ Join trimester groups", "✓ Anonymous mode"],
+                                  price: 3,
+                                  onSuccess: () => setIsPremium(true)
+                                });
+                              }
+                            }}
+                          >
+                            + New Post
+                          </Button>
+                          <Badge className="bg-white/10 hover:bg-white/20 cursor-pointer h-9 px-3 flex items-center justify-center">My Groups</Badge>
                         </div>
                       </div>
                       <div className="space-y-3">
@@ -740,6 +870,16 @@ export default function MotherDashboard() {
       </div>
       <SymptomTriageBubble />
       <VoiceInterface />
+      
+      <PaywallOverlay 
+        isOpen={paywallConfig.isOpen}
+        onClose={() => setPaywallConfig(prev => ({ ...prev, isOpen: false }))}
+        onSuccess={paywallConfig.onSuccess}
+        featureName={paywallConfig.featureName}
+        featureValue={paywallConfig.featureValue}
+        perks={paywallConfig.perks}
+        price={paywallConfig.price}
+      />
     </div>
   );
 }
