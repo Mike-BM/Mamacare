@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Volume2, VolumeX } from "lucide-react";
+import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users } from "lucide-react";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import africanBaby1 from "@/assets/african-baby-1.jpg";
@@ -152,16 +152,42 @@ const Landing = () => {
               </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <button
-                  onClick={() => navigate("/register")}
-                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 text-center">Quick Access Dashboards</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/mother-dashboard")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
                 >
-                  Register now
-                </button>
-              </p>
+                  <Heart className="w-3 h-3 text-primary" /> Mother
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/hospital-dashboard")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                >
+                  <Building2 className="w-3 h-3 text-secondary" /> Hospital
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/admin-dashboard")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                >
+                  <ShieldCheck className="w-3 h-3 text-accent" /> Admin
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/baba")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                >
+                  <Users className="w-3 h-3 text-tertiary" /> Baba
+                </Button>
+              </div>
             </div>
           </div>
         </div>
