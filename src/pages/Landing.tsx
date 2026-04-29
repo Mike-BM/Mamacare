@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Volume2, VolumeX } from "lucide-react";
+import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users } from "lucide-react";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import africanBaby1 from "@/assets/african-baby-1.jpg";
@@ -74,22 +74,54 @@ const Landing = () => {
         )}
       </button>
 
-      {/* Navigation Links */}
-      <div className="fixed top-6 left-6 z-50 flex gap-3">
-        <Button
-          variant="glass"
-          onClick={() => navigate("/about")}
-          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
-        >
-          About
-        </Button>
-        <Button
-          variant="glass"
-          onClick={() => navigate("/features")}
-          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
-        >
-          Features
-        </Button>
+      {/* Top Navigation Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 p-6 flex items-center justify-between pointer-events-none">
+        <div className="flex gap-3 pointer-events-auto">
+          <Button
+            variant="glass"
+            onClick={() => navigate("/about")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold"
+          >
+            About
+          </Button>
+          <Button
+            variant="glass"
+            onClick={() => navigate("/features")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold"
+          >
+            Features
+          </Button>
+          <div className="w-px h-10 bg-white/10 mx-2" />
+          {/* Quick Access Dashboards at the top */}
+          <Button 
+            variant="glass" 
+            onClick={() => navigate("/mother-dashboard")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
+          >
+            <Heart className="w-3.5 h-3.5 text-primary" /> Mother
+          </Button>
+          <Button 
+            variant="glass" 
+            onClick={() => navigate("/hospital-dashboard")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
+          >
+            <Building2 className="w-3.5 h-3.5 text-secondary" /> Hospital
+          </Button>
+          <Button 
+            variant="glass" 
+            onClick={() => navigate("/admin-dashboard")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-accent" /> Admin
+          </Button>
+          <Button 
+            variant="glass" 
+            onClick={() => navigate("/baba")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
+          >
+            <Users className="w-3.5 h-3.5 text-tertiary" /> Baba
+          </Button>
+        </div>
       </div>
 
       {/* Carousel Background with zoom animation */}
