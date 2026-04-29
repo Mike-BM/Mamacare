@@ -30,7 +30,7 @@ const healthData = [
 // Mock appointments data
 const appointments = [
   { date: "Dec 15, 2026", time: "10:00 AM", doctor: "Dr. Emily Chen", type: "Regular Checkup", status: "upcoming" },
-  { date: "Dec 22, 2026", time: "2:00 PM", doctor: "Dr. Stacy Johnson", type: "Ultrasound", status: "upcoming" },
+  { date: "Dec 22, 2026", time: "2:00 PM", doctor: "Dr. Jane Keith", type: "Ultrasound", status: "upcoming" },
   { date: "Nov 20, 2026", time: "11:00 AM", doctor: "Dr. Emily Chen", type: "Blood Test", status: "completed" },
 ];
 

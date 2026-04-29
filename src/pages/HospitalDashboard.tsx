@@ -11,7 +11,7 @@ const HospitalDashboard = () => {
   const navigate = useNavigate();
 
   const appointments = [
-    { id: 1, patient: "Sarah Johnson", time: "10:00 AM", status: "pending", type: "Checkup", phone: "+234 801 234 5678" },
+    { id: 1, patient: "Stacy Mutheu", time: "10:00 AM", status: "pending", type: "Checkup", phone: "+234 801 234 5678" },
     { id: 2, patient: "Maria Garcia", time: "11:30 AM", status: "confirmed", type: "Ultrasound", phone: "+234 802 345 6789" },
     { id: 3, patient: "Emily Chen", time: "2:00 PM", status: "pending", type: "Consultation", phone: "+234 803 456 7890" },
   ];
