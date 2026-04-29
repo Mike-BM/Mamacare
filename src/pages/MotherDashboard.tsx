@@ -33,7 +33,6 @@ const TABS = [
   { id: "ai", label: "AI", icon: Bot },
   { id: "health", label: "Health", icon: Activity },
   { id: "awards", label: "Awards", icon: Trophy },
-  { id: "sounds", label: "Sounds", icon: Music },
   { id: "community", label: "Community", icon: Users },
   { id: "wallet", label: "Wallet", icon: Wallet },
   { id: "settings", label: "Settings", icon: Settings },
@@ -80,43 +79,45 @@ const MotherDashboard = () => {
       
       {/* Top Header */}
       <header className="border-b border-white/5 backdrop-blur-2xl bg-black/40 sticky top-0 z-50">
-        <div className="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4 group cursor-pointer" onClick={() => navigate("/")}>
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-500">
-              <Heart className="w-6 h-6 text-primary animate-pulse" fill="currentColor" />
+        {/* Minimalist Top Tab Bar (Now at the absolute top) */}
+        <div className="border-b border-white/5">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="flex gap-1 overflow-x-auto hide-scrollbar py-2">
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => handleTabChange(t.id)}
+                  className={`px-6 py-2 rounded-full text-[11px] font-black uppercase tracking-wider transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
+                    activeTab === t.id 
+                      ? "bg-white/10 text-white shadow-lg shadow-white/5" 
+                      : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                  }`}
+                >
+                  <t.icon className={`w-3.5 h-3.5 ${activeTab === t.id ? 'text-primary' : ''}`} />
+                  {t.label}
+                </button>
+              ))}
             </div>
-            <h1 className="text-2xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-tight">
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => navigate("/")}>
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform duration-500">
+              <Heart className="w-5 h-5 text-primary animate-pulse" fill="currentColor" />
+            </div>
+            <h1 className="text-xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent tracking-tight">
               MamaCare
             </h1>
           </div>
           
           <div className="flex items-center gap-4">
-            <Badge variant="outline" className="hidden sm:flex border-primary/20 bg-primary/5 text-primary font-bold px-3 py-1 uppercase tracking-widest text-[10px]">
-              Premium Member
+            <Badge variant="outline" className="hidden sm:flex border-primary/20 bg-primary/5 text-primary font-bold px-2 py-0.5 uppercase tracking-widest text-[9px]">
+              Premium
             </Badge>
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="hover:bg-destructive/10 hover:text-destructive rounded-xl transition-all">
-              <LogOut className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="hover:bg-destructive/10 hover:text-destructive rounded-lg transition-all w-8 h-8">
+              <LogOut className="w-4 h-4" />
             </Button>
-          </div>
-        </div>
-
-        {/* Minimalist Top Tab Bar (Matching Screenshot) */}
-        <div className="container mx-auto px-4 md:px-8 pb-1">
-          <div className="flex gap-1 overflow-x-auto hide-scrollbar py-2">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => handleTabChange(t.id)}
-                className={`px-6 py-2.5 rounded-full text-sm font-black transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
-                  activeTab === t.id 
-                    ? "bg-white/10 text-white shadow-lg shadow-white/5" 
-                    : "text-white/40 hover:text-white/70 hover:bg-white/5"
-                }`}
-              >
-                <t.icon className={`w-4 h-4 ${activeTab === t.id ? 'text-primary' : ''}`} />
-                {t.label}
-              </button>
-            ))}
           </div>
         </div>
       </header>
