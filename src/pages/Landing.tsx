@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users } from "lucide-react";
+import { Heart, Building2, ShieldCheck, Users } from "lucide-react";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import africanBaby1 from "@/assets/african-baby-1.jpg";
@@ -36,7 +36,6 @@ const Landing = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSoundOn, setIsSoundOn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,25 +53,7 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
-      {/* Ambient Background Audio */}
-      {isSoundOn && (
-        <audio autoPlay loop className="hidden">
-          <source src="/sounds/baby-laugh.mp3" type="audio/mpeg" />
-        </audio>
-      )}
 
-      {/* Sound Toggle Button */}
-      <button
-        onClick={() => setIsSoundOn(!isSoundOn)}
-        className="fixed top-6 right-6 z-50 backdrop-blur-xl bg-card/80 border border-border/50 rounded-full p-3 hover:bg-card transition-all duration-300 hover:scale-110 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
-        aria-label={isSoundOn ? "Mute sound" : "Unmute sound"}
-      >
-        {isSoundOn ? (
-          <Volume2 className="w-6 h-6 text-primary" />
-        ) : (
-          <VolumeX className="w-6 h-6 text-muted-foreground" />
-        )}
-      </button>
 
       {/* Top Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 p-6 flex items-center justify-between pointer-events-none">

@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
-import { AudioPlayer } from "@/components/AudioPlayer";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
 import { BabyDevelopment } from "@/components/BabyDevelopment";
