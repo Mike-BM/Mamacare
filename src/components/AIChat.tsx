@@ -26,72 +26,46 @@ export const AIChat = () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat-assistant`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            messages: [...messages, userMessage]
-          }),
-        }
-      );
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: updatedMessages,
+          language: 'en', // default
+          userId: (await supabase.auth.getUser()).data.user?.id
+        }),
+      });
 
-      if (!response.ok || !response.body) {
+      if (!response.ok) {
         throw new Error('Failed to get response');
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantContent = '';
+      const data = await response.json();
+      
+      if (data.message) {
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: data.message 
+        }]);
 
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
-            
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                assistantContent += content;
-                setMessages(prev => {
-                  const newMessages = [...prev];
-                  newMessages[newMessages.length - 1] = {
-                    role: 'assistant',
-                    content: assistantContent
-                  };
-                  return newMessages;
-                });
-              }
-            } catch (e) {
-              // Ignore parse errors
-            }
-          }
+        if (data.riskLevel && data.riskLevel !== 'low') {
+          // You could show a risk indicator here if needed
+          console.log(`Risk detected: ${data.riskLevel}`);
         }
       }
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
+        content: 'Sorry, I encountered an error. My dear, please ensure the backend server is running and your API keys are configured.'
       }]);
     } finally {
       setIsLoading(false);

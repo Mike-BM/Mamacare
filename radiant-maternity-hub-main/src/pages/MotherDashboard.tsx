@@ -350,73 +350,82 @@ export default function MotherDashboard() {
               <div className="space-y-6">
                 <DynamicGreeting userName="Eliza" />
                 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left: Pregnancy Progress (2/3 width) */}
-                  <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  {/* Left: Pregnancy Progress (60%) */}
+                  <div className="lg:col-span-3">
                     <PregnancyProgressTabs currentWeek={24} totalWeeks={40} />
                   </div>
 
-                  {/* Right: Next Appointment Preview (1/3 width) */}
-                  <Card className="p-6 glass-card border-white/10 hover:border-primary/50 transition-colors cursor-pointer group flex flex-col shadow-lg" onClick={() => handleTabChange('appointments')}>
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <Calendar className="w-6 h-6 text-primary" />
+                  {/* Right: Next Appointment Preview (40%) */}
+                  <div className="lg:col-span-2">
+                    <Card className="h-full p-6 glass-card border-white/10 hover:border-primary/50 transition-colors cursor-pointer group flex flex-col shadow-lg" onClick={() => handleTabChange('appointments')}>
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                          <Calendar className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-white/90">Next Appointment</h4>
+                          <p className="text-xs text-white/50 italic">Telehealth Checkup</p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-white/90">Next Appointment</h4>
-                        <p className="text-xs text-white/50 italic">Telehealth Checkup</p>
+                      <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex-1 flex flex-col justify-center">
+                        <p className="text-lg font-black text-white mb-1">Today, 2:00 PM</p>
+                        <p className="text-sm text-white/70 mb-6">Dr. Eliza Keith • Routine check</p>
+                        <Button 
+                          size="sm" 
+                          variant="hero" 
+                          className="w-full h-10 text-xs animate-pulse font-bold"
+                          onClick={(e) => {
+                            if (!isPremium) {
+                              e.stopPropagation();
+                              triggerPaywall({
+                                featureName: "Telehealth Video Call",
+                                featureValue: "See your doctor from home",
+                                perks: ["✓ 3 video calls/month", "✓ Priority booking", "✓ Secure data storage", "✓ Direct chat with doctor"],
+                                price: 7,
+                                onSuccess: () => setIsPremium(true)
+                              });
+                            }
+                          }}
+                        >
+                          Join Call Now
+                        </Button>
                       </div>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex-1 flex flex-col justify-center">
-                      <p className="text-lg font-black text-white mb-1">Today, 2:00 PM</p>
-                      <p className="text-sm text-white/70 mb-4">Dr. Eliza Keith • Routine check</p>
-                      <Button 
-                        size="sm" 
-                        variant="hero" 
-                        className="w-full h-8 text-xs animate-pulse"
-                        onClick={(e) => {
-                          if (!isPremium) {
-                            e.stopPropagation();
-                            triggerPaywall({
-                              featureName: "Telehealth Video Call",
-                              featureValue: "See your doctor from home",
-                              perks: ["✓ 3 video calls/month", "✓ Priority booking", "✓ Secure data storage", "✓ Direct chat with doctor"],
-                              price: 7,
-                              onSuccess: () => setIsPremium(true)
-                            });
-                          }
-                        }}
-                      >
-                        Join Call Now
-                      </Button>
-                    </div>
-                  </Card>
+                    </Card>
+                  </div>
                 </div>
 
-                {/* Row 2: Daily Tasks (Full Width) */}
-                <Card className="p-4 glass-card border-white/10">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-primary" />
-                      <h4 className="font-bold text-white/90">Daily Tasks ({completedTasks}/{tasks.length})</h4>
+                {/* Row 2: Daily Tasks (Full Width section - row layout) */}
+                <Card className="p-5 glass-card border-white/10">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white/90">Daily Tasks</h4>
+                        <p className="text-xs text-white/50">{completedTasks}/{tasks.length} Completed</p>
+                      </div>
                     </div>
-                    <div className="w-48 h-2 bg-white/10 rounded-full overflow-hidden">
+                    
+                    <div className="flex-1 max-w-md h-2 bg-white/10 rounded-full overflow-hidden mx-4">
                       <div className="h-full bg-primary transition-all duration-500" style={{ width: `${taskProgress}%` }}></div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {tasks.map(task => (
-                      <div 
-                        key={task.id} 
-                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${task.done ? 'bg-primary/10 border-primary/20 opacity-70' : 'bg-white/5 border-white/10 hover:bg-white/15'}`}
-                        onClick={() => setTasks(tasks.map(t => t.id === task.id ? {...t, done: !t.done} : t))}
-                      >
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${task.done ? 'bg-primary border-primary' : 'border-white/30'}`}>
-                          {task.done && <CheckCircle2 className="w-3 h-3 text-white" />}
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-[2]">
+                      {tasks.map(task => (
+                        <div 
+                          key={task.id} 
+                          className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl cursor-pointer transition-all border ${task.done ? 'bg-primary/10 border-primary/20 opacity-70' : 'bg-white/5 border-white/10 hover:bg-white/15'}`}
+                          onClick={() => setTasks(tasks.map(t => t.id === task.id ? {...t, done: !t.done} : t))}
+                        >
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${task.done ? 'bg-primary border-primary' : 'border-white/30'}`}>
+                            {task.done && <CheckCircle2 className="w-3 h-3 text-white" />}
+                          </div>
+                          <span className={`text-sm ${task.done ? 'text-white/50 line-through' : 'text-white/90 font-medium'}`}>{task.label}</span>
                         </div>
-                        <span className={`text-sm ${task.done ? 'text-white/50 line-through' : 'text-white/90 font-medium'}`}>{task.label}</span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </Card>
 
@@ -463,22 +472,25 @@ export default function MotherDashboard() {
             {activeTab === "health" && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold">Health Dashboard</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 space-y-6">
+                
+                {/* Top row: Band (60%) + Watch (40%) */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  <div className="lg:col-span-3">
                     <WearableMedicationWidgets />
-                    <MoodTracker />
                   </div>
-                  <div className="space-y-6">
-                    <Card className="p-5 glass-card border-white/10 hover:border-white/20 transition-all group">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <Activity className="w-5 h-5 text-green-400" />
-                          <h4 className="font-semibold">Apple Watch</h4>
+                  <div className="lg:col-span-2">
+                    <Card className="p-6 glass-card border-white/10 hover:border-white/20 transition-all group h-full flex flex-col justify-center">
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <Activity className="w-6 h-6 text-green-400" />
+                          </div>
+                          <h4 className="font-bold text-lg">Apple Watch</h4>
                         </div>
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 h-7 text-[10px]"
+                          className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 h-8 font-bold"
                           onClick={() => {
                             if (!isPremium) {
                               triggerPaywall({
@@ -494,38 +506,88 @@ export default function MotherDashboard() {
                           Connect Device
                         </Button>
                       </div>
-                      <div className="flex items-end justify-between">
+                      <div className="flex items-end justify-between bg-white/5 p-6 rounded-2xl border border-white/10">
                         <div>
-                          <p className="text-sm text-white/50 mb-1">Heart Rate</p>
-                          <div className="text-3xl font-bold flex items-baseline gap-1">
-                            72 <span className="text-xs font-normal text-white/50">bpm</span>
+                          <p className="text-sm text-white/50 mb-1 font-medium uppercase tracking-wider">Heart Rate</p>
+                          <div className="text-4xl font-black flex items-baseline gap-1">
+                            72 <span className="text-sm font-normal text-white/40">bpm</span>
                           </div>
-                          <p className="text-xs text-white/40 mt-1">Last sync: 2 min ago</p>
+                          <p className="text-xs text-white/30 mt-2">Last sync: 2 min ago</p>
                         </div>
-                        <div className="w-24 h-12 flex items-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                          {[4, 7, 5, 8, 6, 9, 7].map((h, i) => (
+                        <div className="w-32 h-16 flex items-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                          {[4, 7, 5, 8, 6, 9, 7, 8, 5, 9].map((h, i) => (
                             <div key={i} className="w-full bg-green-500 rounded-t-sm" style={{ height: `${h * 10}%` }} />
                           ))}
                         </div>
                       </div>
                     </Card>
-                    <Card className="p-5 glass-card border-white/10">
-                      <h4 className="font-semibold mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-secondary" /> Health Journal</h4>
-                      <div className="space-y-3 mb-4">
-                        <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-sm font-medium">Mild swelling</span>
-                            <span className="text-xs text-white/50">Yesterday</span>
-                          </div>
-                          <p className="text-xs text-white/70">Noticed some swelling in ankles after walking.</p>
-                        </div>
-                      </div>
-                      <Button className="w-full bg-white/10 hover:bg-white/20 border-0" variant="outline">
-                        <Plus className="w-4 h-4 mr-2" /> Add Entry
-                      </Button>
-                    </Card>
                   </div>
                 </div>
+
+                {/* Middle: Weight Chart (Full Width) */}
+                <Card className="p-6 glass-card border-white/10">
+                  <h4 className="font-bold text-lg mb-6 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-primary" /> Weight Progress
+                  </h4>
+                  <div className="h-48 w-full bg-white/5 rounded-2xl border border-white/5 flex items-end justify-between px-8 pb-4 relative overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-around pointer-events-none">
+                      <div className="w-full h-px bg-white/5"></div>
+                      <div className="w-full h-px bg-white/5"></div>
+                    </div>
+                    {[65, 65.5, 66, 66.8, 67.2, 67.8, 68].map((w, i) => (
+                      <div key={i} className="flex flex-col items-center gap-2 relative z-10">
+                        <div className="w-10 bg-primary/40 rounded-t-lg transition-all hover:bg-primary" style={{ height: `${(w-60)*10}px` }}></div>
+                        <span className="text-[10px] text-white/50 font-bold">W{20+i}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                {/* Bottom row: Meds (60%) + Journal (40%) */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                   <div className="lg:col-span-3">
+                     <Card className="p-6 glass-card border-white/10 h-full">
+                       <div className="flex items-center justify-between mb-6">
+                         <h4 className="font-bold text-lg flex items-center gap-2"><Pill className="w-5 h-5 text-primary" /> Medication Checklist</h4>
+                         <Badge className="bg-primary/20 text-primary border-primary/30">2 Reminders</Badge>
+                       </div>
+                       <div className="space-y-3">
+                         {["Prenatal Vitamins", "Iron Supplement"].map((med, i) => (
+                           <div key={med} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                             <div className="flex items-center gap-3">
+                               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl">💊</div>
+                               <div>
+                                 <p className="font-bold text-white">{med}</p>
+                                 <p className="text-xs text-white/40">1 pill • 8:00 AM</p>
+                               </div>
+                             </div>
+                             <Button size="sm" variant={i === 0 ? "hero" : "glass"} className="h-9 px-4 rounded-xl font-bold">{i === 0 ? "Taken" : "Take Now"}</Button>
+                           </div>
+                         ))}
+                       </div>
+                     </Card>
+                   </div>
+                   <div className="lg:col-span-2">
+                     <Card className="p-6 glass-card border-white/10 h-full">
+                        <h4 className="font-bold text-lg mb-6 flex items-center gap-2"><FileText className="w-5 h-5 text-secondary" /> Health Journal</h4>
+                        <div className="space-y-3 mb-6">
+                          <div className="bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-sm font-bold text-white">Mild swelling</span>
+                              <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Yesterday</span>
+                            </div>
+                            <p className="text-xs text-white/60 leading-relaxed">Noticed some swelling in ankles after walking. Drank extra water.</p>
+                          </div>
+                        </div>
+                        <Button className="w-full bg-white/10 hover:bg-white/20 border-0 h-11 rounded-xl font-bold" variant="outline">
+                          <Plus className="w-4 h-4 mr-2" /> Add New Entry
+                        </Button>
+                     </Card>
+                   </div>
+                </div>
+
+                {/* Bottom: Mood Tracker (Full Width) */}
+                <MoodTracker />
               </div>
             )}
 
@@ -533,92 +595,147 @@ export default function MotherDashboard() {
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold">Appointments</h2>
-                  <Button className="bg-primary hover:bg-primary/90 text-white"><Plus className="w-4 h-4 mr-2" /> Book New</Button>
                 </div>
-                <Card className="p-6 glass-card border-white/10">
-                  <div className="flex gap-4 mb-6 border-b border-white/10 pb-4">
-                    <Badge className="bg-primary text-white cursor-pointer hover:bg-primary/90">Upcoming</Badge>
-                    <Badge variant="outline" className="text-white/70 cursor-pointer hover:bg-white/10">Past</Badge>
-                    <Badge variant="outline" className="text-white/70 cursor-pointer hover:bg-white/10">Missed</Badge>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group">
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <Video className="w-7 h-7 text-primary" />
+
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  {/* Left Side: Upcoming Appointments (60%) */}
+                  <div className="lg:col-span-3 space-y-4">
+                    <Card className="p-6 glass-card border-white/10 h-full">
+                      <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-primary" /> Upcoming Visits
+                      </h3>
+                      <div className="space-y-4">
+                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group">
+                          <div className="flex items-start gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                              <Video className="w-7 h-7 text-primary" />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="font-bold text-xl text-white">Telehealth Checkup</h4>
+                              <p className="text-white/60 text-sm font-medium">Dr. Eliza Keith • Routine check</p>
+                              <p className="text-primary text-sm font-bold mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md">Today, 2:00 PM</p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                            <Button 
+                              className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl"
+                              onClick={() => {
+                                if (!isPremium) {
+                                  triggerPaywall({
+                                    featureName: "Telehealth Video Call",
+                                    featureValue: "See your doctor from home",
+                                    perks: ["✓ 3 video calls/month", "✓ Priority booking", "✓ Secure data storage", "✓ Direct chat with doctor"],
+                                    price: 7,
+                                    onSuccess: () => setIsPremium(true)
+                                  });
+                                }
+                              }}
+                            >
+                              Join Call
+                            </Button>
+                            <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
+                          </div>
                         </div>
-                        <div className="space-y-1">
-                          <h4 className="font-bold text-xl text-white">Telehealth Checkup</h4>
-                          <p className="text-white/60 text-sm font-medium">Dr. Eliza Keith • Routine check</p>
-                          <p className="text-primary text-sm font-bold mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md">Today, 2:00 PM</p>
+
+                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group opacity-80">
+                          <div className="flex items-start gap-4">
+                            <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                              <Activity className="w-7 h-7 text-secondary" />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="font-bold text-xl text-white">Detailed Ultrasound</h4>
+                              <p className="text-white/60 text-sm font-medium">Dr. Emily Chen • Imaging Dept</p>
+                              <p className="text-secondary text-sm font-bold mt-1 bg-secondary/10 inline-block px-2 py-0.5 rounded-md">Next Week, Tue 10:00 AM</p>
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                            <Button variant="outline" className="border-white/20 h-11 px-6 rounded-xl hover:bg-white/5">Prep Instructions</Button>
+                            <Button variant="outline" className="border-white/20 text-white/50 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                        <Button 
-                          className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl"
-                          onClick={() => {
-                            if (!isPremium) {
-                              triggerPaywall({
-                                featureName: "Telehealth Video Call",
-                                featureValue: "See your doctor from home",
-                                perks: ["✓ 3 video calls/month", "✓ Priority booking", "✓ Secure data storage", "✓ Direct chat with doctor"],
-                                price: 7,
-                                onSuccess: () => setIsPremium(true)
-                              });
-                            }
-                          }}
-                        >
-                          Join Call
+                    </Card>
+                  </div>
+
+                  {/* Right Side: Stats & Actions (40%) */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <Card className="p-6 glass-card border-white/10">
+                      <h3 className="text-lg font-bold mb-6">Quick Actions</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button className="h-24 flex flex-col gap-2 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold">
+                          <Plus className="w-6 h-6" />
+                          <span>Book New</span>
                         </Button>
-                        <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5 whitespace-nowrap"><Car className="w-4 h-4 mr-2" /> Book MamaRide</Button>
-                        <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
+                        <Button variant="outline" className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold">
+                          <Smartphone className="w-6 h-6 text-primary" />
+                          <span>Call Nurse</span>
+                        </Button>
+                        <Button variant="outline" className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold">
+                          <Search className="w-6 h-6 text-secondary" />
+                          <span>Find Hospital</span>
+                        </Button>
+                        <Button variant="outline" className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold">
+                          <Car className="w-6 h-6 text-tertiary" />
+                          <span>MamaRide</span>
+                        </Button>
                       </div>
-                    </div>
-                    <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group">
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <Activity className="w-7 h-7 text-secondary" />
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className="font-bold text-xl text-white">Detailed Ultrasound</h4>
-                          <p className="text-white/60 text-sm font-medium">Dr. Emily Chen • Imaging Dept</p>
-                          <p className="text-secondary text-sm font-bold mt-1 bg-secondary/10 inline-block px-2 py-0.5 rounded-md">Next Week, Tue 10:00 AM</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                        <Button variant="outline" className="border-white/20 h-11 px-6 rounded-xl hover:bg-white/5 whitespace-nowrap">Prep Instructions</Button>
-                        <Button variant="outline" className="border-white/20 text-white/50 h-11 px-6 rounded-xl hover:bg-white/5">Reschedule</Button>
-                      </div>
-                    </div>
+                    </Card>
+
+                    <Card className="p-6 glass-card border-white/10 bg-gradient-to-br from-primary/10 to-transparent">
+                       <h3 className="text-lg font-bold mb-4">Visit Summary</h3>
+                       <div className="space-y-4">
+                         <div className="flex justify-between items-center">
+                           <span className="text-sm text-white/60">Total Visits</span>
+                           <span className="text-xl font-black text-white">8</span>
+                         </div>
+                         <div className="flex justify-between items-center">
+                           <span className="text-sm text-white/60">Completed</span>
+                           <span className="text-xl font-black text-green-400">6</span>
+                         </div>
+                         <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                           <div className="bg-green-400 h-full w-[75%]"></div>
+                         </div>
+                       </div>
+                    </Card>
                   </div>
+                </div>
+
+                {/* Below: Past Appointments (Collapsible) */}
+                <Card className="p-4 glass-card border-white/10">
+                   <Button variant="ghost" className="w-full flex justify-between items-center hover:bg-white/5 h-12 rounded-xl">
+                     <span className="font-bold text-white/70">View 6 Past Appointments</span>
+                     <ArrowRight className="w-4 h-4" />
+                   </Button>
                 </Card>
               </div>
             )}
 
             {activeTab === "ai" && (
-              <div className="h-[calc(100vh-180px)] grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 h-full rounded-2xl overflow-hidden glass-card border border-white/10 flex flex-col">
-                  <div className="p-4 border-b border-white/10 bg-background/50 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <Bot className="w-6 h-6 text-primary" />
+              <div className="h-[calc(100vh-200px)] grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-3 h-full rounded-[32px] overflow-hidden glass-card border border-white/10 flex flex-col">
+                  <div className="p-5 border-b border-white/10 bg-background/50 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
+                        <Bot className="w-7 h-7 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-bold">Dr. Nneka</h3>
-                        <p className="text-xs text-white/60">Your trusted AI Midwife</p>
+                        <h3 className="font-bold text-lg">Dr. Nneka</h3>
+                        <p className="text-xs text-white/50 font-medium">Your trusted AI Midwife</p>
                       </div>
                     </div>
-                    <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20">Online</Badge>
+                    <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/20 px-3 py-1">Online</Badge>
                   </div>
                   <div className="flex-1 overflow-y-auto p-0 relative">
                     {!isPremium && (
-                      <div className="absolute inset-0 z-10 bg-background/20 backdrop-blur-sm flex items-center justify-center p-6">
-                        <div className="glass-card p-6 border border-white/20 rounded-2xl text-center max-w-sm">
-                          <Bot className="w-12 h-12 text-primary mx-auto mb-4 animate-bounce" />
-                          <h4 className="text-lg font-bold mb-2">Dr. Nneka is here 24/7</h4>
-                          <p className="text-sm text-white/70 mb-6">You've used your 5 free messages for today. Unlock unlimited chat to get instant support anytime.</p>
+                      <div className="absolute inset-0 z-10 bg-background/40 backdrop-blur-md flex items-center justify-center p-6">
+                        <div className="glass-card p-8 border border-white/20 rounded-[32px] text-center max-w-sm shadow-2xl">
+                          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+                            <Bot className="w-10 h-10 text-primary animate-bounce" />
+                          </div>
+                          <h4 className="text-2xl font-black mb-3">Dr. Nneka is here 24/7</h4>
+                          <p className="text-sm text-white/60 mb-8 leading-relaxed">You've used your 5 free messages for today. Unlock unlimited chat to get instant support anytime.</p>
                           <Button 
-                            className="w-full bg-primary hover:bg-primary/90 h-12 font-bold rounded-xl"
+                            className="w-full bg-primary hover:bg-primary/90 h-14 text-lg font-black rounded-2xl shadow-lg shadow-primary/20"
                             onClick={() => triggerPaywall({
                               featureName: "Unlimited AI Chat",
                               featureValue: "Dr. Nneka is here 24/7",
@@ -627,31 +744,56 @@ export default function MotherDashboard() {
                               onSuccess: () => setIsPremium(true)
                             })}
                           >
-                            Unlock Unlimited Chat for $7/mo
+                            Unlock Unlimited for $7/mo
                           </Button>
-                          <button className="text-xs text-white/40 mt-4 hover:text-white" onClick={() => setActiveTab('overview')}>Maybe tomorrow</button>
+                          <button className="text-xs text-white/30 mt-6 font-bold hover:text-white uppercase tracking-widest" onClick={() => setActiveTab('overview')}>Maybe tomorrow</button>
                         </div>
                       </div>
                     )}
                     <AIChat />
                   </div>
                 </div>
-                <div className="space-y-6 h-full overflow-y-auto hidden lg:block">
-                  <Card className="p-5 glass-card border-white/10">
-                    <h4 className="font-semibold mb-4 flex items-center gap-2"><ShieldCheck className="w-5 h-5 text-green-400" /> Risk Assessment</h4>
-                    <p className="text-sm text-white/70 mb-3">Based on your latest logs, your pregnancy is progressing normally. No immediate risks detected.</p>
-                    <div className="w-full bg-white/10 rounded-full h-2 mb-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
+                
+                <div className="lg:col-span-2 space-y-6 h-full overflow-y-auto hidden lg:block">
+                  <Card className="p-6 glass-card border-white/10 bg-gradient-to-br from-green-500/5 to-transparent">
+                    <h4 className="font-bold text-lg mb-6 flex items-center gap-2"><ShieldCheck className="w-6 h-6 text-green-400" /> Risk Assessment</h4>
+                    <div className="bg-white/5 p-5 rounded-2xl border border-white/5 mb-6">
+                      <p className="text-sm text-white/80 leading-relaxed">Based on your latest logs, your pregnancy is progressing normally. No immediate risks detected.</p>
                     </div>
-                    <p className="text-xs text-right text-white/50">Overall Health Score: 85/100</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-white/50">
+                        <span>Health Score</span>
+                        <span>85/100</span>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-2.5 overflow-hidden">
+                        <div className="bg-green-500 h-full transition-all duration-1000" style={{ width: '85%' }}></div>
+                      </div>
+                    </div>
                   </Card>
-                  <Card className="p-5 glass-card border-white/10">
-                    <h4 className="font-semibold mb-4">Recommended Topics</h4>
+
+                  <Card className="p-6 glass-card border-white/10">
+                    <h4 className="font-bold text-lg mb-6">Recommended Topics</h4>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className="cursor-pointer hover:bg-white/10 border-white/20 py-1.5 px-3">Managing Fatigue</Badge>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-white/10 border-white/20 py-1.5 px-3">Week 24 Diet</Badge>
-                      <Badge variant="outline" className="cursor-pointer hover:bg-white/10 border-white/20 py-1.5 px-3">Baby Movement Patterns</Badge>
+                      {["Managing Fatigue", "Week 24 Diet", "Baby Movement Patterns", "Safe Exercises"].map(topic => (
+                        <Badge key={topic} variant="outline" className="cursor-pointer hover:bg-primary/10 border-white/10 hover:border-primary/30 py-2 px-4 rounded-xl text-sm font-medium transition-all">
+                          {topic}
+                        </Badge>
+                      ))}
                     </div>
+                  </Card>
+
+                  <Card className="p-6 glass-card border-white/10">
+                     <h4 className="font-bold text-lg mb-4">Chat History</h4>
+                     <div className="space-y-3">
+                        <div className="flex items-center justify-between text-sm p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10">
+                          <span className="text-white/70">Iron intake query</span>
+                          <span className="text-[10px] text-white/30 font-bold">2h ago</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10">
+                          <span className="text-white/70">Sleeping positions</span>
+                          <span className="text-[10px] text-white/30 font-bold">Yesterday</span>
+                        </div>
+                     </div>
                   </Card>
                 </div>
               </div>
@@ -659,101 +801,102 @@ export default function MotherDashboard() {
 
             {activeTab === "community" && (
               <div className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 space-y-6">
-                    <Card className="p-6 glass-card border-white/10">
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold flex items-center gap-2">
-                          <Users className="w-6 h-6 text-primary" /> Group Chat Rooms
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  {/* Left Side: Chat Rooms (60%) */}
+                  <div className="lg:col-span-3 space-y-6">
+                    <Card className="p-8 glass-card border-white/10">
+                      <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-2xl font-black flex items-center gap-3">
+                          <Users className="w-8 h-8 text-primary" /> Group Chat Rooms
                         </h3>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            className="bg-primary hover:bg-primary/90 text-white font-bold h-9 px-4 rounded-lg"
-                            onClick={() => {
-                              if (!isPremium) {
-                                triggerPaywall({
-                                  featureName: "Community Posting",
-                                  featureValue: "Join the conversation with 2,400+ mamas",
-                                  perks: ["✓ Post in community", "✓ Get replies & support", "✓ Join trimester groups", "✓ Anonymous mode"],
-                                  price: 3,
-                                  onSuccess: () => setIsPremium(true)
-                                });
-                              }
-                            }}
-                          >
-                            + New Post
-                          </Button>
-                          <Badge className="bg-white/10 hover:bg-white/20 cursor-pointer h-9 px-3 flex items-center justify-center">My Groups</Badge>
-                        </div>
+                        <Button 
+                          className="bg-primary hover:bg-primary/90 text-white font-black h-12 px-6 rounded-2xl shadow-lg shadow-primary/20"
+                          onClick={() => {
+                            if (!isPremium) {
+                              triggerPaywall({
+                                featureName: "Community Posting",
+                                featureValue: "Join the conversation with 2,400+ mamas",
+                                perks: ["✓ Post in community", "✓ Get replies & support", "✓ Join trimester groups", "✓ Anonymous mode"],
+                                price: 3,
+                                onSuccess: () => setIsPremium(true)
+                              });
+                            }
+                          }}
+                        >
+                          + New Post
+                        </Button>
                       </div>
-                      <div className="space-y-3">
-                        <div className="p-4 bg-primary/10 border border-primary/20 rounded-xl cursor-pointer hover:bg-primary/20 transition-colors flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/30 flex items-center justify-center text-xl">🤰</div>
-                            <div>
-                              <h4 className="font-bold flex items-center gap-2">3rd Trimester Mamas <span className="w-2 h-2 rounded-full bg-green-500"></span></h4>
-                              <p className="text-sm text-white/70">Eliza J: Does anyone else feel like... </p>
+                      <div className="space-y-4">
+                        {[
+                          { id: 1, title: "3rd Trimester Mamas", lastMsg: "Eliza J: Does anyone else feel like...", online: 31, icon: "🤰", isNew: true },
+                          { id: 2, title: "Pregnancy Yoga", lastMsg: "Instructor: Class starts in 10 mins!", online: 12, icon: "🧘‍♀️", isNew: false }
+                        ].map((group) => (
+                          <div key={group.id} className={`p-5 rounded-[24px] cursor-pointer hover:scale-[1.02] transition-all flex items-center justify-between border ${group.isNew ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                            <div className="flex items-center gap-5">
+                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${group.isNew ? 'bg-primary/20' : 'bg-white/10'}`}>{group.icon}</div>
+                              <div>
+                                <h4 className="font-black text-white text-lg flex items-center gap-2">{group.title} {group.isNew && <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>}</h4>
+                                <p className="text-sm text-white/50 mt-1">{group.lastMsg}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              {group.isNew && <Badge className="bg-primary text-white font-bold px-3 py-1 mb-2">3 New</Badge>}
+                              <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{group.online} online</p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <Badge className="bg-primary text-white">3 New</Badge>
-                            <p className="text-xs text-white/40 mt-1">31 online</p>
-                          </div>
-                        </div>
-                        <div className="p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-colors flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-xl">🧘‍♀️</div>
-                            <div>
-                              <h4 className="font-bold text-white/90">Pregnancy Yoga</h4>
-                              <p className="text-sm text-white/60">Instructor: Class starts in 10 mins!</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-white/40 mt-1">12 online</p>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                    <Card className="p-6 glass-card border-white/10">
-                      <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-tertiary" /> Community Pulse</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 hover:border-tertiary/50 transition-all cursor-pointer flex flex-col justify-between h-[180px] group">
-                          <div>
-                            <span className="text-tertiary text-xs font-black uppercase tracking-wider">#ThirdTrimesterSleep</span>
-                            <p className="text-sm text-white/80 mt-3 leading-relaxed line-clamp-3 italic">"Has anyone found a good pregnancy pillow that actually supports your back?"</p>
-                          </div>
-                          <div className="flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider pt-4 border-t border-white/5 mt-auto">
-                            <span>12 mamas discussing</span>
-                            <span className="text-tertiary group-hover:translate-x-1 transition-transform">Join →</span>
-                          </div>
-                        </div>
-                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 hover:border-tertiary/50 transition-all cursor-pointer flex flex-col justify-between h-[180px] group">
-                          <div>
-                            <span className="text-tertiary text-xs font-black uppercase tracking-wider">#HospitalBag</span>
-                            <p className="text-sm text-white/80 mt-3 leading-relaxed line-clamp-3 italic">"What are the absolute essentials you packed for delivery?"</p>
-                          </div>
-                          <div className="flex items-center justify-between text-[10px] text-white/50 font-bold uppercase tracking-wider pt-4 border-t border-white/5 mt-auto">
-                            <span>45 mamas discussing</span>
-                            <span className="text-tertiary group-hover:translate-x-1 transition-transform">Join →</span>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </Card>
                   </div>
-                  <div className="space-y-6">
-                    <Card className="p-5 glass-card border-white/10 bg-gradient-to-br from-background to-secondary/10">
-                      <h4 className="font-bold text-lg mb-2">Mentor Matching</h4>
-                      <p className="text-sm text-white/70 mb-4">Connect with an experienced mom who has been through it all.</p>
-                      <Button className="w-full bg-secondary hover:bg-secondary/90 text-white">Find a Mentor</Button>
+
+                  {/* Right Side: Matching & Partner (40%) */}
+                  <div className="lg:col-span-2 space-y-6">
+                    <Card className="p-8 glass-card border-white/10 bg-gradient-to-br from-secondary/10 to-transparent flex flex-col justify-between h-[280px]">
+                      <div>
+                        <h4 className="font-black text-2xl mb-3">Mentor Matching</h4>
+                        <p className="text-sm text-white/60 leading-relaxed mb-6">Connect with an experienced mom who has been through it all. Get personalized advice and 1-on-1 support.</p>
+                      </div>
+                      <Button className="w-full bg-secondary hover:bg-secondary/90 text-white h-14 text-lg font-black rounded-2xl shadow-lg shadow-secondary/20">Find a Mentor</Button>
                     </Card>
-                    <Card className="p-5 glass-card border-white/10 text-center">
-                      <QrCode className="w-16 h-16 mx-auto text-white/50 mb-4" />
-                      <h4 className="font-bold mb-2">Partner Mode</h4>
-                      <p className="text-sm text-white/60 mb-4">Scan QR to invite your partner to MamaCare.</p>
-                      <Button variant="outline" className="w-full border-white/20">Show QR Code</Button>
+
+                    <Card className="p-8 glass-card border-white/10 text-center flex flex-col items-center justify-center h-[280px]">
+                      <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
+                        <QrCode className="w-10 h-10 text-white/40" />
+                      </div>
+                      <h4 className="font-black text-xl mb-2">Partner Mode</h4>
+                      <p className="text-sm text-white/50 mb-6 px-4">Scan QR to invite your partner to track the journey with you.</p>
+                      <Button variant="outline" className="w-full border-white/10 hover:bg-white/5 h-12 rounded-2xl font-bold uppercase tracking-widest text-xs">Show QR Code</Button>
                     </Card>
                   </div>
+                </div>
+
+                {/* Below: Community Pulse (Full Width Scroll) */}
+                <div className="space-y-6 pt-6">
+                   <div className="flex items-center justify-between">
+                     <h4 className="font-black text-2xl flex items-center gap-3"><TrendingUp className="w-7 h-7 text-tertiary" /> Community Pulse</h4>
+                     <Button variant="link" className="text-tertiary font-black uppercase tracking-widest text-xs">View All Conversations →</Button>
+                   </div>
+                   <div className="flex gap-4 overflow-x-auto pb-6 hide-scrollbar snap-x">
+                     {[
+                       { id: 1, topic: "#ThirdTrimesterSleep", mamas: 12, text: "I've found that using a C-shaped pillow helps with the back pain. Anyone else struggling with side-sleeping positions lately?", trending: true },
+                       { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
+                       { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
+                     ].map(topic => (
+                       <Card key={topic.id} className="min-w-[320px] p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[220px] group">
+                         <div>
+                           <div className="flex items-center justify-between mb-4">
+                             <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
+                             {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
+                           </div>
+                           <p className="text-sm text-white/80 leading-relaxed italic line-clamp-3">"{topic.text}"</p>
+                         </div>
+                         <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
+                           <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">{topic.mamas} mamas discussing</span>
+                           <span className="text-xs text-tertiary font-black group-hover:translate-x-1 transition-transform">Join Discussion →</span>
+                         </div>
+                       </Card>
+                     ))}
+                   </div>
                 </div>
               </div>
             )}

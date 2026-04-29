@@ -50,4 +50,4 @@ MamaCare is a digital maternal health platform designed to connect African mothe
 
 ## 📄 License
 
-This project is proprietary. © 2024 MamaCare.
+This project is proprietary. © 2026 MamaCare.

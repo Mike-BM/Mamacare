@@ -177,7 +177,7 @@ const Features = () => {
       {/* Footer */}
       <footer className="py-8 border-t border-border/50">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2024 MamaCare. Empowering mothers, nurturing futures.</p>
+          <p>© 2026 MamaCare. Empowering mothers, nurturing futures.</p>
         </div>
       </footer>
     </div>
