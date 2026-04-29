@@ -126,7 +126,7 @@ const MotherDashboard = () => {
           
           {activeTab === "overview" && (
             <div className="space-y-8">
-              <DynamicGreeting userName="Sarah" />
+              <DynamicGreeting userName="Stacy" />
               <PregnancyProgressTabs currentWeek={pregnancyWeeks} totalWeeks={totalWeeks} />
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -216,7 +216,7 @@ const MotherDashboard = () => {
                   />
                   <AudioPlayer 
                     src="/sounds/baby-laugh.mp3" 
-                    label="Giggle Therapy (Sarah's Favorite)"
+                    label="Giggle Therapy (Stacy's Favorite)"
                     loop
                   />
                 </div>

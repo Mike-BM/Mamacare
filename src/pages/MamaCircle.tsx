@@ -51,7 +51,7 @@ const MamaCircle = () => {
     if (newPost.trim()) {
       const post: Post = {
         id: posts.length + 1,
-        author: "Sarah (You)",
+        author: "Stacy (You)",
         content: newPost,
         reactions: 0,
         replies: 0,

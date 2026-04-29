@@ -119,7 +119,7 @@ export const FinancialLayer = () => {
             >
               <div>
                 <Label>Full name</Label>
-                <Input required placeholder="Sarah Johnson" />
+                <Input required placeholder="Stacy Johnson" />
               </div>
               <div>
                 <Label>National ID / Passport</Label>
