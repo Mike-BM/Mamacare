@@ -395,34 +395,37 @@ export default function MotherDashboard() {
                   </div>
                 </div>
 
-                {/* Row 2: Daily Tasks (Full Width section - row layout) */}
+                {/* Row 2: Daily Tasks (Full Width section) */}
                 <Card className="p-5 glass-card border-white/10">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                  <div className="space-y-4">
+                    {/* Header row */}
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                         <CheckCircle2 className="w-5 h-5 text-primary" />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-white/90">Daily Tasks</h4>
-                        <p className="text-xs text-white/50">{completedTasks}/{tasks.length} Completed</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <h4 className="font-bold text-white/90">Daily Tasks</h4>
+                          <span className="text-xs text-primary font-bold shrink-0 ml-2">{completedTasks}/{tasks.length} Completed</span>
+                        </div>
+                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary transition-all duration-500 rounded-full" style={{ width: `${taskProgress}%` }}></div>
+                        </div>
                       </div>
                     </div>
-                    
-                    <div className="flex-1 max-w-md h-2 bg-white/10 rounded-full overflow-hidden mx-4">
-                      <div className="h-full bg-primary transition-all duration-500" style={{ width: `${taskProgress}%` }}></div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 flex-[2]">
+                    {/* Task pills row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {tasks.map(task => (
-                        <div 
-                          key={task.id} 
+                        <div
+                          key={task.id}
                           className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl cursor-pointer transition-all border ${task.done ? 'bg-primary/10 border-primary/20 opacity-70' : 'bg-white/5 border-white/10 hover:bg-white/15'}`}
                           onClick={() => setTasks(tasks.map(t => t.id === task.id ? {...t, done: !t.done} : t))}
                         >
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${task.done ? 'bg-primary border-primary' : 'border-white/30'}`}>
+                          <div className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center border transition-colors ${task.done ? 'bg-primary border-primary' : 'border-white/30'}`}>
                             {task.done && <CheckCircle2 className="w-3 h-3 text-white" />}
                           </div>
-                          <span className={`text-sm ${task.done ? 'text-white/50 line-through' : 'text-white/90 font-medium'}`}>{task.label}</span>
+                          <span className={`text-sm truncate ${task.done ? 'text-white/50 line-through' : 'text-white/90 font-medium'}`}>{task.label}</span>
                         </div>
                       ))}
                     </div>
