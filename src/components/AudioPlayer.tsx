@@ -1,88 +1,112 @@
-import { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
+import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-interface AudioPlayerProps {
-  src: string;
-  label?: string;
-  autoplay?: boolean;
-  loop?: boolean;
-}
-
-export const AudioPlayer = ({ src, label, autoplay = false, loop = false }: AudioPlayerProps) => {
-  const [isPlaying, setIsPlaying] = useState(autoplay);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(70);
-  const audioRef = useRef<HTMLAudioElement>(null);
+export const AudioPlayer = ({ text, title }: { text: string; title: string }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
-  }, [volume]);
-
-  useEffect(() => {
-    if (audioRef.current && autoplay) {
-      audioRef.current.play().catch(console.error);
-    }
-  }, [autoplay]);
+    // Estimate duration (average speaking rate: 150 words/minute)
+    const wordCount = text.split(' ').length;
+    const estimatedMinutes = wordCount / 150;
+    setDuration(estimatedMinutes * 60);
+  }, [text]);
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch(console.error);
-      }
-      setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+    } else {
+      speak();
     }
   };
 
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+  const speak = () => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.9; // Slower for maternal content
+    utterance.pitch = 1.1; // Slightly warmer
+    
+    // Find warm female voice
+    const voices = window.speechSynthesis.getVoices();
+    const warmVoice = voices.find(v => 
+      v.name.includes('Samantha') || 
+      v.name.includes('Victoria') ||
+      v.name.includes('Google US English')
+    );
+    if (warmVoice) utterance.voice = warmVoice;
+
+    utterance.onboundary = (event) => {
+      const percent = (event.charIndex / text.length) * 100;
+      setProgress(percent);
+    };
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setProgress(100);
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    setIsPlaying(true);
   };
+
+  const skip = (seconds: number) => {
+    // Simple implementation: restart and approximate
+    window.speechSynthesis.cancel();
+    // In production, track char index and resume, for now we just restart
+    speak();
+  };
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis.cancel();
+    }
+  }, []);
 
   return (
-    <div className="flex items-center gap-4 bg-card/30 backdrop-blur-md border border-border rounded-xl p-4">
-      <audio
-        ref={audioRef}
-        src={src}
-        loop={loop}
-        onEnded={() => setIsPlaying(false)}
-      />
-      
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={togglePlay}
-        className="hover:bg-primary/20"
-      >
-        {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-      </Button>
+    <div className="bg-white/5 border border-white/10 rounded-xl p-4 my-4">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
+          <Volume2 className="w-5 h-5 text-pink-400" />
+        </div>
+        <div>
+          <p className="text-white text-sm font-medium">{title}</p>
+          <p className="text-white/50 text-xs">Listen • {Math.ceil(duration / 60)} min</p>
+        </div>
+      </div>
 
-      {label && <span className="text-sm text-foreground">{label}</span>}
-
-      <div className="flex items-center gap-2 flex-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleMute}
-          className="hover:bg-primary/20"
-        >
-          {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-        </Button>
-        
-        <Slider
-          value={[isMuted ? 0 : volume]}
-          onValueChange={(value) => setVolume(value[0])}
-          max={100}
-          step={1}
-          className="w-24"
+      {/* Progress Bar */}
+      <div className="h-1 bg-white/10 rounded-full mb-3 overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+          style={{ width: `${progress}%` }}
+          transition={{ duration: 0.3 }}
         />
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-center gap-4">
+        <button onClick={() => skip(-10)} className="text-white/50 hover:text-white">
+          <SkipBack className="w-5 h-5" />
+        </button>
+        
+        <button
+          onClick={togglePlay}
+          className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center hover:shadow-lg hover:shadow-pink-500/30 transition-all"
+        >
+          {isPlaying ? (
+            <Pause className="w-5 h-5 text-white" />
+          ) : (
+            <Play className="w-5 h-5 text-white ml-0.5" />
+          )}
+        </button>
+        
+        <button onClick={() => skip(10)} className="text-white/50 hover:text-white">
+          <SkipForward className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );

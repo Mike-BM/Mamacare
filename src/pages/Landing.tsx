@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Building2, ShieldCheck, Users } from "lucide-react";
+import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users } from "lucide-react";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import africanBaby1 from "@/assets/african-baby-1.jpg";
@@ -36,6 +36,7 @@ const Landing = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSoundOn, setIsSoundOn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,56 +54,42 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
+      {/* Ambient Background Audio */}
+      {isSoundOn && (
+        <audio autoPlay loop className="hidden">
+          <source src="/sounds/baby-laugh.mp3" type="audio/mpeg" />
+        </audio>
+      )}
 
+      {/* Sound Toggle Button */}
+      <button
+        onClick={() => setIsSoundOn(!isSoundOn)}
+        className="fixed top-6 right-6 z-50 backdrop-blur-xl bg-card/80 border border-border/50 rounded-full p-3 hover:bg-card transition-all duration-300 hover:scale-110 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        aria-label={isSoundOn ? "Mute sound" : "Unmute sound"}
+      >
+        {isSoundOn ? (
+          <Volume2 className="w-6 h-6 text-primary" />
+        ) : (
+          <VolumeX className="w-6 h-6 text-muted-foreground" />
+        )}
+      </button>
 
-      {/* Top Navigation Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 p-6 flex items-center justify-between pointer-events-none">
-        <div className="flex gap-3 pointer-events-auto">
-          <Button
-            variant="glass"
-            onClick={() => navigate("/about")}
-            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold"
-          >
-            About
-          </Button>
-          <Button
-            variant="glass"
-            onClick={() => navigate("/features")}
-            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold"
-          >
-            Features
-          </Button>
-          <div className="w-px h-10 bg-white/10 mx-2" />
-          {/* Quick Access Dashboards at the top */}
-          <Button 
-            variant="glass" 
-            onClick={() => navigate("/mother-dashboard")}
-            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
-          >
-            <Heart className="w-3.5 h-3.5 text-primary" /> Mother
-          </Button>
-          <Button 
-            variant="glass" 
-            onClick={() => navigate("/hospital-dashboard")}
-            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
-          >
-            <Building2 className="w-3.5 h-3.5 text-secondary" /> Hospital
-          </Button>
-          <Button 
-            variant="glass" 
-            onClick={() => navigate("/admin-dashboard")}
-            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-accent" /> Admin
-          </Button>
-          <Button 
-            variant="glass" 
-            onClick={() => navigate("/baba")}
-            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] h-10 text-[11px] font-bold flex items-center gap-2"
-          >
-            <Users className="w-3.5 h-3.5 text-tertiary" /> Baba
-          </Button>
-        </div>
+      {/* Navigation Links */}
+      <div className="fixed top-6 left-6 z-50 flex gap-3">
+        <Button
+          variant="glass"
+          onClick={() => navigate("/about")}
+          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        >
+          About
+        </Button>
+        <Button
+          variant="glass"
+          onClick={() => navigate("/features")}
+          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        >
+          Features
+        </Button>
       </div>
 
       {/* Carousel Background with zoom animation */}
@@ -118,7 +105,6 @@ const Landing = () => {
             alt={`African mother and newborn - ${slide.text}`}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/90" />
         </div>
       ))}
 
@@ -133,49 +119,75 @@ const Landing = () => {
         </div>
 
         {/* Glass Login Card */}
-        <div className="w-full max-w-md animate-scale-in">
-          <div className="backdrop-blur-xl bg-gradient-to-br from-card/80 to-card/60 border border-border/50 rounded-2xl p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
+        <div className="w-full max-w-md animate-scale-in flex justify-center">
+          <div className="glass-card">
             <h2 className="text-2xl font-semibold text-center mb-2">Welcome Back</h2>
-            <p className="text-muted-foreground text-center mb-6">Sign in to continue your journey</p>
+            <p className="text-center mb-6">Sign in to continue your journey</p>
             
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <Input
+                <input
                   type="email"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary transition-all duration-300"
+                  className="w-full glass-input"
                   required
                 />
               </div>
               
               <div>
-                <Input
+                <input
                   type="password"
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary transition-all duration-300"
+                  className="w-full glass-input"
                   required
                 />
               </div>
 
-              <Button type="submit" variant="hero" className="w-full" size="lg">
+              <button type="submit" className="w-full glass-button">
                 Sign In
-              </Button>
+              </button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <button
-                  onClick={() => navigate("/register")}
-                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+            <div className="mt-8 pt-6 border-t border-white/10">
+              <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 text-center">Quick Access Dashboards</p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/mother-dashboard")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
                 >
-                  Register now
-                </button>
-              </p>
+                  <Heart className="w-3 h-3 text-primary" /> Mother
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/hospital-dashboard")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                >
+                  <Building2 className="w-3 h-3 text-secondary" /> Hospital
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/admin-dashboard")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                >
+                  <ShieldCheck className="w-3 h-3 text-accent" /> Admin
+                </Button>
+                <Button 
+                  variant="glass" 
+                  size="sm" 
+                  onClick={() => navigate("/baba")}
+                  className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                >
+                  <Users className="w-3 h-3 text-tertiary" /> Baba
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import Features from "./pages/Features";
 import MotherDashboard from "./pages/MotherDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import BabaDashboard from "./pages/BabaDashboard";
 import MyJourney from "./pages/MyJourney";
 import MamaCircle from "./pages/MamaCircle";
 import Community from "./pages/Community";
@@ -29,9 +30,10 @@ const App = () => (
         <Route path="/register" element={<Register />} />
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<Features />} />
-        <Route path="/mother-dashboard" element={<MotherDashboard />} />
+        <Route path="/mother-dashboard/:tab?" element={<MotherDashboard />} />
         <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/baba" element={<BabaDashboard />} />
         <Route path="/my-journey" element={<MyJourney />} />
         <Route path="/mama-circle" element={<MamaCircle />} />
         <Route path="/community" element={<Community />} />

@@ -1,37 +1,21 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircleHeart, Send, X, AlertTriangle } from "lucide-react";
+import { MessageCircleHeart, Send, X, AlertTriangle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-type Risk = "green" | "yellow" | "red";
+type Risk = "low" | "medium" | "high" | "emergency";
 type Msg = { role: "bot" | "user"; text: string };
-
-// Lightweight rule-based triage flow (mocked, no AI call required)
-const RED_FLAGS = ["bleeding", "severe pain", "no movement", "blurry vision", "seizure", "fainted", "can't breathe", "cant breathe"];
-const YELLOW_FLAGS = ["headache", "swelling", "dizzy", "nausea", "fever", "cramps", "back pain"];
-
-function scoreSymptom(text: string): Risk {
-  const lower = text.toLowerCase();
-  if (RED_FLAGS.some((f) => lower.includes(f))) return "red";
-  if (YELLOW_FLAGS.some((f) => lower.includes(f))) return "yellow";
-  return "green";
-}
-
-const FOLLOW_UPS = [
-  "How long have you been feeling this way?",
-  "On a scale of 1-10, how intense is it?",
-  "Have you noticed any other symptoms?",
-];
 
 export const SymptomTriageBubble = () => {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(0);
-  const [risk, setRisk] = useState<Risk>("green");
+  const [risk, setRisk] = useState<Risk>("low");
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "bot", text: "Hi mama 🌸 I'm here to help. What symptom are you feeling right now?" },
   ]);
@@ -39,53 +23,64 @@ export const SymptomTriageBubble = () => {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const send = () => {
-    if (!input.trim()) return;
+  const send = async () => {
+    if (!input.trim() || isLoading) return;
     const userText = input.trim();
     const newMessages: Msg[] = [...messages, { role: "user", text: userText }];
-
-    if (step === 0) {
-      const r = scoreSymptom(userText);
-      setRisk(r);
-      if (r === "red") {
-        newMessages.push({
-          role: "bot",
-          text: "⚠️ This sounds urgent. Please use the SOS button immediately or go to your nearest hospital.",
-        });
-      } else {
-        newMessages.push({ role: "bot", text: FOLLOW_UPS[0] });
-      }
-    } else if (step < FOLLOW_UPS.length) {
-      // escalate yellow → red if numeric pain ≥ 8
-      const num = parseInt(userText, 10);
-      if (!isNaN(num) && num >= 8) setRisk("red");
-      newMessages.push({ role: "bot", text: FOLLOW_UPS[step] ?? "" });
-    } else {
-      const guidance =
-        risk === "red"
-          ? "Please seek emergency care now. Tap the red SOS button to alert your contacts."
-          : risk === "yellow"
-          ? "Rest, hydrate, and monitor closely. If symptoms worsen in 2 hours, contact your provider."
-          : "This sounds mild. Stay hydrated, rest, and log it in your journal. Reach out if it persists.";
-      newMessages.push({ role: "bot", text: guidance });
-    }
-
+    
     setMessages(newMessages);
     setInput("");
-    setStep((s) => s + 1);
+    setIsLoading(true);
+
+    try {
+      let userId = '00000000-0000-0000-0000-000000000000';
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.id) userId = session.user.id;
+      } catch (e) {
+        console.error("Auth fetch failed", e);
+      }
+      
+      const response = await fetch('/api/ai/triage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          symptoms: userText,
+          userId
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to get triage response');
+      const data = await response.json();
+      
+      setRisk(data.riskLevel || 'low');
+      setMessages(prev => [...prev, { role: "bot", text: data.message }]);
+      
+      if (data.riskLevel === 'emergency') {
+        toast.error("Emergency risk detected. Please seek immediate help.", {
+          duration: 10000,
+        });
+      }
+    } catch (error) {
+      console.error('Triage error:', error);
+      setMessages(prev => [...prev, { role: "bot", text: "I'm having trouble connecting right now. If your symptoms are severe, please seek emergency care immediately." }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const escalate = () => {
     toast.error("Escalating to emergency — opening SOS");
     setOpen(false);
-    // dispatch a custom event the SOS button could listen to (optional)
     window.dispatchEvent(new CustomEvent("mamacare:escalate-sos"));
   };
 
   const riskColor =
-    risk === "red" ? "bg-destructive" : risk === "yellow" ? "bg-yellow-500" : "bg-green-500";
+    risk === "emergency" ? "bg-red-600 animate-pulse" : 
+    risk === "high" ? "bg-orange-500" :
+    risk === "medium" ? "bg-yellow-500" : "bg-green-500";
 
   return (
     <>
@@ -129,8 +124,16 @@ export const SymptomTriageBubble = () => {
                   </div>
                 </div>
               ))}
-              {risk === "red" && (
-                <Button variant="destructive" size="sm" className="w-full" onClick={escalate}>
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-2xl px-4 py-3 flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span className="text-sm text-primary">Assessing...</span>
+                  </div>
+                </div>
+              )}
+              {risk === "emergency" && (
+                <Button variant="destructive" size="sm" className="w-full mt-2 animate-pulse" onClick={escalate}>
                   <AlertTriangle className="w-4 h-4 mr-1" /> Escalate to Emergency
                 </Button>
               )}
@@ -144,8 +147,9 @@ export const SymptomTriageBubble = () => {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Describe symptom..."
                 className="flex-1"
+                disabled={isLoading}
               />
-              <Button type="submit" size="icon" disabled={!input.trim()}>
+              <Button type="submit" size="icon" disabled={!input.trim() || isLoading}>
                 <Send className="w-4 h-4" />
               </Button>
             </form>

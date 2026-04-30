@@ -51,7 +51,7 @@ const Community = () => {
   const post = () => {
     if (!message.trim()) return;
     const newThread = {
-      author: anonymous ? "Anonymous" : "Stacy Mutheu (You)",
+      author: anonymous ? "Anonymous" : "Eliza (You)",
       text: message,
       replies: 0,
       time: "now",

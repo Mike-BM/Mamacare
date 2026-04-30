@@ -1,265 +1,113 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Baby, TrendingUp, Calendar, Activity } from "lucide-react";
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { BabyDevelopment } from "./BabyDevelopment";
-import { AppointmentCountdown } from "./AppointmentCountdown";
-import { Progress } from "./ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface PregnancyProgressTabsProps {
   currentWeek: number;
   totalWeeks?: number;
 }
 
-// Mock data for journey progress
-const journeyData = Array.from({ length: 24 }, (_, i) => ({
-  week: i + 1,
-  weight: 50 + (i * 0.5) + Math.random() * 2,
-  babySize: Math.pow(i + 1, 1.3) * 0.5,
-  energy: 60 + Math.random() * 30,
-}));
-
-// Mock data for health metrics
-const healthData = [
-  { metric: "Hydration", value: 85, target: 100 },
-  { metric: "Nutrition", value: 78, target: 100 },
-  { metric: "Exercise", value: 65, target: 100 },
-  { metric: "Sleep", value: 72, target: 100 },
-];
-
-// Mock appointments data
-const appointments = [
-  { date: "Dec 15, 2026", time: "10:00 AM", doctor: "Dr. Emily Chen", type: "Regular Checkup", status: "upcoming" },
-  { date: "Dec 22, 2026", time: "2:00 PM", doctor: "Dr. Jane Keith", type: "Ultrasound", status: "upcoming" },
-  { date: "Nov 20, 2026", time: "11:00 AM", doctor: "Dr. Emily Chen", type: "Blood Test", status: "completed" },
-];
-
 export const PregnancyProgressTabs = ({ currentWeek, totalWeeks = 40 }: PregnancyProgressTabsProps) => {
+  const [activeTab, setActiveTab] = useState("journey");
   const progressPercent = (currentWeek / totalWeeks) * 100;
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 backdrop-blur-sm animate-scale-in hover:shadow-[var(--shadow-glow-pink)] transition-all duration-500">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-semibold flex items-center gap-2">
-          <Baby className="w-6 h-6 text-primary" />
-          Pregnancy Progress
-        </h3>
-        <span className="text-3xl font-bold text-primary">{currentWeek} weeks</span>
-      </div>
-
-      <Tabs defaultValue="journey" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-6">
-          <TabsTrigger value="journey" className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Journey
-          </TabsTrigger>
-          <TabsTrigger value="development" className="flex items-center gap-2">
-            <Baby className="w-4 h-4" />
-            Development
-          </TabsTrigger>
-          <TabsTrigger value="appointments" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Appointments
-          </TabsTrigger>
-          <TabsTrigger value="health" className="flex items-center gap-2">
-            <Activity className="w-4 h-4" />
-            Health
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Journey Tab with Graphs */}
-        <TabsContent value="journey" className="space-y-6">
-          <div className="relative mb-6">
-            <Progress 
-              value={progressPercent} 
-              className="h-4 mb-2 bg-gradient-to-r from-primary/20 to-secondary/20" 
-            />
+    <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-white/10 glass-card hover:-translate-y-1 hover:shadow-lg hover:shadow-pink-500/20 transition-all duration-500 overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div className="flex flex-col md:flex-row gap-6 items-center md:items-start justify-between relative z-10">
+        <div className="flex-1 w-full space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              👶 Week {currentWeek} of {totalWeeks}
+            </h3>
+            <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary uppercase font-bold tracking-wider">
+              Trimester 2
+            </Badge>
+          </div>
+          
+          <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden relative">
             <div 
-              className="absolute top-0 h-4 rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-1000 ease-out"
               style={{ width: `${progressPercent}%` }}
-            />
+            >
+              <div className="absolute right-0 top-0 w-4 h-full bg-white/30 animate-pulse rounded-full"></div>
+            </div>
+            {/* Milestones markers */}
+            <div className="absolute top-0 left-[30%] w-1 h-full bg-white/20"></div>
+            <div className="absolute top-0 left-[65%] w-1 h-full bg-white/20"></div>
           </div>
-          <p className="text-sm text-muted-foreground mb-6">
-            {totalWeeks - currentWeek} weeks to go • You're in your second trimester
-          </p>
-
-          {/* Weight & Baby Growth Chart */}
-          <div className="space-y-2">
-            <h4 className="text-lg font-semibold">Your Journey So Far</h4>
-            <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={journeyData}>
-                <defs>
-                  <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorBaby" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--secondary))" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="hsl(var(--secondary))" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="week" 
-                  stroke="hsl(var(--muted-foreground))"
-                  label={{ value: 'Week', position: 'insideBottom', offset: -5 }}
-                />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Legend />
-                <Area 
-                  type="monotone" 
-                  dataKey="weight" 
-                  stroke="hsl(var(--primary))" 
-                  fillOpacity={1} 
-                  fill="url(#colorWeight)"
-                  name="Your Weight (kg)"
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="babySize" 
-                  stroke="hsl(var(--secondary))" 
-                  fillOpacity={1} 
-                  fill="url(#colorBaby)"
-                  name="Baby Size (cm)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="flex justify-between text-xs text-white/50 font-bold tracking-widest uppercase">
+            <span>Start</span>
+            <span>{Math.round(progressPercent)}% Completed</span>
+            <span>Due Date</span>
           </div>
 
-          {/* Energy Levels */}
-          <div className="space-y-2 mt-6">
-            <h4 className="text-lg font-semibold">Energy Levels</h4>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={journeyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="week" 
-                  stroke="hsl(var(--muted-foreground))"
-                  label={{ value: 'Week', position: 'insideBottom', offset: -5 }}
-                />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="energy" 
-                  stroke="hsl(var(--tertiary))" 
-                  strokeWidth={3}
-                  dot={{ fill: 'hsl(var(--tertiary))' }}
-                  name="Energy %"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+          <div className="space-y-1">
+            <p className="text-lg md:text-xl font-medium text-white/90">
+              "Your baby is the size of an ear of corn 🌽"
+            </p>
+            <p className="text-sm text-white/60 italic">
+              Baby's lungs are developing — they can hear your voice!
+            </p>
           </div>
-        </TabsContent>
 
-        {/* Development Tab */}
-        <TabsContent value="development">
-          <BabyDevelopment week={currentWeek} />
-        </TabsContent>
+          <div className="flex gap-3 pt-2">
+            <Button size="sm" variant="hero" className="rounded-full h-8 px-4 text-xs">
+              This Week's Tips
+            </Button>
+            <Button size="sm" variant="glass" className="rounded-full h-8 px-4 text-xs">
+              Log Symptoms
+            </Button>
+          </div>
+        </div>
 
-        {/* Appointments Tab */}
-        <TabsContent value="appointments" className="space-y-4">
-          <h4 className="text-lg font-semibold mb-4">Upcoming Appointments</h4>
-          {appointments.filter(apt => apt.status === "upcoming").map((apt, idx) => (
-            <Card key={idx} className="p-4 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <span className="font-semibold">{apt.date}</span>
-                    <span className="text-sm text-muted-foreground">at {apt.time}</span>
-                  </div>
-                  <p className="text-sm font-medium">{apt.type}</p>
-                  <p className="text-sm text-muted-foreground">{apt.doctor}</p>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary">
-                  {apt.status}
-                </span>
-              </div>
-            </Card>
+        <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/10 shrink-0 self-center md:self-end">
+          {["journey", "development", "health"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold capitalize transition-all duration-300 ${
+                activeTab === tab 
+                  ? "bg-gradient-to-br from-primary to-secondary text-white shadow-md shadow-primary/20 scale-105" 
+                  : "text-white/60 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {tab}
+            </button>
           ))}
-
-          <h4 className="text-lg font-semibold mb-4 mt-8">Past Appointments</h4>
-          {appointments.filter(apt => apt.status === "completed").map((apt, idx) => (
-            <Card key={idx} className="p-4 bg-gradient-to-br from-card to-card/50 border-border/50 opacity-60">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-semibold">{apt.date}</span>
-                    <span className="text-sm text-muted-foreground">at {apt.time}</span>
-                  </div>
-                  <p className="text-sm font-medium">{apt.type}</p>
-                  <p className="text-sm text-muted-foreground">{apt.doctor}</p>
-                </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                  {apt.status}
-                </span>
-              </div>
-            </Card>
-          ))}
-        </TabsContent>
-
-        {/* Health Metrics Tab */}
-        <TabsContent value="health" className="space-y-6">
-          <h4 className="text-lg font-semibold">Daily Health Metrics</h4>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={healthData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="metric" 
-                stroke="hsl(var(--muted-foreground))"
-              />
-              <YAxis stroke="hsl(var(--muted-foreground))" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
-                }}
-              />
-              <Legend />
-              <Bar 
-                dataKey="value" 
-                fill="hsl(var(--primary))" 
-                radius={[8, 8, 0, 0]}
-                name="Current %"
-              />
-              <Bar 
-                dataKey="target" 
-                fill="hsl(var(--muted))" 
-                radius={[8, 8, 0, 0]}
-                name="Target %"
-              />
-            </BarChart>
-          </ResponsiveContainer>
-
-          <div className="space-y-4 mt-6">
-            {healthData.map((item, idx) => (
-              <div key={idx}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">{item.metric}</span>
-                  <span className="text-sm text-muted-foreground">{item.value}%</span>
-                </div>
-                <Progress value={item.value} className="h-2" />
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
+      
+      {activeTab === "development" && (
+        <div className="mt-6 pt-6 border-t border-white/10 animate-fade-in-up">
+          <p className="text-sm text-white/80">Baby's lungs are forming branches of the respiratory tree. Hearing is well established, and they can hear your voice clearly now!</p>
+        </div>
+      )}
+      {activeTab === "health" && (
+        <div className="mt-6 pt-6 border-t border-white/10 animate-fade-in-up">
+          <p className="text-sm text-white/80">You might be experiencing Braxton Hicks contractions. Remember to stay hydrated and rest when you feel fatigued.</p>
+        </div>
+      )}
+      {activeTab === "journey" && (
+        <div className="mt-6 pt-6 border-t border-white/10 animate-fade-in-up flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+           <div className="bg-white/5 p-3 rounded-xl border border-white/10 min-w-[150px]">
+             <span className="text-xs text-primary font-bold uppercase">Week 20</span>
+             <p className="text-sm text-white/90 font-medium">Anatomy Scan ✅</p>
+           </div>
+           <div className="bg-primary/20 p-3 rounded-xl border border-primary/30 min-w-[150px]">
+             <span className="text-xs text-primary font-bold uppercase">Week 24</span>
+             <p className="text-sm text-white font-medium">Viability Milestone 📍</p>
+           </div>
+           <div className="bg-white/5 p-3 rounded-xl border border-white/10 min-w-[150px] opacity-50">
+             <span className="text-xs text-white/50 font-bold uppercase">Week 28</span>
+             <p className="text-sm text-white/90 font-medium">Glucose Test</p>
+           </div>
+        </div>
+      )}
     </Card>
   );
 };
+

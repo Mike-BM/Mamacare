@@ -5,6 +5,7 @@ import { Lightbulb, BookmarkPlus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { AudioPlayer } from "./AudioPlayer";
 
 const tips = [
   {
@@ -86,6 +87,9 @@ export const WeeklyTips = () => {
           <span className="text-2xl">{currentTip.emoji}</span>
           {currentTip.tip}
         </p>
+        <div className="mt-4">
+          <AudioPlayer text={currentTip.tip} title="Listen to this tip" />
+        </div>
       </div>
 
       <Button 
