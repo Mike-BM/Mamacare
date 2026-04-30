@@ -14,7 +14,7 @@ import { SymptomTriageBubble } from "@/components/SymptomTriageBubble";
 import { FinancialLayer } from "@/components/FinancialLayer";
 import { TelemedicineSuite } from "@/components/TelemedicineSuite";
 import { WearableMedicationWidgets } from "@/components/WearableMedicationWidgets";
-import { VoiceInterface } from "@/components/VoiceInterface";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -291,51 +291,23 @@ export default function MotherDashboard() {
           </div>
         </header>
 
-        {/* Tab Navigation (Sticky Below Header) */}
-        <div className="hidden md:flex border-b border-white/10 px-8 py-4 shrink-0 overflow-x-auto hide-scrollbar backdrop-blur-md bg-background/40">
-          <div className="flex gap-3">
-            {TABS.filter(t => t.id !== 'settings').map(t => {
+        {/* Tab Navigation (Sticky Below Header) — clean pill tabs */}
+        <div className="hidden md:flex border-b border-white/10 px-8 shrink-0 overflow-x-auto hide-scrollbar bg-background/40 backdrop-blur-md">
+          <div className="flex gap-1">
+            {TABS.map(t => {
               const isActive = activeTab === t.id;
-              
-              let previewContent = null;
-              if (t.id === 'overview') previewContent = (
-                <div className="flex flex-col w-full mt-1.5"><span className="text-[10px] text-primary font-bold">60% complete</span><span className="text-[10px] text-white/50 truncate">Next: Viability Milestone</span></div>
-              );
-              else if (t.id === 'health') previewContent = (
-                <div className="flex flex-col w-full mt-1.5"><span className="text-[10px] text-green-400 font-bold">Last log: Yesterday</span><span className="text-[10px] text-white/50 flex items-center gap-1">Vitals stable <Activity className="w-2 h-2" /></span></div>
-              );
-              else if (t.id === 'appointments') previewContent = (
-                <div className="flex items-center justify-between w-full mt-1.5"><span className="text-[10px] text-white/70">Today, 2:00 PM</span><Badge className="h-4 text-[8px] px-1.5 py-0 bg-primary hover:bg-primary/90 transition-colors animate-pulse">Join Call</Badge></div>
-              );
-              else if (t.id === 'ai') previewContent = (
-                <div className="flex flex-col w-full mt-1.5"><span className="text-[10px] text-primary font-bold">3 unread messages</span><span className="text-[10px] text-white/50 truncate italic w-full">"Feeling fatigued? Try..."</span></div>
-              );
-              else if (t.id === 'community') previewContent = (
-                <div className="flex flex-col w-full mt-1.5"><span className="text-[10px] text-tertiary font-bold">+12 new replies</span><span className="text-[10px] text-white/50 truncate w-full">#ThirdTrimesterSleep</span></div>
-              );
-              else if (t.id === 'wallet') previewContent = (
-                <div className="flex flex-col w-full mt-1.5"><div className="flex justify-between items-center"><span className="text-[10px] text-secondary font-bold">$12.50 balance</span><span className="text-[8px] text-white/40 hover:text-white transition-colors cursor-pointer">Add Funds</span></div><div className="w-full h-1 bg-white/10 rounded-full mt-1"><div className="w-1/4 h-full bg-secondary rounded-full"></div></div></div>
-              );
-
               return (
                 <button
                   key={t.id}
                   onClick={() => handleTabChange(t.id)}
-                  className={`flex flex-col items-start min-w-[170px] max-w-[190px] p-3 rounded-xl transition-all duration-300 border text-left ${
-                    isActive 
-                      ? 'bg-gradient-to-br from-primary/20 to-primary/5 border-primary/50 shadow-[0_0_15px_rgba(255,126,179,0.1)] scale-105' 
-                      : 'bg-white/5 border-white/5 hover:bg-white/10 text-white/70 hover:text-white'
+                  className={`flex items-center gap-2 px-5 py-4 text-sm font-semibold border-b-2 transition-all duration-200 whitespace-nowrap ${
+                    isActive
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-white/50 hover:text-white/80 hover:border-white/20'
                   }`}
                 >
-                  <div className="flex items-center gap-2 w-full">
-                    <t.icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-primary' : 'text-white/50'} ${(t.id === 'ai' || t.id === 'appointments') && !isActive ? 'animate-[pulse_2s_ease-in-out_infinite] text-primary/70' : ''}`} />
-                    <span className={`text-sm font-bold truncate ${isActive ? 'text-white' : 'text-white/90'}`}>{t.label}</span>
-                  </div>
-                  {previewContent && (
-                    <div className="w-full overflow-hidden opacity-90">
-                      {previewContent}
-                    </div>
-                  )}
+                  <t.icon className="w-4 h-4 shrink-0" />
+                  {t.label}
                 </button>
               );
             })}
@@ -1015,7 +987,6 @@ export default function MotherDashboard() {
         <EmergencySOS />
       </div>
       <SymptomTriageBubble />
-      <VoiceInterface />
       
       <PaywallOverlay 
         isOpen={paywallConfig.isOpen}
