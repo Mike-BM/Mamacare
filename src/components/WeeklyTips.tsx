@@ -64,8 +64,8 @@ export const WeeklyTips = () => {
     toast.success("Tip saved to your journal!", {
       description: "View it in your Journal page.",
       action: {
-        label: "View Journal",
-        onClick: () => navigate("/journal"),
+        label: "View Health Tab",
+        onClick: () => navigate("/mother-dashboard/health"),
       },
     });
   };

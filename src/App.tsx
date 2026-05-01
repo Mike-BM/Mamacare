@@ -10,10 +10,6 @@ import MotherDashboard from "./pages/MotherDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import BabaDashboard from "./pages/BabaDashboard";
-import MyJourney from "./pages/MyJourney";
-import MamaCircle from "./pages/MamaCircle";
-import Community from "./pages/Community";
-import Journal from "./pages/Journal";
 import NotFound from "./pages/NotFound";
 import { OfflineBadge } from "./components/OfflineBadge";
 
@@ -34,10 +30,6 @@ const App = () => (
         <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/baba" element={<BabaDashboard />} />
-        <Route path="/my-journey" element={<MyJourney />} />
-        <Route path="/mama-circle" element={<MamaCircle />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/journal" element={<Journal />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
