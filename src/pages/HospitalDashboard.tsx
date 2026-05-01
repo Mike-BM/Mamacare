@@ -1,10 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet } from "lucide-react";
+import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet, TrendingUp, CheckCircle2, MessageCircle, Settings, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BloodDonorNetwork } from "@/components/BloodDonorNetwork";
+import { toast } from "sonner";
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
@@ -82,6 +83,15 @@ const HospitalDashboard = () => {
             <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl">
               <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
                 <Calendar className="w-4 h-4 mr-2" /> Overview
+              </TabsTrigger>
+              <TabsTrigger value="queue" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+                <Users className="w-4 h-4 mr-2" /> Patient Queue
+              </TabsTrigger>
+              <TabsTrigger value="resources" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+                <Heart className="w-4 h-4 mr-2" /> Resources
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+                <TrendingUp className="w-4 h-4 mr-2" /> Analytics
               </TabsTrigger>
               <TabsTrigger value="donors" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
                 <Droplet className="w-4 h-4 mr-2" /> Blood Network
@@ -232,6 +242,116 @@ const HospitalDashboard = () => {
                   <span className="text-[10px] text-white/30 font-bold uppercase tracking-tighter">v2.4.1-stable</span>
                 </Card>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="queue" className="animate-fade-in focus-visible:outline-none">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Incoming', value: '14 Mothers arriving today', icon: Users, color: 'text-primary' },
+                { label: 'Waiting', value: '5 Currently in waiting area', icon: Calendar, color: 'text-secondary' },
+                { label: 'In Consultation', value: '3 With Doctor', icon: Heart, color: 'text-tertiary' },
+                { label: 'Completed', value: '24 Seen today', icon: CheckCircle2, color: 'text-green-500' }
+              ].map((item, i) => (
+                <Card key={i} className="p-6 glass-card border-white/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <item.icon className={`w-5 h-5 ${item.color}`} />
+                    <h4 className="font-bold">{item.label}</h4>
+                  </div>
+                  <p className="text-2xl font-black">{item.value.split(' ')[0]}</p>
+                  <p className="text-xs text-white/50">{item.value.substring(item.value.indexOf(' ') + 1)}</p>
+                </Card>
+              ))}
+            </div>
+            
+            <Card className="p-6 glass-card border-white/10 mt-6">
+              <h3 className="text-lg font-bold mb-6">Patient Queue Details</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between p-4 bg-white/5 rounded-xl border border-white/10">
+                   <div className="flex items-center gap-4">
+                     <Badge className="bg-orange-500/20 text-orange-400 border-none">Waiting</Badge>
+                     <span className="font-bold">Mary Ochieng</span>
+                     <span className="text-xs text-white/50">Dr. Smith • Routine Checkup</span>
+                   </div>
+                   <span className="text-xs text-white/50">15 mins wait</span>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="resources" className="animate-fade-in focus-visible:outline-none">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-6 glass-card border-white/10">
+                <h3 className="text-lg font-bold mb-6">Bed Availability</h3>
+                <div className="flex justify-between items-center mb-4">
+                  <span>Maternity Ward</span>
+                  <span className="font-black text-green-400">12 Available</span>
+                </div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden mb-6">
+                  <div className="bg-green-400 h-full w-[60%]"></div>
+                </div>
+                
+                <div className="flex justify-between items-center mb-4">
+                  <span>NICU</span>
+                  <span className="font-black text-orange-400">2 Available</span>
+                </div>
+                <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
+                  <div className="bg-orange-400 h-full w-[85%]"></div>
+                </div>
+              </Card>
+
+              <Card className="p-6 glass-card border-white/10">
+                <h3 className="text-lg font-bold mb-6">Staff Roster</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">👩‍⚕️</div>
+                      <span>Dr. Eliza Keith</span>
+                    </div>
+                    <Badge className="bg-green-500/20 text-green-400">On Duty</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">👨‍⚕️</div>
+                      <span>Dr. Sarah Johnson</span>
+                    </div>
+                    <Badge className="bg-white/10 text-white/50">Off Duty</Badge>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="animate-fade-in focus-visible:outline-none">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-6 glass-card border-white/10">
+                <h3 className="text-lg font-bold mb-6">Appointment Volume</h3>
+                <div className="h-48 bg-white/5 rounded-xl border border-white/10 flex items-end justify-around p-4">
+                  {[40, 60, 45, 80, 55, 90, 75].map((h, i) => (
+                    <div key={i} className="w-8 bg-primary/40 rounded-t-sm hover:bg-primary transition-all" style={{ height: `${h}%` }}></div>
+                  ))}
+                </div>
+              </Card>
+              
+              <Card className="p-6 glass-card border-white/10">
+                <h3 className="text-lg font-bold mb-6">Risk Factors (Community)</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Gestational Diabetes</span>
+                      <span>12%</span>
+                    </div>
+                    <div className="w-full bg-white/10 h-1.5 rounded-full"><div className="bg-red-400 h-full w-[12%]"></div></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>High Blood Pressure</span>
+                      <span>8%</span>
+                    </div>
+                    <div className="w-full bg-white/10 h-1.5 rounded-full"><div className="bg-orange-400 h-full w-[8%]"></div></div>
+                  </div>
+                </div>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
