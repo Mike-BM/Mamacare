@@ -294,7 +294,7 @@ export default function MotherDashboard() {
 
         {/* Main Tab Content Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-          <div className="max-w-6xl mx-auto space-y-6 pb-24 md:pb-8 animate-fade-in-up">
+          <div className="w-full space-y-6 pb-24 md:pb-8 animate-fade-in-up">
             
             {activeTab === "overview" && (
               <div className="space-y-6">
@@ -861,11 +861,11 @@ export default function MotherDashboard() {
             )}
 
             {activeTab === "settings" && (
-              <div className="space-y-6 max-w-4xl">
+              <div className="space-y-6 w-full">
                 <h2 className="text-2xl font-bold mb-6">Settings</h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="p-6 glass-card border-white/10 space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  <Card className="lg:col-span-3 p-6 glass-card border-white/10 space-y-6">
                     <div className="flex items-center gap-4 mb-2">
                       <User className="w-6 h-6 text-primary" />
                       <h3 className="text-xl font-bold">Profile & Preferences</h3>
@@ -898,7 +898,7 @@ export default function MotherDashboard() {
                     </div>
                   </Card>
 
-                  <Card className="p-6 glass-card border-white/10 space-y-6">
+                  <Card className="lg:col-span-2 p-6 glass-card border-white/10 space-y-6">
                     <div className="flex items-center gap-4 mb-2">
                       <ShieldCheck className="w-6 h-6 text-green-400" />
                       <h3 className="text-xl font-bold">Privacy & Data</h3>
