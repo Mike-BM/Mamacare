@@ -291,28 +291,6 @@ export default function MotherDashboard() {
           </div>
         </header>
 
-        {/* Tab Navigation (Sticky Below Header) — clean pill tabs */}
-        <div className="hidden md:flex border-b border-white/10 px-8 shrink-0 overflow-x-auto hide-scrollbar bg-background/40 backdrop-blur-md">
-          <div className="flex gap-1">
-            {TABS.map(t => {
-              const isActive = activeTab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => handleTabChange(t.id)}
-                  className={`flex items-center gap-2 px-5 py-4 text-sm font-semibold border-b-2 transition-all duration-200 whitespace-nowrap ${
-                    isActive
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-white/50 hover:text-white/80 hover:border-white/20'
-                  }`}
-                >
-                  <t.icon className="w-4 h-4 shrink-0" />
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Main Tab Content Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
@@ -580,8 +558,8 @@ export default function MotherDashboard() {
                         <Calendar className="w-5 h-5 text-primary" /> Upcoming Visits
                       </h3>
                       <div className="space-y-4">
-                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group">
-                          <div className="flex items-start gap-4">
+                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 hover:bg-white/10 transition-all group flex-wrap">
+                          <div className="flex items-start gap-4 flex-1 min-w-[200px]">
                             <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                               <Video className="w-7 h-7 text-primary" />
                             </div>
@@ -591,7 +569,7 @@ export default function MotherDashboard() {
                               <p className="text-primary text-sm font-bold mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md">Today, 2:00 PM</p>
                             </div>
                           </div>
-                          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                          <div className="flex flex-col sm:flex-row gap-2 shrink-0 flex-wrap">
                             <Button 
                               className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl"
                               onClick={() => {
@@ -612,8 +590,8 @@ export default function MotherDashboard() {
                           </div>
                         </div>
 
-                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-all group opacity-80">
-                          <div className="flex items-start gap-4">
+                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 hover:bg-white/10 transition-all group opacity-80 flex-wrap">
+                          <div className="flex items-start gap-4 flex-1 min-w-[200px]">
                             <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                               <Activity className="w-7 h-7 text-secondary" />
                             </div>
@@ -623,7 +601,7 @@ export default function MotherDashboard() {
                               <p className="text-secondary text-sm font-bold mt-1 bg-secondary/10 inline-block px-2 py-0.5 rounded-md">Next Week, Tue 10:00 AM</p>
                             </div>
                           </div>
-                          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                          <div className="flex flex-col sm:flex-row gap-2 shrink-0 flex-wrap">
                             <Button variant="outline" className="border-white/20 h-11 px-6 rounded-xl hover:bg-white/5">Prep Instructions</Button>
                             <Button variant="outline" className="border-white/20 text-white/50 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
                           </div>
@@ -703,12 +681,12 @@ export default function MotherDashboard() {
                   <div className="flex-1 overflow-y-auto p-0 relative">
                     {!isPremium && (
                       <div className="absolute inset-0 z-10 bg-background/40 backdrop-blur-md flex items-center justify-center p-6">
-                        <div className="glass-card p-8 border border-white/20 rounded-[32px] text-center max-w-sm shadow-2xl">
-                          <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
-                            <Bot className="w-10 h-10 text-primary animate-bounce" />
+                        <div className="glass-card p-6 sm:p-8 border border-white/20 rounded-[32px] text-center w-full max-w-[90%] md:max-w-sm shadow-2xl">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                            <Bot className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-bounce" />
                           </div>
-                          <h4 className="text-2xl font-black mb-3">Dr. Nneka is here 24/7</h4>
-                          <p className="text-sm text-white/60 mb-8 leading-relaxed">You've used your 5 free messages for today. Unlock unlimited chat to get instant support anytime.</p>
+                          <h4 className="text-xl sm:text-2xl font-black mb-3">Dr. Nneka is here 24/7</h4>
+                          <p className="text-xs sm:text-sm text-white/60 mb-6 sm:mb-8 leading-relaxed">You've used your 5 free messages for today. Unlock unlimited chat to get instant support anytime.</p>
                           <Button 
                             className="w-full bg-primary hover:bg-primary/90 h-14 text-lg font-black rounded-2xl shadow-lg shadow-primary/20"
                             onClick={() => triggerPaywall({

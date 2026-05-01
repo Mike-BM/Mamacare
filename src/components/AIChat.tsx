@@ -221,7 +221,7 @@ export const AIChat = () => {
                     : 'bg-muted'
                 } relative`}
               >
-                <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed">{message.content}</p>
+                <p className="whitespace-pre-wrap break-words text-sm sm:text-base leading-relaxed">{message.content}</p>
                 {message.role === 'assistant' && message.riskLevel && message.riskLevel !== 'low' && (
                   <div className={`mt-2 text-xs font-semibold px-2 py-1 rounded inline-block ${
                     message.riskLevel === 'emergency' ? 'bg-red-500/20 text-red-500' :
