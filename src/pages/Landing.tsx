@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import africanBaby1 from "@/assets/african-baby-1.jpg";
@@ -37,6 +39,7 @@ const Landing = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSoundOn, setIsSoundOn] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,10 +49,31 @@ const Landing = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - navigate to mother dashboard
-    navigate("/mother-dashboard");
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      
+      const role = data.user?.user_metadata?.role || 'mother';
+      
+      toast.success("Welcome back! 👋");
+      
+      if (role === 'hospital') navigate("/hospital-dashboard");
+      else if (role === 'admin') navigate("/admin-dashboard");
+      else navigate("/mother-dashboard");
+      
+    } catch (error: any) {
+      toast.error(error.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -147,8 +171,8 @@ const Landing = () => {
                 />
               </div>
 
-              <button type="submit" className="w-full glass-button">
-                Sign In
+              <button type="submit" className="w-full glass-button" disabled={loading}>
+                {loading ? "Signing In..." : "Sign In"}
               </button>
             </form>
 

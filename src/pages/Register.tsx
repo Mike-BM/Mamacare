@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 const Register = () => {
   const [role, setRole] = useState<"mother" | "hospital" | null>(null);
@@ -14,18 +15,40 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
-    toast.success("Registration successful! 🎉");
-    setTimeout(() => {
-      navigate(role === "mother" ? "/mother-dashboard" : "/hospital-dashboard");
-    }, 1000);
+    
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+            role: role
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success("Registration successful! 🎉");
+      setTimeout(() => {
+        navigate(role === "mother" ? "/mother-dashboard" : "/hospital-dashboard");
+      }, 1000);
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during registration");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -130,8 +153,8 @@ const Register = () => {
                 >
                   Back
                 </Button>
-                <Button type="submit" variant="hero" className="flex-1">
-                  Create Account
+                <Button type="submit" variant="hero" className="flex-1" disabled={loading}>
+                  {loading ? "Creating..." : "Create Account"}
                 </Button>
               </div>
             </form>
