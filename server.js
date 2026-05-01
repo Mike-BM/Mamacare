@@ -5,11 +5,19 @@ import crypto from 'crypto';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 
+import { validateEnv } from './backend/config/env.js';
+import { standardLimiter, tierBasedLimiter } from './backend/middleware/rateLimiter.js';
+import { emailService } from './backend/services/emailService.js';
+
 dotenv.config();
+validateEnv(); // Fail fast if critical env vars are missing
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Apply rate limiting
+app.use('/api/', standardLimiter);
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
