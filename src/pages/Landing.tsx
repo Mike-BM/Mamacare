@@ -54,6 +54,18 @@ const Landing = () => {
     setLoading(true);
     
     try {
+      // Test credentials bypass
+      if (email === "test@test.com" && password === "password") {
+        toast.success("Welcome back (Test Mode)! 👋");
+        navigate("/mother-dashboard");
+        return;
+      }
+      if (email === "hospital@test.com" && password === "password") {
+        toast.success("Welcome back, Provider (Test Mode)! 👋");
+        navigate("/hospital-dashboard");
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
