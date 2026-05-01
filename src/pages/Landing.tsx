@@ -55,12 +55,13 @@ const Landing = () => {
     
     try {
       // Test credentials bypass
-      if (email === "test@test.com" && password === "password") {
+      const cleanEmail = email.trim().toLowerCase();
+      if (cleanEmail === "test@test.com" && password === "password") {
         toast.success("Welcome back (Test Mode)! 👋");
         navigate("/mother-dashboard");
         return;
       }
-      if (email === "hospital@test.com" && password === "password") {
+      if (cleanEmail === "hospital@test.com" && password === "password") {
         toast.success("Welcome back, Provider (Test Mode)! 👋");
         navigate("/hospital-dashboard");
         return;
