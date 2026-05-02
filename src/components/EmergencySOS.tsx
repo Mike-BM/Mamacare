@@ -7,10 +7,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { toast } from "sonner";
 import { EMERGENCY_CONTACTS } from "@/lib/offline-store";
 
+import { HospitalMap } from "./HospitalMap";
+
 const NEARBY_HOSPITALS = [
-  { name: "City Maternity Hospital", distance: "1.2 km", beds: 3, eta: "6 min" },
-  { name: "St. Mary's Medical Center", distance: "2.8 km", beds: 5, eta: "11 min" },
-  { name: "Hope Women's Clinic", distance: "4.1 km", beds: 1, eta: "15 min" },
+  { name: "City Maternity Hospital", distance: "1.2 km", beds: 3, eta: "6 min", lat: -1.280000, lng: 36.820000 },
+  { name: "St. Mary's Medical Center", distance: "2.8 km", beds: 5, eta: "11 min", lat: -1.295000, lng: 36.810000 },
+  { name: "Hope Women's Clinic", distance: "4.1 km", beds: 1, eta: "15 min", lat: -1.275000, lng: 36.830000 },
 ];
 
 export const EmergencySOS = () => {
@@ -218,7 +220,13 @@ export const EmergencySOS = () => {
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left">
-              <h3 className="text-sm font-bold text-white/80 mb-3 flex items-center gap-2"><Hospital className="w-4 h-4 text-red-400" /> Nearest Hospitals</h3>
+              <h3 className="text-sm font-bold text-white/80 mb-3 flex items-center gap-2"><Hospital className="w-4 h-4 text-red-400" /> Live Tracker</h3>
+              {location && (
+                <div className="mb-4">
+                  <HospitalMap userLocation={location} hospitals={NEARBY_HOSPITALS} />
+                </div>
+              )}
+              <h3 className="text-sm font-bold text-white/80 mb-3 flex items-center gap-2 mt-4"><Hospital className="w-4 h-4 text-red-400" /> Nearest Hospitals</h3>
               <div className="space-y-3">
                 {NEARBY_HOSPITALS.map((hospital, idx) => (
                   <div key={idx} className="flex justify-between items-center bg-background/50 p-2 rounded-lg">

@@ -28,7 +28,7 @@ export const env = {
   geminiApiKey: process.env.GEMINI_API_KEY || 'dummy_gemini_key',
   sendgridApiKey: process.env.SENDGRID_API_KEY || 'SG.dummy_sendgrid_key',
   supabaseUrl: process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
-  supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY,
+  supabaseKey: process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   jwtSecret: process.env.JWT_SECRET || 'fallback_jwt_secret_dev_only',
   mpesaConsumerKey: process.env.MPESA_CONSUMER_KEY,
   mpesaConsumerSecret: process.env.MPESA_CONSUMER_SECRET,

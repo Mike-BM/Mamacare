@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BloodDonorNetwork } from "@/components/BloodDonorNetwork";
 import { toast } from "sonner";
+import { AmbulanceTrackerMap } from "@/components/AmbulanceTrackerMap";
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
@@ -17,8 +18,8 @@ const HospitalDashboard = () => {
   ];
 
   const sosAlerts = [
-    { id: 1, patient: "Jane John", severity: "high", time: "5 mins ago", location: "Zone A, Floor 2" },
-    { id: 2, patient: "Lisa Wanjiru", severity: "medium", time: "12 mins ago", location: "Emergency Ward" },
+    { id: 1, patient: "Jane John", severity: "high", time: "5 mins ago", location: "Zone A, Floor 2", lat: -1.280000, lng: 36.820000 },
+    { id: 2, patient: "Lisa Wanjiru", severity: "medium", time: "12 mins ago", location: "Emergency Ward", lat: -1.295000, lng: 36.810000 },
   ];
 
   return (
@@ -93,6 +94,9 @@ const HospitalDashboard = () => {
               <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
                 <TrendingUp className="w-4 h-4 mr-2" /> Analytics
               </TabsTrigger>
+              <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+                <MapPin className="w-4 h-4 mr-2" /> Live Map
+              </TabsTrigger>
               <TabsTrigger value="donors" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
                 <Droplet className="w-4 h-4 mr-2" /> Blood Network
               </TabsTrigger>
@@ -106,6 +110,20 @@ const HospitalDashboard = () => {
           <TabsContent value="donors" className="animate-fade-in focus-visible:outline-none">
             <div className="max-w-4xl mx-auto">
               <BloodDonorNetwork />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="map" className="animate-fade-in focus-visible:outline-none">
+            <div className="max-w-6xl mx-auto">
+              <Card className="p-6 glass-card border-white/10">
+                <h3 className="text-xl font-black mb-6 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-destructive/20 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-destructive animate-pulse" />
+                  </div>
+                  Live Emergency & Ambulance Tracker
+                </h3>
+                <AmbulanceTrackerMap hospitalLocation={{ lat: -1.286389, lng: 36.817223 }} activeAlerts={sosAlerts} />
+              </Card>
             </div>
           </TabsContent>
 
