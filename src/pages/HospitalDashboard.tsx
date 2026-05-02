@@ -80,8 +80,8 @@ const HospitalDashboard = () => {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-8">
-          <div className="flex items-center justify-between border-b border-white/5 pb-2">
-            <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl">
+          <div className="flex items-center justify-between border-b border-white/5 pb-2 overflow-x-auto hide-scrollbar">
+            <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl flex-nowrap w-max">
               <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
                 <Calendar className="w-4 h-4 mr-2" /> Overview
               </TabsTrigger>
@@ -102,8 +102,8 @@ const HospitalDashboard = () => {
               </TabsTrigger>
             </TabsList>
             <div className="hidden sm:flex gap-2">
-              <Button size="sm" variant="outline" className="border-white/10 hover:bg-white/5 rounded-xl text-xs font-bold">Export Report</Button>
-              <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold">Add Patient</Button>
+              <Button size="sm" variant="outline" className="border-white/10 hover:bg-white/5 rounded-xl text-xs font-bold h-11">Export Report</Button>
+              <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11">Add Patient</Button>
             </div>
           </div>
 
@@ -128,9 +128,9 @@ const HospitalDashboard = () => {
           </TabsContent>
 
           <TabsContent value="overview" className="animate-fade-in focus-visible:outline-none">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Appointments List */}
-              <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              {/* Appointments List (60%) */}
+              <div className="lg:col-span-3 space-y-6">
                 <Card className="p-6 glass-card border-white/10 h-full">
                   <div className="flex items-center justify-between mb-8">
                     <h3 className="text-xl font-black flex items-center gap-3">
@@ -175,8 +175,8 @@ const HospitalDashboard = () => {
                              <span className="text-[10px] text-muted-foreground font-bold flex items-center shrink-0">History Available</span>
                           </div>
                           <div className="flex gap-2 w-full sm:w-auto shrink-0">
-                            <Button size="sm" variant="ghost" className="flex-1 sm:flex-none h-9 px-4 rounded-xl hover:bg-white/5 font-bold text-xs">Details</Button>
-                            <Button size="sm" variant={apt.status === "confirmed" ? "outline" : "secondary"} className="flex-1 sm:flex-none h-9 px-6 rounded-xl font-bold text-xs shadow-lg">
+                            <Button size="sm" variant="ghost" className="flex-1 sm:flex-none h-11 px-4 rounded-xl hover:bg-white/5 font-bold text-xs">Details</Button>
+                            <Button size="sm" variant={apt.status === "confirmed" ? "outline" : "secondary"} className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-bold text-xs shadow-lg">
                               {apt.status === "confirmed" ? "View Chart" : "Confirm"}
                             </Button>
                           </div>
@@ -187,8 +187,8 @@ const HospitalDashboard = () => {
                 </Card>
               </div>
 
-              {/* Sidebar Panel */}
-              <div className="space-y-6">
+              {/* Sidebar Panel (40%) */}
+              <div className="lg:col-span-2 space-y-6">
                 {/* Emergency Alerts Panel */}
                 <Card className="p-6 glass-card border-destructive/30 bg-gradient-to-br from-destructive/10 to-transparent relative overflow-hidden group">
                   <div className="absolute -top-12 -right-12 w-24 h-24 bg-destructive/10 rounded-full blur-2xl group-hover:bg-destructive/20 transition-all" />
@@ -218,7 +218,7 @@ const HospitalDashboard = () => {
                         <Button 
                           size="sm" 
                           variant="destructive" 
-                          className="w-full h-10 font-black rounded-xl shadow-lg shadow-destructive/20 active:scale-95 transition-transform"
+                          className="w-full h-11 font-black rounded-xl shadow-lg shadow-destructive/20 active:scale-95 transition-transform"
                           onClick={() => {
                             const audio = new Audio('/sounds/emergency-alert.mp3');
                             audio.play().catch(() => {});

@@ -17,8 +17,8 @@ export const PregnancyProgressTabs = ({ currentWeek, totalWeeks = 40 }: Pregnanc
 
       <div className="relative z-10 space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-2xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+          <h3 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             👶 Week {currentWeek} of {totalWeeks}
           </h3>
           <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary uppercase font-bold tracking-wider">

@@ -85,8 +85,8 @@ export const Analytics = () => {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <Card className="p-6 lg:col-span-3">
           <h3 className="text-lg font-semibold mb-6">Monthly Growth Trends</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyData}>
@@ -106,7 +106,7 @@ export const Analytics = () => {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-6 lg:col-span-2">
           <h3 className="text-lg font-semibold mb-6">Hospital Distribution</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -129,7 +129,7 @@ export const Analytics = () => {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="p-6 lg:col-span-2">
+        <Card className="p-6 lg:col-span-5">
           <h3 className="text-lg font-semibold mb-6">Emergency Response Metrics</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={monthlyData}>

@@ -324,7 +324,7 @@ export default function MotherDashboard() {
                         <Button 
                           size="sm" 
                           variant="hero" 
-                          className="w-full h-10 text-xs animate-pulse font-bold"
+                          className="w-full h-11 text-xs animate-pulse font-bold"
                           onClick={(e) => {
                             if (!isPremium) {
                               e.stopPropagation();
@@ -809,7 +809,7 @@ export default function MotherDashboard() {
                         <h4 className="font-black text-2xl mb-3">Mentor Matching</h4>
                         <p className="text-sm text-white/60 leading-relaxed mb-6">Connect with an experienced mom who has been through it all. Get personalized advice and 1-on-1 support.</p>
                       </div>
-                      <Button className="w-full bg-secondary hover:bg-secondary/90 text-white h-14 text-lg font-black rounded-2xl shadow-lg shadow-secondary/20">Find a Mentor</Button>
+                      <Button className="w-full bg-secondary hover:bg-secondary/90 text-white h-11 md:h-14 text-sm md:text-lg font-black rounded-2xl shadow-lg shadow-secondary/20">Find a Mentor</Button>
                     </Card>
 
                     <Card className="p-8 glass-card border-white/10 text-center flex flex-col items-center justify-center h-[280px]">
@@ -818,7 +818,7 @@ export default function MotherDashboard() {
                       </div>
                       <h4 className="font-black text-xl mb-2">Partner Mode</h4>
                       <p className="text-sm text-white/50 mb-6 px-4">Scan QR to invite your partner to track the journey with you.</p>
-                      <Button variant="outline" className="w-full border-white/10 hover:bg-white/5 h-12 rounded-2xl font-bold uppercase tracking-widest text-xs">Show QR Code</Button>
+                      <Button variant="outline" className="w-full border-white/10 hover:bg-white/5 h-11 rounded-2xl font-bold uppercase tracking-widest text-[10px]">Show QR Code</Button>
                     </Card>
                   </div>
                 </div>
@@ -941,7 +941,7 @@ export default function MotherDashboard() {
               <div key="center-action" className="relative -top-5">
                 <button 
                   onClick={() => handleTabChange('ai')}
-                  className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-95"
+                  className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-95 touch-manipulation"
                 >
                   <Bot className="w-7 h-7" />
                 </button>

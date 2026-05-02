@@ -142,7 +142,7 @@ export const AIChat = () => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-card/50 backdrop-blur-md border border-border rounded-2xl overflow-hidden relative">
+    <div className="flex flex-col h-full bg-card/50 backdrop-blur-md border border-border rounded-2xl overflow-hidden relative min-h-[500px]">
       {showEmergencyBanner && (
         <div className="bg-red-600 text-white p-3 flex justify-between items-center animate-in slide-in-from-top">
           <div className="flex items-center gap-2">

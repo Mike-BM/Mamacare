@@ -153,6 +153,7 @@ const Landing = () => {
             src={slide.image}
             alt={`African mother and newborn - ${slide.text}`}
             className="absolute inset-0 w-full h-full object-contain sm:object-cover"
+            loading="lazy"
           />
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black/40 sm:bg-black/20" />
@@ -211,7 +212,7 @@ const Landing = () => {
                     variant="glass" 
                     size="sm" 
                     onClick={() => navigate("/mother-dashboard")}
-                    className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
                   >
                     <Heart className="w-3 h-3 text-primary" /> Mother
                   </Button>
@@ -219,7 +220,7 @@ const Landing = () => {
                     variant="glass" 
                     size="sm" 
                     onClick={() => navigate("/hospital-dashboard")}
-                    className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
                   >
                     <Building2 className="w-3 h-3 text-secondary" /> Hospital
                   </Button>
@@ -227,7 +228,7 @@ const Landing = () => {
                     variant="glass" 
                     size="sm" 
                     onClick={() => navigate("/admin-dashboard")}
-                    className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
                   >
                     <ShieldCheck className="w-3 h-3 text-accent" /> Admin
                   </Button>
@@ -235,7 +236,7 @@ const Landing = () => {
                     variant="glass" 
                     size="sm" 
                     onClick={() => navigate("/baba")}
-                    className="flex items-center gap-2 h-10 text-[10px] font-bold"
+                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
                   >
                     <Users className="w-3 h-3 text-tertiary" /> Baba
                   </Button>
