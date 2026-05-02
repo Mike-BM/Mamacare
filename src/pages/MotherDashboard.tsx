@@ -398,7 +398,7 @@ export default function MotherDashboard() {
                       { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
                       { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
                     ].map(topic => (
-                      <Card key={topic.id} className="min-w-[280px] md:min-w-[320px] p-5 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col group h-[180px]">
+                      <Card key={topic.id} className="min-w-[280px] md:min-w-[280px] sm:min-w-[320px] p-5 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col group h-[180px]">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
                           {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
@@ -758,12 +758,12 @@ export default function MotherDashboard() {
                   {/* Left Side: Chat Rooms (60%) */}
                   <div className="lg:col-span-3 space-y-6">
                     <Card className="p-8 glass-card border-white/10">
-                      <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-2xl font-black flex items-center gap-3">
-                          <Users className="w-8 h-8 text-primary" /> Group Chat Rooms
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                        <h3 className="text-xl sm:text-2xl font-black flex items-center gap-3">
+                          <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" /> Group Chat Rooms
                         </h3>
                         <Button 
-                          className="bg-primary hover:bg-primary/90 text-white font-black h-12 px-6 rounded-2xl shadow-lg shadow-primary/20"
+                          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-black h-11 px-6 rounded-2xl shadow-lg shadow-primary/20"
                           onClick={() => {
                             if (!isPremium) {
                               triggerPaywall({
@@ -784,17 +784,17 @@ export default function MotherDashboard() {
                           { id: 1, title: "3rd Trimester Mamas", lastMsg: "Eliza J: Does anyone else feel like...", online: 31, icon: "🤰", isNew: true },
                           { id: 2, title: "Pregnancy Yoga", lastMsg: "Instructor: Class starts in 10 mins!", online: 12, icon: "🧘‍♀️", isNew: false }
                         ].map((group) => (
-                          <div key={group.id} className={`p-5 rounded-[24px] cursor-pointer hover:scale-[1.02] transition-all flex items-center justify-between border ${group.isNew ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                            <div className="flex items-center gap-5">
-                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${group.isNew ? 'bg-primary/20' : 'bg-white/10'}`}>{group.icon}</div>
-                              <div>
-                                <h4 className="font-black text-white text-lg flex items-center gap-2">{group.title} {group.isNew && <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>}</h4>
-                                <p className="text-sm text-white/50 mt-1">{group.lastMsg}</p>
+                          <div key={group.id} className={`p-4 sm:p-5 rounded-[24px] cursor-pointer hover:scale-[1.02] transition-all flex flex-row items-center justify-between border ${group.isNew ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                            <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shrink-0 ${group.isNew ? 'bg-primary/20' : 'bg-white/10'}`}>{group.icon}</div>
+                              <div className="min-w-0">
+                                <h4 className="font-black text-white text-base sm:text-lg flex items-center gap-2 truncate">{group.title} {group.isNew && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></span>}</h4>
+                                <p className="text-xs sm:text-sm text-white/50 mt-1 truncate">{group.lastMsg}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              {group.isNew && <Badge className="bg-primary text-white font-bold px-3 py-1 mb-2">3 New</Badge>}
-                              <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{group.online} online</p>
+                            <div className="text-right shrink-0 ml-2">
+                              {group.isNew && <Badge className="bg-primary text-white font-bold px-2 py-0.5 text-[10px] mb-1">3 New</Badge>}
+                              <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">{group.online} online</p>
                             </div>
                           </div>
                         ))}
@@ -835,7 +835,7 @@ export default function MotherDashboard() {
                        { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
                        { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
                      ].map(topic => (
-                       <Card key={topic.id} className="min-w-[320px] p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[220px] group">
+                       <Card key={topic.id} className="min-w-[280px] sm:min-w-[320px] p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[220px] group">
                          <div>
                            <div className="flex items-center justify-between mb-4">
                              <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
@@ -961,7 +961,7 @@ export default function MotherDashboard() {
       </nav>
 
       {/* Global Floating Elements */}
-      <div className="fixed bottom-24 md:bottom-8 left-4 md:left-6 z-50">
+      <div className="fixed bottom-28 md:bottom-12 left-6 md:left-8 z-50">
         <EmergencySOS />
       </div>
       <SymptomTriageBubble />

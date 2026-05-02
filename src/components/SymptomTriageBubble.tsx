@@ -84,17 +84,17 @@ export const SymptomTriageBubble = () => {
 
   return (
     <>
-      {/* Floating bubble bottom-LEFT (opposite SOS) */}
+      {/* Floating bubble bottom-RIGHT */}
       <Button
         aria-label="Open symptom triage"
         onClick={() => setOpen(true)}
-        className="fixed bottom-8 left-8 z-50 rounded-full w-14 h-14 shadow-[var(--shadow-glow-violet)] bg-gradient-to-br from-tertiary to-primary hover:scale-110 transition-transform"
+        className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-50 rounded-full w-14 h-14 shadow-[var(--shadow-glow-violet)] bg-gradient-to-br from-tertiary to-primary hover:scale-110 transition-transform"
       >
         <MessageCircleHeart className="w-6 h-6 text-white" />
       </Button>
 
       {open && (
-        <Card className="fixed bottom-28 left-8 z-50 w-[92vw] max-w-sm h-[480px] flex flex-col bg-card/95 backdrop-blur-xl border-border shadow-[var(--shadow-elegant)] animate-fade-in">
+        <Card className="fixed bottom-44 right-4 md:bottom-28 md:right-8 z-50 w-[92vw] max-w-sm h-[480px] flex flex-col bg-card/95 backdrop-blur-xl border-border shadow-[var(--shadow-elegant)] animate-fade-in">
           <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-tertiary/20 to-primary/20">
             <div className="flex items-center gap-2">
               <MessageCircleHeart className="w-5 h-5 text-tertiary" />

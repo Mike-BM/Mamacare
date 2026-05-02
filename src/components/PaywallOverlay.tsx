@@ -66,9 +66,9 @@ export const PaywallOverlay = ({
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary"></div>
               
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-3xl bg-primary/20 flex items-center justify-center relative">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl bg-primary/20 flex items-center justify-center relative">
                     <Lock className="w-8 h-8 text-primary" />
                     <motion.div 
                       className="absolute -top-1 -right-1"
@@ -80,9 +80,9 @@ export const PaywallOverlay = ({
                   </div>
                 </div>
 
-                <div className="text-center space-y-2 mb-8">
-                  <h2 className="text-2xl font-black text-white">🔒 Mama {requiredTier} Required</h2>
-                  <p className="text-white/70 italic">"{featureValue}"</p>
+                <div className="text-center space-y-2 mb-6 sm:mb-8">
+                  <h2 className="text-xl sm:text-2xl font-black text-white">🔒 Mama {requiredTier} Required</h2>
+                  <p className="text-sm sm:text-base text-white/70 italic px-2">"{featureValue}"</p>
                 </div>
 
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-5 space-y-4 mb-8">
@@ -98,12 +98,12 @@ export const PaywallOverlay = ({
 
                 <div className="space-y-4">
                   <Button 
-                    className="w-full h-14 bg-gradient-to-r from-primary to-secondary hover:scale-[0.98] transition-transform text-lg font-black rounded-2xl shadow-[0_0_25px_rgba(255,126,179,0.3)]"
+                    className="w-full h-12 sm:h-14 bg-gradient-to-r from-primary to-secondary hover:scale-[0.98] transition-transform text-base sm:text-lg font-black rounded-2xl shadow-[0_0_25px_rgba(255,126,179,0.3)]"
                     onClick={() => setStep("pay")}
                   >
                     Unlock for ${price}/mo
                   </Button>
-                  <p className="text-[10px] text-center text-white/40 uppercase tracking-widest font-bold">Most popular • 1,200+ mamas chose this</p>
+                  <p className="text-[9px] sm:text-[10px] text-center text-white/40 uppercase tracking-widest font-bold">Most popular • 1,200+ mamas chose this</p>
                   
                   <div className="pt-4 flex flex-col gap-3">
                     <button className="text-sm text-white/40 hover:text-white transition-colors font-bold uppercase tracking-wider underline decoration-white/20 underline-offset-4">Change Plan</button>
@@ -125,7 +125,7 @@ export const PaywallOverlay = ({
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="glass-card border border-white/20 bg-[#0f0f1a]/95 backdrop-blur-2xl rounded-[32px] overflow-hidden p-8"
+              className="glass-card border border-white/20 bg-[#0f0f1a]/95 backdrop-blur-2xl rounded-[32px] overflow-hidden p-5 sm:p-8"
             >
               <div className="flex items-center gap-3 mb-8">
                 <ShieldCheck className="w-6 h-6 text-green-400" />
@@ -205,7 +205,7 @@ export const PaywallOverlay = ({
               key="success"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-card border border-white/20 bg-[#0f0f1a]/95 backdrop-blur-2xl rounded-[32px] overflow-hidden p-8 text-center"
+              className="glass-card border border-white/20 bg-[#0f0f1a]/95 backdrop-blur-2xl rounded-[32px] overflow-hidden p-6 sm:p-8 text-center"
             >
               <motion.div 
                 initial={{ scale: 0 }}

@@ -149,38 +149,38 @@ const HospitalDashboard = () => {
                         className="p-5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group animate-fade-in-up"
                         style={{ animationDelay: `${index * 0.1}s` }}
                       >
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-secondary/20 bg-secondary/10 flex items-center justify-center text-base sm:text-lg shadow-inner shrink-0">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                          <div className="flex items-center gap-3 w-full md:w-auto">
+                            <div className="w-10 h-10 rounded-full border-2 border-secondary/20 bg-secondary/10 flex items-center justify-center text-base shadow-inner shrink-0">
                               {apt.patient[0]}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="font-bold text-base sm:text-lg text-white group-hover:text-secondary transition-colors truncate">{apt.patient}</p>
+                              <p className="font-bold text-base text-white group-hover:text-secondary transition-colors truncate">{apt.patient}</p>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 <Badge variant="secondary" className="text-[10px] h-5 bg-white/5 border-white/10">{apt.type}</Badge>
                                 {apt.priority === 'high' && <Badge variant="destructive" className="text-[10px] h-5 animate-pulse">High Priority</Badge>}
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-row sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto mt-2 sm:mt-0">
-                            <p className="text-lg sm:text-xl font-black text-white/90">{apt.time}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest sm:mt-1">{apt.status}</p>
+                          <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto">
+                            <p className="text-lg font-black text-white/90">{apt.time}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{apt.status}</p>
                           </div>
                         </div>
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t border-white/5 gap-4">
-                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-white/5 gap-3">
+                          <div className="flex items-center gap-2">
                              <div className="flex -space-x-2">
-                               {[1, 2, 3].map(i => <div key={i} className="w-6 h-6 rounded-full border border-background bg-white/10 flex items-center justify-center text-[8px]">🏥</div>)}
+                                {[1, 2, 3].map(i => <div key={i} className="w-6 h-6 rounded-full border border-background bg-white/10 flex items-center justify-center text-[8px]">🏥</div>)}
                              </div>
-                             <span className="text-[10px] text-muted-foreground font-bold flex items-center shrink-0">History Available</span>
+                             <span className="text-[10px] text-muted-foreground font-bold shrink-0">History Available</span>
                           </div>
-                          <div className="flex gap-2 w-full sm:w-auto shrink-0">
+                          <div className="flex gap-2 w-full sm:w-auto">
                             <Button size="sm" variant="ghost" className="flex-1 sm:flex-none h-11 px-4 rounded-xl hover:bg-white/5 font-bold text-xs">Details</Button>
                             <Button size="sm" variant={apt.status === "confirmed" ? "outline" : "secondary"} className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-bold text-xs shadow-lg">
                               {apt.status === "confirmed" ? "View Chart" : "Confirm"}
                             </Button>
                           </div>
-                        </div>
+                        </div>iv>
                       </div>
                     ))}
                   </div>
