@@ -98,35 +98,40 @@ const Landing = () => {
         </audio>
       )}
 
-      {/* Sound Toggle Button */}
-      <button
-        onClick={() => setIsSoundOn(!isSoundOn)}
-        className="fixed top-6 right-6 z-50 backdrop-blur-xl bg-card/80 border border-border/50 rounded-full p-3 hover:bg-card transition-all duration-300 hover:scale-110 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
-        aria-label={isSoundOn ? "Mute sound" : "Unmute sound"}
-      >
-        {isSoundOn ? (
-          <Volume2 className="w-6 h-6 text-primary" />
-        ) : (
-          <VolumeX className="w-6 h-6 text-muted-foreground" />
-        )}
-      </button>
+      {/* Top Controls */}
+      <div className="fixed top-0 left-0 right-0 p-4 sm:p-6 z-50 flex justify-between items-center gap-2 pointer-events-none">
+        {/* Navigation Links */}
+        <div className="flex gap-2 sm:gap-3 flex-wrap pointer-events-auto">
+          <Button
+            variant="glass"
+            size="sm"
+            onClick={() => navigate("/about")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-xs sm:text-sm h-8 sm:h-10"
+          >
+            About
+          </Button>
+          <Button
+            variant="glass"
+            size="sm"
+            onClick={() => navigate("/features")}
+            className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] text-xs sm:text-sm h-8 sm:h-10"
+          >
+            Features
+          </Button>
+        </div>
 
-      {/* Navigation Links */}
-      <div className="fixed top-6 left-6 z-50 flex gap-3">
-        <Button
-          variant="glass"
-          onClick={() => navigate("/about")}
-          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
+        {/* Sound Toggle Button */}
+        <button
+          onClick={() => setIsSoundOn(!isSoundOn)}
+          className="backdrop-blur-xl bg-card/80 border border-border/50 rounded-full p-2 sm:p-3 hover:bg-card transition-all duration-300 hover:scale-110 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] shrink-0 pointer-events-auto"
+          aria-label={isSoundOn ? "Mute sound" : "Unmute sound"}
         >
-          About
-        </Button>
-        <Button
-          variant="glass"
-          onClick={() => navigate("/features")}
-          className="shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]"
-        >
-          Features
-        </Button>
+          {isSoundOn ? (
+            <Volume2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
+          ) : (
+            <VolumeX className="w-4 h-4 sm:w-6 sm:h-6 text-muted-foreground" />
+          )}
+        </button>
       </div>
 
       {/* Carousel Background with zoom animation */}
