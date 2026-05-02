@@ -758,7 +758,7 @@ export default function MotherDashboard() {
                   {/* Left Side: Chat Rooms (60%) */}
                   <div className="lg:col-span-3 space-y-6">
                     <Card className="p-8 glass-card border-white/10">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 responsive-header">
                         <h3 className="text-xl sm:text-2xl font-black flex items-center gap-3">
                           <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" /> Group Chat Rooms
                         </h3>
@@ -784,7 +784,7 @@ export default function MotherDashboard() {
                           { id: 1, title: "3rd Trimester Mamas", lastMsg: "Eliza J: Does anyone else feel like...", online: 31, icon: "🤰", isNew: true },
                           { id: 2, title: "Pregnancy Yoga", lastMsg: "Instructor: Class starts in 10 mins!", online: 12, icon: "🧘‍♀️", isNew: false }
                         ].map((group) => (
-                          <div key={group.id} className={`p-4 sm:p-5 rounded-[24px] cursor-pointer hover:scale-[1.02] transition-all flex flex-row items-center justify-between border ${group.isNew ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                          <div key={group.id} className={`p-4 sm:p-5 rounded-[24px] cursor-pointer hover:scale-[1.02] transition-all flex flex-row items-center justify-between border responsive-card-row ${group.isNew ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
                             <div className="flex items-center gap-3 sm:gap-5 min-w-0">
                               <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shrink-0 ${group.isNew ? 'bg-primary/20' : 'bg-white/10'}`}>{group.icon}</div>
                               <div className="min-w-0">
@@ -792,7 +792,7 @@ export default function MotherDashboard() {
                                 <p className="text-xs sm:text-sm text-white/50 mt-1 truncate">{group.lastMsg}</p>
                               </div>
                             </div>
-                            <div className="text-right shrink-0 ml-2">
+                            <div className="text-right shrink-0 ml-2 mobile-stack">
                               {group.isNew && <Badge className="bg-primary text-white font-bold px-2 py-0.5 text-[10px] mb-1">3 New</Badge>}
                               <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">{group.online} online</p>
                             </div>

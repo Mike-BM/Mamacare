@@ -132,14 +132,14 @@ const HospitalDashboard = () => {
               {/* Appointments List (60%) */}
               <div className="lg:col-span-3 space-y-6">
                 <Card className="p-6 glass-card border-white/10 h-full">
-                  <div className="flex items-center justify-between mb-8">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 responsive-header">
                     <h3 className="text-xl font-black flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-secondary/20 flex items-center justify-center">
                         <Calendar className="w-4 h-4 text-secondary" />
                       </div>
                       Today's Schedule
                     </h3>
-                    <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20 font-bold px-3 py-1">3 Pending</Badge>
+                    <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20 font-bold px-3 py-1 w-fit">3 Pending</Badge>
                   </div>
                   
                   <div className="space-y-4">
@@ -149,7 +149,7 @@ const HospitalDashboard = () => {
                         className="p-5 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all group animate-fade-in-up"
                         style={{ animationDelay: `${index * 0.1}s` }}
                       >
-                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4 responsive-card-row">
                           <div className="flex items-center gap-3 w-full md:w-auto">
                             <div className="w-10 h-10 rounded-full border-2 border-secondary/20 bg-secondary/10 flex items-center justify-center text-base shadow-inner shrink-0">
                               {apt.patient[0]}
@@ -162,7 +162,7 @@ const HospitalDashboard = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto">
+                          <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto mobile-stack">
                             <p className="text-lg font-black text-white/90">{apt.time}</p>
                             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{apt.status}</p>
                           </div>

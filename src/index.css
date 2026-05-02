@@ -152,14 +152,65 @@ All colors MUST be HSL.
   transform: translateY(-2px) !important;
 }
 
-/* Responsive constraints */
-@media (max-width: 768px) {
-  .glass-card {
-    backdrop-filter: blur(12px) saturate(1.2);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    background: rgba(15, 15, 26, 0.35);
-    margin: 0 24px;
-    width: auto;
+/* Dashboard specific responsiveness */
+@media (max-width: 639px) {
+  .responsive-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
   }
+  
+  .responsive-header button,
+  .responsive-header .button {
+    width: 100% !important;
+  }
+
+  .responsive-card-row {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+  }
+
+  .responsive-card-row > div {
+    width: 100% !important;
+  }
+
+  /* Force vertical stacking for specific dashboard elements on mobile */
+  .mobile-stack {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
+}
+
+/* Ensure touch targets and spacing are consistent */
+@media (max-width: 480px) {
+  :root {
+    --radius: 0.75rem;
+  }
+  
+  .glass-card {
+    padding: 1rem !important;
+    border-radius: 1.5rem !important;
+  }
+
+  h1 { font-size: 1.75rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  h3 { font-size: 1.25rem !important; }
+  
+  .button-h-standard {
+    height: 44px !important;
+  }
+}
+
+/* Fix for floating overlaps */
+.floating-element-container {
+  pointer-events: none;
+}
+
+.floating-element-container > * {
+  pointer-events: auto;
 }
 
