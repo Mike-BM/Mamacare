@@ -143,7 +143,7 @@ export default function MotherDashboard() {
 
         {/* Quick Stats Mini - More Subtle */}
         <div className="mb-8 px-2">
-          <div className="flex items-center justify-between text-[10px] text-white/40 uppercase tracking-widest mb-3">
+          <div className="flex flex-row items-center justify-between flex-row-mobile-stack text-[10px] text-white/40 uppercase tracking-widest mb-3">
             <span>Vital Signs</span>
             <span>Updated 2 days ago</span>
           </div>
@@ -209,7 +209,7 @@ export default function MotherDashboard() {
 
         {/* Daily Tasks inside Sidebar */}
         <div className="mb-6 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
             <h4 className="text-xs font-semibold text-white/70 uppercase tracking-wider">Daily Tasks</h4>
             <span className="text-xs text-primary">{completedTasks}/{tasks.length}</span>
           </div>
@@ -256,7 +256,7 @@ export default function MotherDashboard() {
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative z-30">
         
         {/* Header */}
-        <header className={`border-b border-white/10 px-4 md:px-8 py-3 flex items-center justify-between shrink-0 transition-colors ${isLiteMode ? 'bg-background' : 'backdrop-blur-xl bg-background/60'}`}>
+        <header className={`border-b border-white/10 px-4 md:px-8 py-3 flex flex-row items-center justify-between flex-row-mobile-stack shrink-0 transition-colors ${isLiteMode ? 'bg-background' : 'backdrop-blur-xl bg-background/60'}`}>
           <div className="md:hidden flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-tertiary/20 flex items-center justify-center">
               <Heart className="w-5 h-5 text-primary" fill="currentColor" />
@@ -354,7 +354,7 @@ export default function MotherDashboard() {
                         <CheckCircle2 className="w-5 h-5 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-1.5">
                           <h4 className="font-bold text-white/90">Daily Tasks</h4>
                           <span className="text-xs text-primary font-bold shrink-0 ml-2">{completedTasks}/{tasks.length} Completed</span>
                         </div>
@@ -384,7 +384,7 @@ export default function MotherDashboard() {
 
                 {/* Row 3: Community Pulse (Scrollable Cards) */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-tertiary" />
                       <h4 className="font-bold text-white/90">Community Pulse</h4>
@@ -399,12 +399,12 @@ export default function MotherDashboard() {
                       { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
                     ].map(topic => (
                       <Card key={topic.id} className="min-w-[280px] md:min-w-[280px] sm:min-w-[320px] p-5 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col group h-[180px]">
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-3">
                           <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
                           {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
                         </div>
                         <p className="text-sm text-white/80 line-clamp-3 mb-auto italic leading-relaxed">"{topic.text}"</p>
-                        <div className="flex items-center justify-between mt-4">
+                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack mt-4">
                           <div className="flex items-center gap-2">
                             <div className="flex -space-x-2">
                               {[1, 2].map(i => (
@@ -433,7 +433,7 @@ export default function MotherDashboard() {
                   </div>
                   <div className="lg:col-span-2">
                     <Card className="p-6 glass-card border-white/10 hover:border-white/20 transition-all group h-full flex flex-col justify-center">
-                      <div className="flex items-center justify-between mb-6">
+                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                             <Activity className="w-6 h-6 text-green-400" />
@@ -500,13 +500,13 @@ export default function MotherDashboard() {
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                    <div className="lg:col-span-3">
                      <Card className="p-6 glass-card border-white/10 h-full">
-                       <div className="flex items-center justify-between mb-6">
+                       <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-6">
                          <h4 className="font-bold text-lg flex items-center gap-2"><Pill className="w-5 h-5 text-primary" /> Medication Checklist</h4>
                          <Badge className="bg-primary/20 text-primary border-primary/30">2 Reminders</Badge>
                        </div>
                        <div className="space-y-3">
                          {["Prenatal Vitamins", "Iron Supplement"].map((med, i) => (
-                           <div key={med} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                           <div key={med} className="flex flex-row items-center justify-between flex-row-mobile-stack p-4 bg-white/5 rounded-2xl border border-white/5">
                              <div className="flex items-center gap-3">
                                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl">💊</div>
                                <div>
@@ -546,7 +546,7 @@ export default function MotherDashboard() {
 
             {activeTab === "appointments" && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                   <h2 className="text-2xl font-bold">Appointments</h2>
                 </div>
 
@@ -666,7 +666,7 @@ export default function MotherDashboard() {
             {activeTab === "ai" && (
               <div className="h-[calc(100vh-200px)] grid grid-cols-1 lg:grid-cols-5 gap-6">
                 <div className="lg:col-span-3 h-full rounded-[32px] overflow-hidden glass-card border border-white/10 flex flex-col">
-                  <div className="p-5 border-b border-white/10 bg-background/50 flex items-center justify-between">
+                  <div className="p-5 border-b border-white/10 bg-background/50 flex flex-row items-center justify-between flex-row-mobile-stack">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center">
                         <Bot className="w-7 h-7 text-primary" />
@@ -738,11 +738,11 @@ export default function MotherDashboard() {
                   <Card className="p-6 glass-card border-white/10">
                      <h4 className="font-bold text-lg mb-4">Chat History</h4>
                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10">
+                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack text-sm p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10">
                           <span className="text-white/70">Iron intake query</span>
                           <span className="text-[10px] text-white/30 font-bold">2h ago</span>
                         </div>
-                        <div className="flex items-center justify-between text-sm p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10">
+                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack text-sm p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer hover:bg-white/10">
                           <span className="text-white/70">Sleeping positions</span>
                           <span className="text-[10px] text-white/30 font-bold">Yesterday</span>
                         </div>
@@ -825,7 +825,7 @@ export default function MotherDashboard() {
 
                 {/* Below: Community Pulse (Full Width Scroll) */}
                 <div className="space-y-6 pt-6">
-                   <div className="flex items-center justify-between">
+                   <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                      <h4 className="font-black text-2xl flex items-center gap-3"><TrendingUp className="w-7 h-7 text-tertiary" /> Community Pulse</h4>
                      <Button variant="link" className="text-tertiary font-black uppercase tracking-widest text-xs">View All Conversations →</Button>
                    </div>
@@ -837,13 +837,13 @@ export default function MotherDashboard() {
                      ].map(topic => (
                        <Card key={topic.id} className="min-w-[280px] sm:min-w-[320px] p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[220px] group">
                          <div>
-                           <div className="flex items-center justify-between mb-4">
+                           <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-4">
                              <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
                              {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
                            </div>
                            <p className="text-sm text-white/80 leading-relaxed italic line-clamp-3">"{topic.text}"</p>
                          </div>
-                         <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/5">
+                         <div className="flex flex-row items-center justify-between flex-row-mobile-stack mt-6 pt-4 border-t border-white/5">
                            <span className="text-[10px] text-white/40 font-black uppercase tracking-widest">{topic.mamas} mamas discussing</span>
                            <span className="text-xs text-tertiary font-black group-hover:translate-x-1 transition-transform">Join Discussion →</span>
                          </div>
@@ -871,21 +871,21 @@ export default function MotherDashboard() {
                       <h3 className="text-xl font-bold">Profile & Preferences</h3>
                     </div>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                         <div>
                           <p className="font-medium">Lite Mode</p>
                           <p className="text-xs text-white/60">Disables heavy animations and effects</p>
                         </div>
                         <Switch checked={isLiteMode} onCheckedChange={toggleLiteMode} />
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                         <div>
                           <p className="font-medium">Push Notifications</p>
                           <p className="text-xs text-white/60">Receive alerts for appointments and tips</p>
                         </div>
                         <Switch defaultChecked />
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                         <div>
                           <p className="font-medium">Language</p>
                         </div>
@@ -912,7 +912,7 @@ export default function MotherDashboard() {
                         <p className="text-sm font-medium flex items-center gap-2"><LockIcon /> End-to-End Encrypted</p>
                         <p className="text-xs text-white/60 mt-1">Your health data is securely encrypted.</p>
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                         <div>
                           <p className="font-medium text-sm">Anonymous Research Opt-in</p>
                           <p className="text-xs text-white/60">Help improve maternal health algorithms</p>

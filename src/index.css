@@ -152,65 +152,60 @@ All colors MUST be HSL.
   transform: translateY(-2px) !important;
 }
 
-/* Dashboard specific responsiveness */
-@media (max-width: 639px) {
-  .responsive-header {
+/* --- MOBILE CLARITY SYSTEM --- */
+@media (max-width: 768px) {
+  /* Prevent horizontal wobble */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+  }
+
+  /* Boost card clarity for readability */
+  .glass-card {
+    background: rgba(10, 10, 18, 0.9) !important; /* Nearly solid for text clarity */
+    backdrop-filter: blur(25px) saturate(2) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* Sharpen typography */
+  h1, h2, h3, h4, h5, h6 {
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8) !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  p, span, div {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Simplify spacing for "clear" look */
+  .p-8 { padding: 1.25rem !important; }
+  .p-6 { padding: 1rem !important; }
+  .gap-8 { gap: 1.5rem !important; }
+  .gap-6 { gap: 1rem !important; }
+  
+  /* Force verticality on all small screens for clarity */
+  .responsive-header, 
+  .flex-row-mobile-stack {
     flex-direction: column !important;
-    align-items: flex-start !important;
+    align-items: stretch !important;
     gap: 1rem !important;
   }
   
-  .responsive-header button,
-  .responsive-header .button {
+  .responsive-header > *, 
+  .flex-row-mobile-stack > * {
     width: 100% !important;
   }
-
-  .responsive-card-row {
-    flex-direction: column !important;
-    gap: 0.75rem !important;
-  }
-
-  .responsive-card-row > div {
-    width: 100% !important;
-  }
-
-  /* Force vertical stacking for specific dashboard elements on mobile */
-  .mobile-stack {
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .mobile-hide {
-    display: none !important;
-  }
 }
 
-/* Ensure touch targets and spacing are consistent */
-@media (max-width: 480px) {
-  :root {
-    --radius: 0.75rem;
+/* Fix for floating elements overlapping nav */
+@media (max-width: 640px) {
+  .fixed.bottom-28, 
+  .fixed.bottom-24 {
+    bottom: 5.5rem !important; /* Precisely above mobile nav */
   }
-  
-  .glass-card {
-    padding: 1rem !important;
-    border-radius: 1.5rem !important;
-  }
-
-  h1 { font-size: 1.75rem !important; }
-  h2 { font-size: 1.5rem !important; }
-  h3 { font-size: 1.25rem !important; }
-  
-  .button-h-standard {
-    height: 44px !important;
-  }
-}
-
-/* Fix for floating overlaps */
-.floating-element-container {
-  pointer-events: none;
-}
-
-.floating-element-container > * {
-  pointer-events: auto;
 }
 
