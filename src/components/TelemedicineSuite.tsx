@@ -3,13 +3,19 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Video, PhoneOff, Mic, MicOff, VideoOff, FileText, Pill, Calendar, Clock } from "lucide-react";
+import { Video, PhoneOff, Mic, MicOff, VideoOff, FileText, Pill, Calendar, Clock, CreditCard } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const UPCOMING_TELE = [
-  { id: 1, doctor: "Dr. Achieng Otieno", specialty: "Obstetrics", date: "Today", time: "3:00 PM" },
-  { id: 2, doctor: "Dr. Chukwu", specialty: "Nutrition", date: "Tomorrow", time: "10:30 AM" },
-];
+// We will now fetch these from Supabase instead of using mock data
+interface Appointment {
+  id: string;
+  doctor_id: string;
+  appointment_time: string;
+  status: 'pending' | 'confirmed' | 'completed';
+  video_link?: string;
+  doctor_name?: string; // We'll mock this or join with a doctors table later
+}
 
 const SAMPLE_TRANSCRIPTS = [
   "Dr: How have you been feeling this week?",
@@ -36,17 +42,75 @@ export const TelemedicineSuite = () => {
   const [muted, setMuted] = useState(false);
   const [videoOff, setVideoOff] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!inCall) return;
-    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
-    return () => clearInterval(t);
-  }, [inCall]);
+    fetchAppointments();
+  }, []);
 
-  const startCall = (doctor: string) => {
-    setCallDoctor(doctor);
-    setSeconds(0);
-    setInCall(true);
+  const fetchAppointments = async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // Get mother_id first
+    const { data: motherData } = await supabase
+      .from('mothers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (motherData) {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('mother_id', motherData.id)
+        .order('appointment_date', { ascending: true }); // Corrected column name
+
+      if (!error) {
+        setAppointments(data || []);
+      }
+    }
+    setLoading(false);
+  };
+
+  const startCall = async (apt: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Please log in to book an appointment");
+        return;
+      }
+
+      toast.info("Preparing your secure consultation...");
+
+      // 1. Create pending appointment on backend
+      const response = await fetch('/api/appointments/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id, // Passing userId, backend will find mother_id
+          doctorId: "00000000-0000-0000-0000-000000000001",
+          time: new Date().toISOString(),
+          amount: 1500
+        })
+      });
+
+      const { appointment } = await response.json();
+
+      // 2. Trigger Flutterwave (Mocking redirect for demo)
+      toast.success("Booking created! Redirecting to secure payment...");
+      
+      // In a real app, you would use Flutterwave's Inline JS or Redirect here:
+      // window.location.href = `https://checkout.flutterwave.com/v3/hosted/pay?tx_ref=${appointment.id}&amount=1500...`;
+      
+      console.log("Appointment ID for payment:", appointment.id);
+      
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error("Failed to initiate booking");
+    }
   };
 
   const endCall = () => {
@@ -66,25 +130,55 @@ export const TelemedicineSuite = () => {
       </h3>
 
       <div className="space-y-3">
-        {UPCOMING_TELE.map((apt) => (
-          <div key={apt.id} className="p-3 rounded-lg border border-border/50 bg-muted/20">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="font-medium text-sm">{apt.doctor}</p>
-                <p className="text-xs text-muted-foreground">{apt.specialty}</p>
-              </div>
-              <Badge variant="secondary">{apt.date}</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Clock className="w-3 h-3" /> {apt.time}
-              </span>
-              <Button size="sm" onClick={() => startCall(apt.doctor)}>
-                <Video className="w-3 h-3 mr-1" /> Video Call
-              </Button>
-            </div>
+        {loading ? (
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
-        ))}
+        ) : appointments.length === 0 ? (
+          <div className="text-center p-6 bg-muted/10 rounded-xl border border-dashed border-border">
+            <p className="text-sm text-muted-foreground">No appointments booked yet.</p>
+            <Button variant="link" className="mt-2 text-primary" onClick={() => toast.info("Booking feature coming soon!")}>
+              Book your first consultation
+            </Button>
+          </div>
+        ) : (
+          appointments.map((apt) => (
+            <div key={apt.id} className="p-4 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/30 transition-all">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <p className="font-bold text-sm">Consultation</p>
+                  <p className="text-xs text-muted-foreground">Status: 
+                    <Badge variant={apt.status === 'confirmed' ? 'default' : 'secondary'} className="ml-2 py-0 h-4 text-[10px]">
+                      {apt.status.toUpperCase()}
+                    </Badge>
+                  </p>
+                </div>
+                <div className="text-right text-xs font-medium">
+                  {new Date(apt.appointment_date).toLocaleDateString()}
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> {new Date(apt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+                
+                {apt.status === 'confirmed' && apt.video_link ? (
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 animate-pulse" onClick={() => window.open(apt.video_link, '_blank')}>
+                    <Video className="w-3 h-3 mr-1" /> Join Call
+                  </Button>
+                ) : apt.status === 'pending' ? (
+                  <Button size="sm" variant="outline" onClick={() => toast.info("Waiting for payment confirmation...")}>
+                    <CreditCard className="w-3 h-3 mr-1" /> Complete Payment
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="ghost" disabled>
+                    <Calendar className="w-3 h-3 mr-1" /> Appointment Set
+                  </Button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* In-call UI */}

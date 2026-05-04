@@ -35,5 +35,9 @@ export const env = {
   mpesaPasskey: process.env.MPESA_PASSKEY,
   twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
   twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
+  dailyApiKey: process.env.DAILY_API_KEY || 'dummy_daily_key',
+  flutterwavePublicKey: process.env.FLUTTERWAVE_PUBLIC_KEY,
+  flutterwaveSecretKey: process.env.FLUTTERWAVE_SECRET_KEY,
+  googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY,
   encryptionKey: process.env.ENCRYPTION_KEY || '12345678901234567890123456789012'
 };

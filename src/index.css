@@ -80,6 +80,15 @@ All colors MUST be HSL.
     font-size: 1rem;
     line-height: 1.5;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    
+    /* Support for viewport-fit=cover */
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
   }
 
   h1 { @apply text-3xl md:text-5xl lg:text-6xl font-black tracking-tight; }
@@ -159,6 +168,27 @@ All colors MUST be HSL.
     overflow-x: hidden;
     width: 100%;
     position: relative;
+    overscroll-behavior-y: none; /* Prevent pull-to-refresh if not needed */
+  }
+
+  /* Standard Touch Targets (44px min) */
+  button, 
+  a, 
+  [role="button"],
+  .input-action {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+
+  /* Prevent Zoom on Focus for iOS */
+  input, 
+  select, 
+  textarea {
+    font-size: 16px !important;
   }
 
   /* Boost card clarity for readability */
@@ -168,6 +198,7 @@ All colors MUST be HSL.
     -webkit-backdrop-filter: blur(25px) saturate(2) !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    margin-bottom: 1rem;
   }
 
   /* Sharpen typography */
@@ -182,8 +213,9 @@ All colors MUST be HSL.
   }
 
   /* Simplify spacing for "clear" look */
-  .p-8 { padding: 1.25rem !important; }
-  .p-6 { padding: 1rem !important; }
+  .p-8 { padding: 1.5rem !important; }
+  .p-6 { padding: 1.25rem !important; }
+  .p-4 { padding: 1rem !important; }
   .gap-8 { gap: 1.5rem !important; }
   .gap-6 { gap: 1rem !important; }
   
@@ -199,13 +231,46 @@ All colors MUST be HSL.
   .flex-row-mobile-stack > * {
     width: 100% !important;
   }
+
+  /* Fix for text overflow in cards */
+  .glass-card {
+    max-width: 100% !important;
+    overflow: hidden;
+  }
+
+  .truncate, .line-clamp-1, .line-clamp-2, .line-clamp-3 {
+    max-width: 100%;
+  }
 }
 
 /* Fix for floating elements overlapping nav */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .fixed.bottom-28, 
-  .fixed.bottom-24 {
-    bottom: 5.5rem !important; /* Precisely above mobile nav */
+  .fixed.bottom-24,
+  .fixed.bottom-32 {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 10px)) !important; /* Higher up to clear nav */
+  }
+  
+  .mobile-bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem) !important;
+    height: 4.5rem !important;
+    background: rgba(10, 10, 18, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+  }
+
+  /* Ensure bottom nav icons are clear and touchable */
+  .mobile-bottom-nav button {
+    padding: 0.5rem !important;
+  }
+}
+
+/* Standard Mobile Animation Overrides */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

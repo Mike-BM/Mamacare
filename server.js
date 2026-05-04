@@ -248,6 +248,94 @@ app.post('/api/ai/speak', async (req, res) => {
   }
 });
 
+// --- NEW: Appointments & Payments ---
+
+app.post('/api/appointments/book', async (req, res) => {
+  const { userId, doctorId, time, amount } = req.body;
+  
+  // 1. First, find the mother_id from the mothers table using the user's auth ID
+  const { data: motherData, error: motherError } = await supabase
+    .from('mothers')
+    .select('id')
+    .eq('user_id', userId)
+    .single();
+
+  if (motherError || !motherData) {
+    return res.status(400).json({ error: "Mother profile not found. Please complete your profile." });
+  }
+
+  // 2. Insert into appointments using the existing schema
+  const { data, error } = await supabase
+    .from('appointments')
+    .insert({
+      mother_id: motherData.id,
+      doctor_id: doctorId, 
+      appointment_date: time, // Corrected column name
+      status: 'pending',
+      amount: amount
+    })
+    .select()
+    .single();
+
+  if (error) return res.status(500).json({ error: error.message });
+  
+  res.json({ success: true, appointment: data });
+});
+
+// Flutterwave Webhook
+app.post('/api/webhooks/flutterwave', async (req, res) => {
+  const secretHash = process.env.FLUTTERWAVE_WEBHOOK_HASH;
+  const signature = req.headers['verif-hash'];
+
+  if (!signature || signature !== secretHash) {
+    return res.status(401).end();
+  }
+
+  const payload = req.body;
+
+  if (payload.status === 'successful' && payload.meta.purpose === 'appointment') {
+    const appointmentId = payload.meta.appointment_id;
+
+    try {
+      // 1. Create Daily.co Room
+      const dailyResponse = await fetch('https://api.daily.co/v1/rooms', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.DAILY_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          properties: {
+            exp: Math.floor(Date.now() / 1000) + 86400, // Room expires in 24 hours
+            enable_chat: true
+          }
+        })
+      });
+      
+      const roomData = await dailyResponse.json();
+      const secureVideoLink = roomData.url;
+
+      // 2. Update Supabase: Confirm appointment & attach link
+      await supabase
+        .from('appointments')
+        .update({ 
+          status: 'confirmed', 
+          video_link: secureVideoLink 
+        })
+        .eq('id', appointmentId);
+
+      // 3. Optional: Send Email/SMS notification via emailService
+      // await emailService.sendAppointmentConfirmation(payload.customer.email, secureVideoLink);
+
+      console.log(`Appointment ${appointmentId} confirmed with link: ${secureVideoLink}`);
+    } catch (err) {
+      console.error('Webhook processing error:', err);
+    }
+  }
+
+  res.status(200).end();
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -88,7 +88,7 @@ export const SymptomTriageBubble = () => {
       <Button
         aria-label="Open symptom triage"
         onClick={() => setOpen(true)}
-        className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-50 rounded-full w-14 h-14 shadow-[var(--shadow-glow-violet)] bg-gradient-to-br from-tertiary to-primary hover:scale-110 transition-transform"
+        className="fixed bottom-28 right-4 md:bottom-8 md:right-8 z-50 rounded-full w-12 h-12 md:w-14 md:h-14 shadow-[var(--shadow-glow-violet)] bg-gradient-to-br from-tertiary to-primary hover:scale-110 transition-transform"
       >
         <MessageCircleHeart className="w-6 h-6 text-white" />
       </Button>

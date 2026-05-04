@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill } from "lucide-react";
+import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
@@ -14,6 +14,7 @@ import { SymptomTriageBubble } from "@/components/SymptomTriageBubble";
 import { FinancialLayer } from "@/components/FinancialLayer";
 import { TelemedicineSuite } from "@/components/TelemedicineSuite";
 import { WearableMedicationWidgets } from "@/components/WearableMedicationWidgets";
+import { MentorshipChat } from "@/components/MentorshipChat";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { PaywallOverlay } from "@/components/PaywallOverlay";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BookingFlow } from "@/components/BookingFlow";
+import { VideoCallModal } from "@/components/VideoCallModal";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: Home },
@@ -56,6 +60,11 @@ export default function MotherDashboard() {
     price: 7,
     onSuccess: () => {}
   });
+
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const [currentRoomUrl, setCurrentRoomUrl] = useState("");
+  const [isGeneratingRoom, setIsGeneratingRoom] = useState(false);
 
   const triggerPaywall = (config: Partial<typeof paywallConfig>) => {
     setPaywallConfig(prev => ({
@@ -112,6 +121,29 @@ export default function MotherDashboard() {
   const toggleLiteMode = () => {
     setIsLiteMode(!isLiteMode);
     toast.info(!isLiteMode ? "Lite Mode enabled" : "Rich Mode enabled");
+  };
+
+  const handleJoinCall = async () => {
+    setIsGeneratingRoom(true);
+    const toastId = toast.loading("Connecting to secure consultation...");
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-video-room', {
+        body: { appointment_id: 'mother-demo' }
+      });
+
+      if (error) throw error;
+
+      setCurrentRoomUrl(data.url);
+      setIsVideoCallOpen(true);
+      toast.dismiss(toastId);
+    } catch (err) {
+      console.error("Video room error:", err);
+      toast.error("Video room not ready yet. Please wait for the provider.");
+      toast.dismiss(toastId);
+    } finally {
+      setIsGeneratingRoom(false);
+    }
   };
 
   if (isLoading) {
@@ -335,10 +367,13 @@ export default function MotherDashboard() {
                                 price: 7,
                                 onSuccess: () => setIsPremium(true)
                               });
+                            } else {
+                              e.stopPropagation();
+                              handleJoinCall();
                             }
                           }}
                         >
-                          Join Call Now
+                          {isGeneratingRoom ? <Loader2 className="w-4 h-4 animate-spin" /> : "Join Call Now"}
                         </Button>
                       </div>
                     </Card>
@@ -581,10 +616,12 @@ export default function MotherDashboard() {
                                     price: 7,
                                     onSuccess: () => setIsPremium(true)
                                   });
+                                } else {
+                                  handleJoinCall();
                                 }
                               }}
                             >
-                              Join Call
+                              {isGeneratingRoom ? <Loader2 className="w-4 h-4 animate-spin" /> : "Join Call"}
                             </Button>
                             <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
                           </div>
@@ -615,7 +652,10 @@ export default function MotherDashboard() {
                     <Card className="p-6 glass-card border-white/10">
                       <h3 className="text-lg font-bold mb-6">Quick Actions</h3>
                       <div className="grid grid-cols-2 gap-3">
-                        <Button className="h-24 flex flex-col gap-2 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold">
+                        <Button 
+                          className="h-24 flex flex-col gap-2 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold transition-transform active:scale-95"
+                          onClick={() => setIsBookingOpen(true)}
+                        >
                           <Plus className="w-6 h-6" />
                           <span>Book New</span>
                         </Button>
@@ -680,15 +720,15 @@ export default function MotherDashboard() {
                   </div>
                   <div className="flex-1 overflow-y-auto p-0 relative">
                     {!isPremium && (
-                      <div className="absolute inset-0 z-10 bg-background/40 backdrop-blur-md flex items-center justify-center p-6">
-                        <div className="glass-card p-6 sm:p-8 border border-white/20 rounded-[32px] text-center w-full max-w-[90%] md:max-w-sm shadow-2xl">
+                      <div className="absolute inset-0 z-10 bg-background/40 backdrop-blur-md flex items-center justify-center p-4 sm:p-6">
+                        <div className="glass-card p-5 sm:p-8 border border-white/20 rounded-[32px] text-center w-full max-w-[340px] sm:max-w-sm shadow-2xl overflow-hidden">
                           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 sm:mb-6">
                             <Bot className="w-8 h-8 sm:w-10 sm:h-10 text-primary animate-bounce" />
                           </div>
                           <h4 className="text-xl sm:text-2xl font-black mb-3">Dr. Nneka is here 24/7</h4>
                           <p className="text-xs sm:text-sm text-white/60 mb-6 sm:mb-8 leading-relaxed">You've used your 5 free messages for today. Unlock unlimited chat to get instant support anytime.</p>
                           <Button 
-                            className="w-full bg-primary hover:bg-primary/90 h-14 text-lg font-black rounded-2xl shadow-lg shadow-primary/20"
+                            className="w-full bg-primary hover:bg-primary/90 h-12 sm:h-14 text-sm sm:text-lg font-black rounded-2xl shadow-lg shadow-primary/20"
                             onClick={() => triggerPaywall({
                               featureName: "Unlimited AI Chat",
                               featureValue: "Dr. Nneka is here 24/7",
@@ -697,7 +737,7 @@ export default function MotherDashboard() {
                               onSuccess: () => setIsPremium(true)
                             })}
                           >
-                            Unlock Unlimited for $7/mo
+                            Unlock for $7/mo
                           </Button>
                           <button className="text-xs text-white/30 mt-6 font-bold hover:text-white uppercase tracking-widest" onClick={() => setActiveTab('overview')}>Maybe tomorrow</button>
                         </div>
@@ -753,89 +793,22 @@ export default function MotherDashboard() {
             )}
 
             {activeTab === "community" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                  {/* Left Side: Chat Rooms (60%) */}
-                  <div className="lg:col-span-3 space-y-6">
-                    <Card className="p-8 glass-card border-white/10">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 responsive-header">
-                        <h3 className="text-xl sm:text-2xl font-black flex items-center gap-3">
-                          <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary" /> Group Chat Rooms
-                        </h3>
-                        <Button 
-                          className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-black h-11 px-6 rounded-2xl shadow-lg shadow-primary/20"
-                          onClick={() => {
-                            if (!isPremium) {
-                              triggerPaywall({
-                                featureName: "Community Posting",
-                                featureValue: "Join the conversation with 2,400+ mamas",
-                                perks: ["✓ Post in community", "✓ Get replies & support", "✓ Join trimester groups", "✓ Anonymous mode"],
-                                price: 3,
-                                onSuccess: () => setIsPremium(true)
-                              });
-                            }
-                          }}
-                        >
-                          + New Post
-                        </Button>
-                      </div>
-                      <div className="space-y-4">
-                        {[
-                          { id: 1, title: "3rd Trimester Mamas", lastMsg: "Eliza J: Does anyone else feel like...", online: 31, icon: "🤰", isNew: true },
-                          { id: 2, title: "Pregnancy Yoga", lastMsg: "Instructor: Class starts in 10 mins!", online: 12, icon: "🧘‍♀️", isNew: false }
-                        ].map((group) => (
-                          <div key={group.id} className={`p-4 sm:p-5 rounded-[24px] cursor-pointer hover:scale-[1.02] transition-all flex flex-row items-center justify-between border responsive-card-row ${group.isNew ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}>
-                            <div className="flex items-center gap-3 sm:gap-5 min-w-0">
-                              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl shrink-0 ${group.isNew ? 'bg-primary/20' : 'bg-white/10'}`}>{group.icon}</div>
-                              <div className="min-w-0">
-                                <h4 className="font-black text-white text-base sm:text-lg flex items-center gap-2 truncate">{group.title} {group.isNew && <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0"></span>}</h4>
-                                <p className="text-xs sm:text-sm text-white/50 mt-1 truncate">{group.lastMsg}</p>
-                              </div>
-                            </div>
-                            <div className="text-right shrink-0 ml-2 mobile-stack">
-                              {group.isNew && <Badge className="bg-primary text-white font-bold px-2 py-0.5 text-[10px] mb-1">3 New</Badge>}
-                              <p className="text-[9px] text-white/30 font-black uppercase tracking-widest">{group.online} online</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  </div>
-
-                  {/* Right Side: Matching & Partner (40%) */}
-                  <div className="lg:col-span-2 space-y-6">
-                    <Card className="p-8 glass-card border-white/10 bg-gradient-to-br from-secondary/10 to-transparent flex flex-col justify-between h-[280px]">
-                      <div>
-                        <h4 className="font-black text-2xl mb-3">Mentor Matching</h4>
-                        <p className="text-sm text-white/60 leading-relaxed mb-6">Connect with an experienced mom who has been through it all. Get personalized advice and 1-on-1 support.</p>
-                      </div>
-                      <Button className="w-full bg-secondary hover:bg-secondary/90 text-white h-11 md:h-14 text-sm md:text-lg font-black rounded-2xl shadow-lg shadow-secondary/20">Find a Mentor</Button>
-                    </Card>
-
-                    <Card className="p-8 glass-card border-white/10 text-center flex flex-col items-center justify-center h-[280px]">
-                      <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6 border border-white/10">
-                        <QrCode className="w-10 h-10 text-white/40" />
-                      </div>
-                      <h4 className="font-black text-xl mb-2">Partner Mode</h4>
-                      <p className="text-sm text-white/50 mb-6 px-4">Scan QR to invite your partner to track the journey with you.</p>
-                      <Button variant="outline" className="w-full border-white/10 hover:bg-white/5 h-11 rounded-2xl font-bold uppercase tracking-widest text-[10px]">Show QR Code</Button>
-                    </Card>
-                  </div>
-                </div>
-
+              <div className="space-y-6 pb-20 md:pb-0">
+                <MentorshipChat />
+                
                 {/* Below: Community Pulse (Full Width Scroll) */}
                 <div className="space-y-6 pt-6">
                    <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                      <h4 className="font-black text-2xl flex items-center gap-3"><TrendingUp className="w-7 h-7 text-tertiary" /> Community Pulse</h4>
                      <Button variant="link" className="text-tertiary font-black uppercase tracking-widest text-xs">View All Conversations →</Button>
                    </div>
-                   <div className="flex gap-4 overflow-x-auto pb-6 hide-scrollbar snap-x">
+                   <div className="flex gap-4 overflow-x-auto pb-6 hide-scrollbar snap-x px-2">
                      {[
                        { id: 1, topic: "#ThirdTrimesterSleep", mamas: 12, text: "I've found that using a C-shaped pillow helps with the back pain. Anyone else struggling with side-sleeping positions lately?", trending: true },
                        { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
                        { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
                      ].map(topic => (
-                       <Card key={topic.id} className="min-w-[280px] sm:min-w-[320px] p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[220px] group">
+                       <Card key={topic.id} className="min-w-[260px] sm:min-w-[320px] p-5 sm:p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[200px] sm:h-[220px] group">
                          <div>
                            <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-4">
                              <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
@@ -929,21 +902,41 @@ export default function MotherDashboard() {
             )}
 
           </div>
+
+          <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+            <DialogContent className="sm:max-w-[500px] glass-card border-white/10 p-0 overflow-hidden rounded-[32px]">
+              <div className="p-8">
+                <BookingFlow 
+                  onClose={() => setIsBookingOpen(false)} 
+                  onSuccess={() => {
+                    toast.success("Appointment request sent!");
+                  }} 
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <VideoCallModal 
+            isOpen={isVideoCallOpen} 
+            onClose={() => setIsVideoCallOpen(false)} 
+            roomUrl={currentRoomUrl}
+            patientName="Eliza Keith"
+          />
         </main>
       </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-white/10 flex items-center justify-around p-2 pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-white/10 flex items-center justify-around p-2 mobile-bottom-nav">
         {TABS.slice(0, 5).map((t, index) => {
           if (index === 2) {
             // Center SOS or Main action button placeholder
             return (
-              <div key="center-action" className="relative -top-5">
+              <div key="center-action" className="relative -top-4">
                 <button 
                   onClick={() => handleTabChange('ai')}
-                  className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-95 touch-manipulation"
+                  className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-90 touch-manipulation"
                 >
-                  <Bot className="w-7 h-7" />
+                  <Bot className="w-6 h-6" />
                 </button>
               </div>
             );
@@ -961,7 +954,7 @@ export default function MotherDashboard() {
       </nav>
 
       {/* Global Floating Elements */}
-      <div className="fixed bottom-28 md:bottom-12 left-6 md:left-8 z-50">
+      <div className="fixed bottom-28 md:bottom-12 left-4 sm:left-6 md:left-8 z-50">
         <EmergencySOS />
       </div>
       <SymptomTriageBubble />

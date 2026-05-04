@@ -13,6 +13,8 @@ import BabaDashboard from "./pages/BabaDashboard";
 import NotFound from "./pages/NotFound";
 import { OfflineBadge } from "./components/OfflineBadge";
 
+import ProviderDashboard from "./pages/ProviderDashboard";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -28,6 +30,7 @@ const App = () => (
         <Route path="/features" element={<Features />} />
         <Route path="/mother-dashboard/:tab?" element={<MotherDashboard />} />
         <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
+        <Route path="/provider-dashboard" element={<ProviderDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/baba" element={<BabaDashboard />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

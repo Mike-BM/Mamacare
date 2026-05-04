@@ -97,7 +97,7 @@ export const EmergencySOS = () => {
 
   return (
     <>
-      <div className="fixed bottom-8 left-8 z-50 flex flex-col items-center justify-center">
+      <div className="fixed bottom-28 md:bottom-8 left-4 md:left-8 z-50 flex flex-col items-center justify-center">
         <div className="relative flex items-center justify-center w-[72px] h-[72px]">
           
           {/* Radial Menu */}

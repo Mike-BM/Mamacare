@@ -80,9 +80,9 @@ export const PaywallOverlay = ({
                   </div>
                 </div>
 
-                <div className="text-center space-y-2 mb-6 sm:mb-8">
-                  <h2 className="text-xl sm:text-2xl font-black text-white">🔒 Mama {requiredTier} Required</h2>
-                  <p className="text-sm sm:text-base text-white/70 italic px-2">"{featureValue}"</p>
+                <div className="text-center space-y-2 mb-6 sm:mb-8 px-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-white">🔒 Mama {requiredTier}</h2>
+                  <p className="text-[10px] sm:text-base text-white/70 italic px-2">"{featureValue}"</p>
                 </div>
 
                 <div className="bg-white/5 rounded-2xl border border-white/10 p-5 space-y-4 mb-8">
@@ -145,12 +145,12 @@ export const PaywallOverlay = ({
                   className={`w-full p-4 rounded-2xl border transition-all flex items-center gap-4 ${paymentMethod === 'mpesa' ? 'bg-green-500/10 border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.1)]' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
                   onClick={() => setPaymentMethod('mpesa')}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paymentMethod === 'mpesa' ? 'bg-green-500/20' : 'bg-white/10'}`}>
-                    <Smartphone className={`w-6 h-6 ${paymentMethod === 'mpesa' ? 'text-green-400' : 'text-white/50'}`} />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${paymentMethod === 'mpesa' ? 'bg-green-500/20' : 'bg-white/10'}`}>
+                    <Smartphone className={`w-5 h-5 sm:w-6 sm:h-6 ${paymentMethod === 'mpesa' ? 'text-green-400' : 'text-white/50'}`} />
                   </div>
-                  <div className="text-left">
-                    <p className="font-bold text-white">M-Pesa</p>
-                    <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Instant STK Push</p>
+                  <div className="text-left overflow-hidden">
+                    <p className="font-bold text-white text-sm sm:text-base">M-Pesa</p>
+                    <p className="text-[8px] sm:text-[10px] text-white/50 uppercase tracking-widest font-bold truncate">Instant STK Push</p>
                   </div>
                   {paymentMethod === 'mpesa' && <Check className="ml-auto w-5 h-5 text-green-400" />}
                 </button>
@@ -159,12 +159,12 @@ export const PaywallOverlay = ({
                   className={`w-full p-4 rounded-2xl border transition-all flex items-center gap-4 ${paymentMethod === 'card' ? 'bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)]' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
                   onClick={() => setPaymentMethod('card')}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paymentMethod === 'card' ? 'bg-blue-500/20' : 'bg-white/10'}`}>
-                    <CreditCard className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-blue-400' : 'text-white/50'}`} />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${paymentMethod === 'card' ? 'bg-blue-500/20' : 'bg-white/10'}`}>
+                    <CreditCard className={`w-5 h-5 sm:w-6 sm:h-6 ${paymentMethod === 'card' ? 'text-blue-400' : 'text-white/50'}`} />
                   </div>
-                  <div className="text-left">
-                    <p className="font-bold text-white">Credit/Debit Card</p>
-                    <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Visa, Mastercard</p>
+                  <div className="text-left overflow-hidden">
+                    <p className="font-bold text-white text-sm sm:text-base">Credit/Debit Card</p>
+                    <p className="text-[8px] sm:text-[10px] text-white/50 uppercase tracking-widest font-bold truncate">Visa, Mastercard</p>
                   </div>
                   {paymentMethod === 'card' && <Check className="ml-auto w-5 h-5 text-blue-400" />}
                 </button>
@@ -173,12 +173,12 @@ export const PaywallOverlay = ({
                   className={`w-full p-4 rounded-2xl border transition-all flex items-center gap-4 ${paymentMethod === 'bank' ? 'bg-purple-500/10 border-purple-500/50 shadow-[0_0_15px_rgba(168,85,247,0.1)]' : 'bg-white/5 border-white/10 hover:bg-white/10'}`}
                   onClick={() => setPaymentMethod('bank')}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paymentMethod === 'bank' ? 'bg-purple-500/20' : 'bg-white/10'}`}>
-                    <Landmark className={`w-6 h-6 ${paymentMethod === 'bank' ? 'text-purple-400' : 'text-white/50'}`} />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${paymentMethod === 'bank' ? 'bg-purple-500/20' : 'bg-white/10'}`}>
+                    <Landmark className={`w-5 h-5 sm:w-6 sm:h-6 ${paymentMethod === 'bank' ? 'text-purple-400' : 'text-white/50'}`} />
                   </div>
-                  <div className="text-left">
-                    <p className="font-bold text-white">Bank Transfer</p>
-                    <p className="text-[10px] text-white/50 uppercase tracking-widest font-bold">Show Account Details</p>
+                  <div className="text-left overflow-hidden">
+                    <p className="font-bold text-white text-sm sm:text-base">Bank Transfer</p>
+                    <p className="text-[8px] sm:text-[10px] text-white/50 uppercase tracking-widest font-bold truncate">Account Details</p>
                   </div>
                   {paymentMethod === 'bank' && <Check className="ml-auto w-5 h-5 text-purple-400" />}
                 </button>
