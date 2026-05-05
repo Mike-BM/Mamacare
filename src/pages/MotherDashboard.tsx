@@ -67,6 +67,15 @@ export default function MotherDashboard() {
   const [demoProgress, setDemoProgress] = useState(0);
 
   const [isRideModalOpen, setIsRideModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const [userProfile, setUserProfile] = useState({
+    name: "Stacy Mutheu", // Default fallback
+    email: "",
+    pregnancy_week: 24,
+    avatar_url: "",
+    is_anonymous: false
+  });
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
@@ -313,13 +322,14 @@ export default function MotherDashboard() {
                   <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-background" />
                 </div>
                 <div className="flex flex-col flex-1 overflow-hidden">
-                  <span className="text-sm font-bold text-white truncate">Stacy Mutheu</span>
-                  <span className="text-xs text-white/50 truncate">stacy@example.com</span>
+                  <span className="text-sm font-bold text-white truncate">{userProfile.name}</span>
+                  <span className="text-xs text-white/50 truncate">{userProfile.email || "stacy@example.com"}</span>
                 </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-card border-white/10 w-48">
-              <DropdownMenuItem className="cursor-pointer" onClick={() => handleTabChange('settings')}><User className="w-4 h-4 mr-2" /> Settings</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => setIsProfileModalOpen(true)}><User className="w-4 h-4 mr-2" /> My Profile</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => handleTabChange('settings')}><Settings className="w-4 h-4 mr-2" /> Settings</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={() => navigate("/")}><LogOut className="w-4 h-4 mr-2" /> Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -339,7 +349,7 @@ export default function MotherDashboard() {
           </div>
           
           <div className="hidden md:flex flex-col justify-center">
-            <h1 className="text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">Good Evening, Stacy ✨</h1>
+            <h1 className="text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">Good Evening, {userProfile.name.split(' ')[0]} ✨</h1>
             <span key={messageIndex} className="text-sm text-primary font-medium animate-fade-in-up mt-1">
               {SUPPORTIVE_MESSAGES[messageIndex]}
             </span>
@@ -372,7 +382,7 @@ export default function MotherDashboard() {
             
             {activeTab === "overview" && (
               <div className="space-y-6">
-                <DynamicGreeting userName="Stacy" />
+                <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare User" : userProfile.name.split(' ')[0]} />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   {/* Left: Pregnancy Progress (60%) */}
@@ -1136,6 +1146,85 @@ export default function MotherDashboard() {
           <p className="mt-6 text-[10px] text-center text-white/30 font-medium italic">
             "Every MamaRide driver is trained in basic maternal first aid."
           </p>
+        </DialogContent>
+      </Dialog>
+
+      {/* Profile & Security Modal */}
+      <Dialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+        <DialogContent className="glass-card border-white/10 max-w-lg p-0 rounded-[32px] overflow-hidden bg-[#0f0f1a]">
+          <div className="bg-gradient-to-br from-primary/20 to-secondary/10 p-8 flex flex-col items-center border-b border-white/5">
+            <div className="relative mb-4 group">
+              <img 
+                src={`https://api.dicebear.com/7.x/notionists/svg?seed=${userProfile.name}&backgroundColor=transparent`} 
+                className="w-24 h-24 rounded-full border-4 border-white/10 bg-white/5 shadow-2xl group-hover:scale-105 transition-transform" 
+                alt="Avatar"
+              />
+              <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center border-2 border-[#0f0f1a] shadow-lg">
+                <Plus className="w-4 h-4 text-white" />
+              </button>
+            </div>
+            <h3 className="text-xl font-black text-white">{userProfile.name}</h3>
+            <p className="text-xs text-white/50 font-medium">Pregnancy Week {userProfile.pregnancy_week}</p>
+          </div>
+
+          <div className="p-8 space-y-6">
+            <div className="space-y-4">
+              <h4 className="text-[10px] uppercase font-black tracking-widest text-primary">Identity & Privacy</h4>
+              
+              <div className="space-y-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] text-white/40 font-bold uppercase ml-1">Full Name</label>
+                  <input 
+                    type="text" 
+                    value={userProfile.name}
+                    onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-primary/50 outline-none transition-all"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-tertiary/20 flex items-center justify-center text-lg">🛡️</div>
+                    <div>
+                      <p className="font-bold text-white text-sm">Community Anonymity</p>
+                      <p className="text-[10px] text-white/40">Hide your real name from other mamas</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant={userProfile.is_anonymous ? "hero" : "outline"} 
+                    size="sm" 
+                    className="rounded-lg text-[10px] h-8 px-4"
+                    onClick={() => setUserProfile(prev => ({ ...prev, is_anonymous: !prev.is_anonymous }))}
+                  >
+                    {userProfile.is_anonymous ? "ENABLED" : "ENABLE"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-white/5 flex gap-3">
+              <Button 
+                variant="outline" 
+                className="flex-1 rounded-2xl h-12 border-white/10 font-bold"
+                onClick={() => setIsProfileModalOpen(false)}
+              >
+                Discard
+              </Button>
+              <Button 
+                className="flex-1 rounded-2xl h-12 bg-primary hover:bg-primary/90 font-black shadow-lg shadow-primary/20"
+                onClick={async () => {
+                  const toastId = toast.loading("Saving secure profile...");
+                  // Simulate API call to update mothers table
+                  setTimeout(() => {
+                    setIsProfileModalOpen(false);
+                    toast.success("Profile secured successfully!", { id: toastId });
+                  }, 1000);
+                }}
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
