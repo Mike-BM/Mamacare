@@ -113,7 +113,34 @@ export default function MotherDashboard() {
   const taskProgress = (completedTasks / tasks.length) * 100;
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1200);
+    const fetchProfile = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data } = await supabase
+            .from('mothers')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
+          
+          if (data) {
+            setUserProfile({
+              name: data.full_name || "Stacy Mutheu",
+              email: session.user.email || "",
+              pregnancy_week: data.pregnancy_week || 24,
+              avatar_url: data.avatar_url || "",
+              is_anonymous: data.is_anonymous || false
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("Mamacare: Running in Offline Demo Mode.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
     const handleOnline = () => { setIsOffline(false); toast.success("Back online."); };
     const handleOffline = () => { setIsOffline(true); toast.error("Offline Mode."); };
 
@@ -125,7 +152,6 @@ export default function MotherDashboard() {
     }, 10000);
 
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       clearInterval(messageInterval);
