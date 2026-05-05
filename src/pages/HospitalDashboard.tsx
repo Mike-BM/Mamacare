@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet, TrendingUp, CheckCircle2, MessageCircle, Settings, MapPin } from "lucide-react";
+import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet, TrendingUp, CheckCircle2, MessageCircle, Settings, MapPin, Loader2, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BloodDonorNetwork } from "@/components/BloodDonorNetwork";
@@ -10,17 +11,36 @@ import { AmbulanceTrackerMap } from "@/components/AmbulanceTrackerMap";
 
 const HospitalDashboard = () => {
   const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const appointments = [
+  const [appointments, setAppointments] = useState([
     { id: 1, patient: "Eliza Keith", time: "10:00 AM", status: "pending", type: "Checkup", priority: "normal" },
     { id: 2, patient: "Stacy Mutheu", time: "11:30 AM", status: "confirmed", type: "Ultrasound", priority: "high" },
     { id: 3, patient: "Emily Brian", time: "2:00 PM", status: "pending", type: "Consultation", priority: "normal" },
-  ];
+  ]);
 
-  const sosAlerts = [
-    { id: 1, patient: "Jane John", severity: "high", time: "5 mins ago", location: "Zone A, Floor 2", lat: -1.280000, lng: 36.820000 },
-    { id: 2, patient: "Lisa Wanjiru", severity: "medium", time: "12 mins ago", location: "Emergency Ward", lat: -1.295000, lng: 36.810000 },
-  ];
+  const [sosAlerts, setSosAlerts] = useState([
+    { id: 1, patient: "Jane John", severity: "high", time: "5 mins ago", location: "Zone A, Floor 2", status: "active" },
+    { id: 2, patient: "Lisa Wanjiru", severity: "medium", time: "12 mins ago", location: "Emergency Ward", status: "active" },
+  ]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleConfirm = (id: number) => {
+    setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: 'confirmed' } : apt));
+    toast.success("Appointment confirmed and synced.");
+  };
+
+  const handleDispatch = (id: number, patient: string) => {
+    setSosAlerts(prev => prev.map(alert => alert.id === id ? { ...alert, status: 'dispatched' } : alert));
+    toast.error(`Emergency Team Dispatched for ${patient}!`, {
+      icon: '🚨',
+      duration: 5000
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -41,7 +61,11 @@ const HospitalDashboard = () => {
               <h1 className="text-2xl font-black bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
                 City Medical Center
               </h1>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Healthcare Provider Portal</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Healthcare Provider Portal</p>
+                <div className="w-1 h-1 bg-white/20 rounded-full" />
+                <p className="text-[10px] font-black text-secondary">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -176,7 +200,12 @@ const HospitalDashboard = () => {
                           </div>
                           <div className="flex gap-2 w-full sm:w-auto">
                             <Button size="sm" variant="ghost" className="flex-1 sm:flex-none h-11 px-4 rounded-xl hover:bg-white/5 font-bold text-xs">Details</Button>
-                            <Button size="sm" variant={apt.status === "confirmed" ? "outline" : "secondary"} className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-bold text-xs shadow-lg">
+                            <Button 
+                              size="sm" 
+                              variant={apt.status === "confirmed" ? "outline" : "secondary"} 
+                              className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-bold text-xs shadow-lg"
+                              onClick={() => apt.status === "pending" && handleConfirm(apt.id)}
+                            >
                               {apt.status === "confirmed" ? "View Chart" : "Confirm"}
                             </Button>
                           </div>
@@ -217,18 +246,14 @@ const HospitalDashboard = () => {
                         </div>
                         <Button 
                           size="sm" 
-                          variant="destructive" 
-                          className="w-full h-11 font-black rounded-xl shadow-lg shadow-destructive/20 active:scale-95 transition-transform"
-                          onClick={() => {
-                            const audio = new Audio('/sounds/emergency-alert.mp3');
-                            audio.play().catch(() => {});
-                            toast.error(`Response team dispatched to ${alert.location} for ${alert.patient}!`, {
-                              icon: '🚨',
-                              duration: 5000
-                            });
-                          }}
+                          variant={alert.status === 'dispatched' ? 'outline' : 'destructive'}
+                          disabled={alert.status === 'dispatched'}
+                          className={`w-full h-11 font-black rounded-xl shadow-lg transition-transform ${alert.status === 'dispatched' ? 'border-green-500/30 text-green-400' : 'shadow-destructive/20 active:scale-95'}`}
+                          onClick={() => handleDispatch(alert.id, alert.patient)}
                         >
-                          Respond Now
+                          {alert.status === 'dispatched' ? (
+                            <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> TEAM DISPATCHED</span>
+                          ) : "Respond Now"}
                         </Button>
                       </div>
                     ))}
