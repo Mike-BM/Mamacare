@@ -8,7 +8,6 @@ import About from "./pages/About";
 import Features from "./pages/Features";
 import MotherDashboard from "./pages/MotherDashboard";
 import HospitalDashboard from "./pages/HospitalDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
 import BabaDashboard from "./pages/BabaDashboard";
 import NotFound from "./pages/NotFound";
 import { OfflineBadge } from "./components/OfflineBadge";
@@ -31,7 +30,6 @@ const App = () => (
         <Route path="/mother-dashboard/:tab?" element={<MotherDashboard />} />
         <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
         <Route path="/provider-dashboard" element={<ProviderDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/baba" element={<BabaDashboard />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
