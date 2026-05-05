@@ -1013,17 +1013,22 @@ export default function MotherDashboard() {
       </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-white/10 flex items-center justify-around p-2 mobile-bottom-nav">
-        {TABS.slice(0, 5).map((t, index) => {
-          if (index === 2) {
-            // Center SOS or Main action button placeholder
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-white/10 flex items-center justify-around p-2 pb-safe mobile-bottom-nav">
+        {[
+          TABS[0], // Overview
+          TABS[1], // Health
+          { id: 'center-ai', icon: Bot, isCenter: true },
+          TABS[2], // Appointments
+          TABS[6]  // Hospitals
+        ].map((t, index) => {
+          if ('isCenter' in t) {
             return (
               <div key="center-action" className="relative -top-4">
                 <button 
                   onClick={() => handleTabChange('ai')}
-                  className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-90 touch-manipulation"
+                  className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-90 touch-manipulation border-4 border-background"
                 >
-                  <Bot className="w-6 h-6" />
+                  <Bot className="w-7 h-7" />
                 </button>
               </div>
             );
@@ -1032,9 +1037,10 @@ export default function MotherDashboard() {
             <button
               key={t.id}
               onClick={() => handleTabChange(t.id)}
-              className={`p-3 flex flex-col items-center gap-1 ${activeTab === t.id ? 'text-primary' : 'text-white/50 hover:text-white/80'}`}
+              className={`p-3 flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] transition-colors ${activeTab === t.id ? 'text-primary' : 'text-white/40 hover:text-white/80'}`}
             >
               <t.icon className={`w-6 h-6 ${activeTab === t.id ? 'animate-pulse drop-shadow-[0_0_8px_rgba(255,126,179,0.8)]' : ''}`} />
+              <span className="text-[8px] font-bold uppercase tracking-tighter">{t.label}</span>
             </button>
           );
         })}
