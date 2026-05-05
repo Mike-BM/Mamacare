@@ -62,16 +62,21 @@ const AdminDashboard = () => {
               </div>
               <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
               <p className="text-3xl font-bold">{stat.value}</p>
+              <div className="mt-4 pt-4 border-t border-border/20 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Secured via AES-256</span>
+              </div>
             </Card>
           ))}
         </div>
 
         {/* Analytics Dashboard */}
         <Tabs defaultValue="analytics" className="w-full mb-8">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg mb-6">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl mb-6">
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
             <TabsTrigger value="security">Security Logs</TabsTrigger>
+            <TabsTrigger value="audit">Full Audit Trail</TabsTrigger>
           </TabsList>
           
           <TabsContent value="analytics">
@@ -139,6 +144,47 @@ const AdminDashboard = () => {
                     </Badge>
                   </div>
                 ))}
+              </div>
+            </Card>
+          </TabsContent>
+          <TabsContent value="audit">
+            <Card className="p-0 overflow-hidden bg-card/30 border-border/50">
+              <div className="p-6 border-b border-border/50 bg-muted/20 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold">System-Wide Audit Trail</h3>
+                  <p className="text-xs text-muted-foreground">Permanent logs for medical compliance</p>
+                </div>
+                <Button size="sm" variant="outline" className="text-xs">Download ISO-Report</Button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-muted/30 text-muted-foreground font-medium uppercase text-[10px] tracking-widest">
+                    <tr>
+                      <th className="px-6 py-4">Timestamp</th>
+                      <th className="px-6 py-4">User</th>
+                      <th className="px-6 py-4">Action</th>
+                      <th className="px-6 py-4">Record</th>
+                      <th className="px-6 py-4">Security Level</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/30">
+                    {[
+                      { time: "2026-05-05 14:32", user: "Dr. Eliza", action: "Accessed Patient: Stacy", record: "APP-992", level: "HIGH" },
+                      { time: "2026-05-05 12:15", user: "Admin-Mark", action: "Updated Hospital: City Med", record: "HOSP-01", level: "MEDIUM" },
+                      { time: "2026-05-05 09:44", user: "Nurse-Ivy", action: "Exported Reports", record: "DOC-88", level: "CRITICAL" },
+                    ].map((row, i) => (
+                      <tr key={i} className="hover:bg-muted/10 transition-colors">
+                        <td className="px-6 py-4 font-mono text-[10px]">{row.time}</td>
+                        <td className="px-6 py-4 font-bold">{row.user}</td>
+                        <td className="px-6 py-4">{row.action}</td>
+                        <td className="px-6 py-4 text-primary font-medium">{row.record}</td>
+                        <td className="px-6 py-4">
+                          <Badge variant={row.level === 'CRITICAL' ? 'destructive' : 'outline'}>{row.level}</Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </Card>
           </TabsContent>
