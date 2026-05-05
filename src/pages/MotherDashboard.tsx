@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin } from "lucide-react";
+import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
@@ -62,6 +62,9 @@ export default function MotherDashboard() {
     price: 7,
     onSuccess: () => {}
   });
+
+  const [activeDemo, setActiveDemo] = useState<'none' | 'nurse' | 'ride'>('none');
+  const [demoProgress, setDemoProgress] = useState(0);
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
@@ -155,6 +158,32 @@ export default function MotherDashboard() {
     } finally {
       setIsGeneratingRoom(false);
     }
+  };
+
+  const startNurseDemo = () => {
+    setActiveDemo('nurse');
+    setDemoProgress(0);
+    const toastId = toast.loading("Locating nearest available nurse...");
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setDemoProgress(progress);
+      if (progress >= 100) {
+        clearInterval(interval);
+        toast.success("Nurse Sarah is now calling your phone!", { id: toastId });
+      }
+    }, 400);
+  };
+
+  const startRideDemo = () => {
+    setActiveDemo('ride');
+    setDemoProgress(0);
+    toast.success("MamaRide Request Received! Locating driver...");
+    
+    setTimeout(() => {
+      setDemoProgress(100);
+    }, 3000);
   };
 
   if (isLoading) {
@@ -670,9 +699,16 @@ export default function MotherDashboard() {
                           <Plus className="w-6 h-6" />
                           <span>Book New</span>
                         </Button>
-                        <Button variant="outline" className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold">
-                          <Smartphone className="w-6 h-6 text-primary" />
+                        <Button 
+                          variant="outline" 
+                          className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold group relative overflow-hidden"
+                          onClick={startNurseDemo}
+                        >
+                          <Smartphone className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
                           <span>Call Nurse</span>
+                          {activeDemo === 'nurse' && (
+                            <div className="absolute bottom-0 left-0 h-1 bg-primary transition-all duration-300" style={{ width: `${demoProgress}%` }} />
+                          )}
                         </Button>
                         <Button 
                           variant="outline" 
@@ -684,11 +720,14 @@ export default function MotherDashboard() {
                         </Button>
                         <Button 
                           variant="outline" 
-                          className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold"
-                          onClick={() => toast.info("MamaRide is coming soon to your area!")}
+                          className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold group relative overflow-hidden"
+                          onClick={startRideDemo}
                         >
-                          <Car className="w-6 h-6 text-tertiary" />
+                          <Car className="w-6 h-6 text-tertiary group-hover:scale-110 transition-transform" />
                           <span>MamaRide</span>
+                          {activeDemo === 'ride' && (
+                            <div className="absolute bottom-0 left-0 h-1 bg-tertiary transition-all duration-300" style={{ width: `${demoProgress}%` }} />
+                          )}
                         </Button>
                       </div>
                     </Card>
@@ -1016,6 +1055,37 @@ export default function MotherDashboard() {
         perks={paywallConfig.perks}
         price={paywallConfig.price}
       />
+
+      {/* Demo UI Overlays */}
+      {activeDemo === 'nurse' && demoProgress === 100 && (
+        <div className="fixed top-8 right-8 z-[100] animate-in fade-in slide-in-from-right duration-500">
+          <Card className="p-4 bg-primary border-primary shadow-2xl flex items-center gap-4 text-white">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center animate-bounce">
+              <Smartphone className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-black tracking-widest opacity-70">Incoming Call</p>
+              <p className="font-bold">Nurse Sarah (Midwife)</p>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setActiveDemo('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
+          </Card>
+        </div>
+      )}
+
+      {activeDemo === 'ride' && demoProgress === 100 && (
+        <div className="fixed top-8 right-8 z-[100] animate-in fade-in slide-in-from-right duration-500">
+          <Card className="p-4 bg-tertiary border-tertiary shadow-2xl flex items-center gap-4 text-white">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+              <Car className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-black tracking-widest opacity-70">MamaRide Found</p>
+              <p className="font-bold">Driver: John • 4 mins away</p>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => setActiveDemo('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
