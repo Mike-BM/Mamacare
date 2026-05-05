@@ -180,7 +180,7 @@ const HospitalDashboard = () => {
                               {apt.status === "confirmed" ? "View Chart" : "Confirm"}
                             </Button>
                           </div>
-                        </div>iv>
+                        </div>
                       </div>
                     ))}
                   </div>
