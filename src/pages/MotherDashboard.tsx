@@ -66,6 +66,8 @@ export default function MotherDashboard() {
   const [activeDemo, setActiveDemo] = useState<'none' | 'nurse' | 'ride'>('none');
   const [demoProgress, setDemoProgress] = useState(0);
 
+  const [isRideModalOpen, setIsRideModalOpen] = useState(false);
+
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [currentRoomUrl, setCurrentRoomUrl] = useState("");
@@ -721,13 +723,10 @@ export default function MotherDashboard() {
                         <Button 
                           variant="outline" 
                           className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold group relative overflow-hidden"
-                          onClick={startRideDemo}
+                          onClick={() => setIsRideModalOpen(true)}
                         >
                           <Car className="w-6 h-6 text-tertiary group-hover:scale-110 transition-transform" />
                           <span>MamaRide</span>
-                          {activeDemo === 'ride' && (
-                            <div className="absolute bottom-0 left-0 h-1 bg-tertiary transition-all duration-300" style={{ width: `${demoProgress}%` }} />
-                          )}
                         </Button>
                       </div>
                     </Card>
@@ -1092,6 +1091,53 @@ export default function MotherDashboard() {
           </Card>
         </div>
       )}
+
+      {/* MamaRide Selection Modal */}
+      <Dialog open={isRideModalOpen} onOpenChange={setIsRideModalOpen}>
+        <DialogContent className="glass-card border-white/10 max-w-md p-6 rounded-[32px] bg-[#0f0f1a]/95 backdrop-blur-2xl">
+          <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-white">
+            <div className="w-8 h-8 rounded-lg bg-tertiary/20 flex items-center justify-center">
+              <Car className="w-4 h-4 text-tertiary" />
+            </div>
+            Request a MamaRide
+          </h3>
+          
+          <div className="space-y-3">
+            {[
+              { id: 'standard', label: 'Standard Ride', sub: 'Comfortable car for checkups', eta: '4-6 mins', icon: Car, color: 'text-tertiary' },
+              { id: 'ambulance', label: 'Emergency Ambulance', sub: 'Urgent medical transport', eta: '2-4 mins', icon: ShieldCheck, color: 'text-destructive' },
+              { id: 'boda', label: 'Quick Boda-Boda', sub: 'Fast navigation through traffic', eta: '3 mins', iconRaw: '🏍️', color: 'text-secondary' }
+            ].map((option) => (
+              <button
+                key={option.id}
+                onClick={() => {
+                  setIsRideModalOpen(false);
+                  startRideDemo();
+                }}
+                className="w-full p-4 rounded-2xl border border-white/5 bg-white/10 hover:bg-white/20 hover:border-white/20 transition-all flex items-center justify-between group active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-4 text-left">
+                  <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-xl group-hover:scale-110 transition-transform`}>
+                    {option.iconRaw || (option.icon && <option.icon className={`w-6 h-6 ${option.color}`} />)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-sm">{option.label}</p>
+                    <p className="text-[10px] text-white/50">{option.sub}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-black text-white/80">{option.eta}</p>
+                  <p className="text-[10px] text-primary font-bold uppercase tracking-tighter">Select</p>
+                </div>
+              </button>
+            ))}
+          </div>
+          
+          <p className="mt-6 text-[10px] text-center text-white/30 font-medium italic">
+            "Every MamaRide driver is trained in basic maternal first aid."
+          </p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
