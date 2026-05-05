@@ -332,8 +332,8 @@ const HospitalDashboard = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">👨‍⚕️</div>
-                      <span>Dr. Sarah Johnson</span>
+                      <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">🏥</div>
+                      <span>Nurse Ivy (Head Nurse)</span>
                     </div>
                     <Badge className="bg-white/10 text-white/50">Off Duty</Badge>
                   </div>

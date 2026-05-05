@@ -171,7 +171,7 @@ export default function MotherDashboard() {
       setDemoProgress(progress);
       if (progress >= 100) {
         clearInterval(interval);
-        toast.success("Nurse Sarah is now calling your phone!", { id: toastId });
+        toast.success("Nurse Ivy is now calling your phone!", { id: toastId });
       }
     }, 400);
   };
@@ -1071,7 +1071,7 @@ export default function MotherDashboard() {
             </div>
             <div>
               <p className="text-[10px] uppercase font-black tracking-widest opacity-70">Incoming Call</p>
-              <p className="font-bold">Nurse Sarah (Midwife)</p>
+              <p className="font-bold">Nurse Ivy (Midwife)</p>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setActiveDemo('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
           </Card>
