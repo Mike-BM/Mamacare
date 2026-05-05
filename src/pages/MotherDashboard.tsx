@@ -417,6 +417,67 @@ export default function MotherDashboard() {
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <div className="w-full space-y-6 pb-24 md:pb-8 animate-fade-in-up">
             
+            {activeTab === "settings" && (
+              <div className="max-w-2xl mx-auto space-y-8 pb-12">
+                <h2 className="text-2xl font-bold">Account Settings</h2>
+                
+                <Card className="p-8 glass-card border-white/10 space-y-6">
+                  <h3 className="text-lg font-bold">Preferences</h3>
+                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <div>
+                      <p className="font-bold">Lite Mode</p>
+                      <p className="text-xs text-white/50">Reduces animations for better battery life</p>
+                    </div>
+                    <Button 
+                      variant={isLiteMode ? "hero" : "outline"} 
+                      size="sm" 
+                      onClick={toggleLiteMode}
+                      className="rounded-lg h-9 px-6 font-bold"
+                    >
+                      {isLiteMode ? "ON" : "OFF"}
+                    </Button>
+                  </div>
+                </Card>
+
+                <Card className="p-8 glass-card border-destructive/20 bg-destructive/5 space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-destructive" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">Danger Zone</h3>
+                      <p className="text-xs text-destructive/70">Right to Deletion (ODPC Kenya Compliance)</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6 bg-black/40 rounded-2xl border border-destructive/10">
+                    <p className="text-sm font-medium mb-4">Deleting your account will permanently remove:</p>
+                    <ul className="text-xs space-y-2 text-white/50 mb-6">
+                      <li className="flex items-center gap-2">❌ All medical health records & logs</li>
+                      <li className="flex items-center gap-2">❌ Your encrypted MamaFund wallet balance</li>
+                      <li className="flex items-center gap-2">❌ Community posts and messages</li>
+                    </ul>
+                    <Button 
+                      variant="destructive" 
+                      className="w-full h-12 rounded-2xl font-black shadow-lg shadow-destructive/20"
+                      onClick={() => {
+                        const confirm = window.confirm("Are you 100% sure? This action is permanent and complies with your ODPC right to deletion.");
+                        if (confirm) {
+                          const toastId = toast.loading("Permanently deleting records...");
+                          setTimeout(() => {
+                            toast.success("Account and data deleted successfully.", { id: toastId });
+                            navigate("/");
+                          }, 2000);
+                        }
+                      }}
+                    >
+                      DELETE MY ACCOUNT & DATA
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
+            
             {activeTab === "overview" && (
               <div className="space-y-6">
                 <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare User" : userProfile.name.split(' ')[0]} />

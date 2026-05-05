@@ -14,6 +14,7 @@ const Register = () => {
     phone: "",
     password: "",
     confirmPassword: "",
+    consent: false,
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -142,6 +143,20 @@ const Register = () => {
                   className="bg-input/50 backdrop-blur-sm border-border/50"
                   required
                 />
+              </div>
+
+              <div className="flex items-start gap-3 p-4 bg-white/5 rounded-xl border border-white/5 group cursor-pointer" onClick={() => setFormData({ ...formData, consent: !formData.consent })}>
+                <input 
+                  type="checkbox" 
+                  checked={formData.consent} 
+                  readOnly
+                  className="mt-1 w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <p className="text-[10px] leading-relaxed text-muted-foreground group-hover:text-white transition-colors">
+                  I consent to the collection and processing of my maternal health data in accordance with the 
+                  <span className="text-primary font-bold mx-1">Kenya Data Protection Act (2019)</span> 
+                  and ODPC guidelines. I understand my data is localized in Africa.
+                </p>
               </div>
 
               <div className="flex gap-3 pt-4">
