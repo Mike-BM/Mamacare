@@ -7,7 +7,7 @@ import {
   ChevronRight, ArrowLeft, CheckCircle2, AlertCircle,
   MessageSquare
 } from "lucide-react";
-import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 interface BookingFlowProps {
   onClose: () => void;
@@ -15,11 +15,12 @@ interface BookingFlowProps {
 }
 
 export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     provider: null as any,
-    date: null as any,
-    slot: null as any,
+    date: "May 6, 2026",
+    slot: "09:00 AM",
     type: 'in_person',
     reason: '',
     urgentSymptoms: 'no',
@@ -38,10 +39,36 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
   const handleNext = () => setStep(prev => prev + 1);
   const handleBack = () => setStep(prev => prev - 1);
 
-  const handleBook = () => {
-    toast.success("Booking successful! SMS confirmation sent.");
-    onSuccess();
-    onClose();
+  const handleBook = async () => {
+    setIsSubmitting(true);
+    const toastId = toast.loading("Booking your appointment...");
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const userId = session?.user?.id || '00000000-0000-0000-0000-000000000000';
+
+      const response = await fetch('/api/appointments/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          doctorId: formData.provider?.id || 1,
+          time: `${formData.date} ${formData.slot}`,
+          amount: 50.00
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to book appointment");
+
+      toast.success("Booking successful! SMS confirmation sent.", { id: toastId });
+      onSuccess();
+      onClose();
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast.error("Booking failed. Please try again.", { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -245,12 +272,13 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
           </Card>
 
           <Button 
-            className="w-full h-16 bg-primary hover:bg-primary/90 text-white text-lg font-black rounded-3xl shadow-2xl shadow-primary/40 group relative overflow-hidden"
+            className="w-full h-16 bg-primary hover:bg-primary/90 text-white text-lg font-black rounded-3xl shadow-2xl shadow-primary/40 group relative overflow-hidden disabled:opacity-50"
             onClick={handleBook}
+            disabled={isSubmitting}
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
-              Confirm Booking
-              <CheckCircle2 className="w-6 h-6 group-hover:scale-110 transition-transform" />
+              {isSubmitting ? "Processing..." : "Confirm Booking"}
+              {!isSubmitting && <CheckCircle2 className="w-6 h-6 group-hover:scale-110 transition-transform" />}
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary opacity-0 group-hover:opacity-20 transition-opacity animate-gradient-shift" />
           </Button>

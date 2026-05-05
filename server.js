@@ -19,12 +19,12 @@ app.use(express.json());
 // Apply rate limiting
 app.use('/api/', standardLimiter);
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || ''; // fallback
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '12345678901234567890123456789012'; // 32 bytes
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // 32 bytes
 const IV_LENGTH = 16;
 
 function encrypt(text) {
