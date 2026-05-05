@@ -68,6 +68,8 @@ export default function MotherDashboard() {
 
   const [isRideModalOpen, setIsRideModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isWalletUnlocked, setIsWalletUnlocked] = useState(false);
+  const [isDecrypting, setIsDecrypting] = useState(false);
 
   const [userProfile, setUserProfile] = useState({
     name: "Stacy Mutheu", // Default fallback
@@ -195,6 +197,15 @@ export default function MotherDashboard() {
     setTimeout(() => {
       setDemoProgress(100);
     }, 3000);
+  };
+
+  const unlockVault = () => {
+    setIsDecrypting(true);
+    setTimeout(() => {
+      setIsDecrypting(false);
+      setIsWalletUnlocked(true);
+      toast.success("Wallet Decrypted Successfully", { icon: "🔐" });
+    }, 1500);
   };
 
   if (isLoading) {
@@ -509,9 +520,52 @@ export default function MotherDashboard() {
               </div>
             )}
 
+            {activeTab === "wallet" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                   <h2 className="text-2xl font-bold flex items-center gap-3">
+                     <Wallet className="w-6 h-6 text-primary" /> MamaFund Wallet
+                   </h2>
+                   <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
+                     <ShieldCheck className="w-3 h-3 text-green-400" />
+                     <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">E2E Encrypted</span>
+                   </div>
+                </div>
+
+                {!isWalletUnlocked ? (
+                  <Card className="p-12 glass-card border-white/10 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 to-transparent">
+                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 relative">
+                       <ShieldCheck className="w-10 h-10 text-white/20" />
+                       <div className="absolute inset-0 border-2 border-primary/30 rounded-full animate-ping" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">Secure Vault Locked</h3>
+                    <p className="text-sm text-white/50 max-w-sm mb-8">Financial data is encrypted with your private key. Doctors and administrators cannot access this vault.</p>
+                    <Button 
+                      className="bg-primary hover:bg-primary/90 h-12 px-8 rounded-2xl font-black shadow-lg shadow-primary/20"
+                      onClick={unlockVault}
+                      disabled={isDecrypting}
+                    >
+                      {isDecrypting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <ShieldCheck className="w-5 h-5 mr-2" />}
+                      {isDecrypting ? "DECRYPTING..." : "UNLOCK VAULT"}
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="animate-in fade-in zoom-in duration-500">
+                    <MamaFundWallet balance={2450} transactions={[]} />
+                  </div>
+                )}
+              </div>
+            )}
+
             {activeTab === "health" && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Health Dashboard</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Health Dashboard</h2>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <Lock className="w-3 h-3 text-white/50" />
+                    <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">HIPAA Compliant</span>
+                  </div>
+                </div>
                 
                 {/* Top row: Band (60%) + Watch (40%) */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
