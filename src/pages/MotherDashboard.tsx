@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ArrowLeft, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock } from "lucide-react";
+import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ArrowLeft, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock, Phone } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
@@ -83,6 +83,7 @@ export default function MotherDashboard() {
   const { tab } = useParams();
   const activeTab = tab || "overview";
   const { play, stop, SOUNDS } = useSound();
+  const [isCalling, setIsCalling] = useState<string | null>(null);
 
   // Navigation History tracking for the "Back" button
   const [navHistory, setNavHistory] = useState<string[]>([]);
@@ -1012,12 +1013,33 @@ export default function MotherDashboard() {
                 <h2 className="text-2xl font-bold mb-6">Nearby Hospitals & Clinics</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[
-                    { name: "Nairobi Women's Hospital", distance: "2.4 km", status: "Open 24/7", emergency: true },
-                    { name: "Mama Lucy Kibaki Hospital", distance: "4.1 km", status: "Open 24/7", emergency: true },
-                    { name: "Pumwani Maternity Hospital", distance: "5.8 km", status: "Open 24/7", emergency: true },
-                    { name: "Aga Khan University Hospital", distance: "6.2 km", status: "Open 24/7", emergency: true },
+                    { name: "Nairobi Women's Hospital", distance: "2.4 km", status: "Open 24/7", emergency: true, phone: "+254703081000" },
+                    { name: "Mama Lucy Kibaki Hospital", distance: "4.1 km", status: "Open 24/7", emergency: true, phone: "+254202344599" },
+                    { name: "Pumwani Maternity Hospital", distance: "5.8 km", status: "Open 24/7", emergency: true, phone: "+254202212222" },
+                    { name: "Aga Khan University Hospital", distance: "6.2 km", status: "Open 24/7", emergency: true, phone: "+254730011000" },
                   ].map((h, i) => (
-                    <Card key={i} className="p-6 glass-card border-white/10 hover:border-primary/50 transition-all group cursor-pointer">
+                    <Card key={i} className="p-6 glass-card border-white/10 hover:border-primary/50 transition-all group cursor-pointer relative overflow-hidden">
+                      {isCalling === h.name && (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="absolute inset-0 bg-primary/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center p-4"
+                        >
+                          <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-4 animate-pulse">
+                            <Phone className="w-8 h-8 text-white" />
+                          </div>
+                          <p className="text-white font-black text-lg mb-1">Calling...</p>
+                          <p className="text-white/70 text-xs mb-6">{h.name}</p>
+                          <Button 
+                            variant="destructive" 
+                            size="sm" 
+                            className="rounded-full px-6"
+                            onClick={(e) => { e.stopPropagation(); setIsCalling(null); }}
+                          >
+                            End Call
+                          </Button>
+                        </motion.div>
+                      )}
                       <div className="flex items-start justify-between mb-4">
                         <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                           <MapPin className="w-6 h-6 text-primary" />
@@ -1027,8 +1049,29 @@ export default function MotherDashboard() {
                       <h4 className="font-bold text-lg text-white mb-1">{h.name}</h4>
                       <p className="text-sm text-white/50 mb-4">{h.distance} • {h.status}</p>
                       <div className="flex gap-2">
-                        <Button className="flex-1 bg-primary/10 hover:bg-primary/20 text-primary border-0 h-10 font-bold" onClick={() => toast.success("Calling " + h.name)}>Call</Button>
-                        <Button variant="outline" className="flex-1 border-white/10 hover:bg-white/5 h-10 font-bold">Directions</Button>
+                        <Button 
+                          className="flex-1 bg-primary/10 hover:bg-primary/20 text-primary border-0 h-10 font-bold" 
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            setIsCalling(h.name);
+                            play(SOUNDS.CLICK);
+                            setTimeout(() => {
+                              window.location.href = `tel:${h.phone}`;
+                            }, 1000);
+                          }}
+                        >
+                          Call
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="flex-1 border-white/10 hover:bg-white/5 h-10 font-bold"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(`https://www.google.com/maps/search/${encodeURIComponent(h.name)}`, '_blank');
+                          }}
+                        >
+                          Directions
+                        </Button>
                       </div>
                     </Card>
                   ))}
