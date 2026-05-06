@@ -1013,10 +1013,10 @@ export default function MotherDashboard() {
                 <h2 className="text-2xl font-bold mb-6">Nearby Hospitals & Clinics</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[
-                    { name: "Nairobi Women's Hospital", distance: "2.4 km", status: "Open 24/7", emergency: true, phone: "+254703081000" },
-                    { name: "Mama Lucy Kibaki Hospital", distance: "4.1 km", status: "Open 24/7", emergency: true, phone: "+254202344599" },
-                    { name: "Pumwani Maternity Hospital", distance: "5.8 km", status: "Open 24/7", emergency: true, phone: "+254202212222" },
-                    { name: "Aga Khan University Hospital", distance: "6.2 km", status: "Open 24/7", emergency: true, phone: "+254730011000" },
+                    { name: "Nairobi Women's Hospital", distance: "2.4 km", status: "Open 24/7", emergency: true, phone: "+254753436729" },
+                    { name: "Mama Lucy Kibaki Hospital", distance: "4.1 km", status: "Open 24/7", emergency: true, phone: "+254753436729" },
+                    { name: "Pumwani Maternity Hospital", distance: "5.8 km", status: "Open 24/7", emergency: true, phone: "+254753436729" },
+                    { name: "Aga Khan University Hospital", distance: "6.2 km", status: "Open 24/7", emergency: true, phone: "+254753436729" },
                   ].map((h, i) => (
                     <Card key={i} className="p-6 glass-card border-white/10 hover:border-primary/50 transition-all group cursor-pointer relative overflow-hidden">
                       {isCalling === h.name && (
