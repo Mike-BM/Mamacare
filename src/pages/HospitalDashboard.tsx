@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,9 +11,57 @@ import { BloodDonorNetwork } from "@/components/BloodDonorNetwork";
 import { toast } from "sonner";
 import { AmbulanceTrackerMap } from "@/components/AmbulanceTrackerMap";
 
+const HOSPITAL_TABS = [
+  { id: "overview", label: "Overview", icon: Calendar },
+  { id: "queue", label: "Patient Queue", icon: Users },
+  { id: "resources", label: "Resources", icon: Heart },
+  { id: "analytics", label: "Analytics", icon: TrendingUp },
+  { id: "map", label: "Live Map", icon: MapPin },
+  { id: "donors", label: "Blood Network", icon: Droplet },
+];
+
+const TabNavigator = ({ currentTabId, onTabChange }: { currentTabId: string, onTabChange: (id: string) => void }) => {
+  const currentIndex = HOSPITAL_TABS.findIndex(t => t.id === currentTabId);
+  const prevTab = currentIndex > 0 ? HOSPITAL_TABS[currentIndex - 1] : null;
+  const nextTab = currentIndex < HOSPITAL_TABS.length - 1 ? HOSPITAL_TABS[currentIndex + 1] : null;
+
+  if (!prevTab && !nextTab) return null;
+
+  return (
+    <div className="flex items-center justify-between mt-12 pt-8 border-t border-white/5 pb-12">
+      {prevTab ? (
+        <Button 
+          variant="ghost" 
+          onClick={() => onTabChange(prevTab.id)}
+          className="group flex flex-col items-start gap-1 h-auto py-3 px-4 hover:bg-white/5 rounded-2xl transition-all active:scale-95"
+        >
+          <span className="text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-secondary transition-colors flex items-center gap-2">
+            <ArrowLeft className="w-3 h-3" /> Previous Section
+          </span>
+          <span className="text-sm font-bold text-white group-hover:translate-x-1 transition-transform">{prevTab.label}</span>
+        </Button>
+      ) : <div />}
+
+      {nextTab ? (
+        <Button 
+          variant="ghost" 
+          onClick={() => onTabChange(nextTab.id)}
+          className="group flex flex-col items-end gap-1 h-auto py-3 px-4 hover:bg-white/5 rounded-2xl transition-all text-right active:scale-95"
+        >
+          <span className="text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-secondary transition-colors flex items-center gap-2">
+            Next Section <ArrowRight className="w-3 h-3" />
+          </span>
+          <span className="text-sm font-bold text-white group-hover:-translate-x-1 transition-transform">{nextTab.label}</span>
+        </Button>
+      ) : <div />}
+    </div>
+  );
+};
+
 const HospitalDashboard = () => {
   const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [activeTab, setActiveTab] = useState("overview");
 
   const [appointments, setAppointments] = useState([
     { id: 1, patient: "Eliza Keith", time: "10:00 AM", status: "pending", type: "Checkup", priority: "normal" },
@@ -103,7 +153,7 @@ const HospitalDashboard = () => {
           ))}
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="flex items-center justify-between border-b border-white/5 pb-2 overflow-x-auto hide-scrollbar">
             <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl flex-nowrap w-max">
               <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
@@ -130,6 +180,15 @@ const HospitalDashboard = () => {
               <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11">Add Patient</Button>
             </div>
           </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+            >
 
           <TabsContent value="donors" className="animate-fade-in focus-visible:outline-none">
             <div className="max-w-4xl mx-auto">
@@ -399,6 +458,9 @@ const HospitalDashboard = () => {
               </Card>
             </div>
           </TabsContent>
+          </motion.div>
+          </AnimatePresence>
+          <TabNavigator currentTabId={activeTab} onTabChange={setActiveTab} />
         </Tabs>
       </div>
 

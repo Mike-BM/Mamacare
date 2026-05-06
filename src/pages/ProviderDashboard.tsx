@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +14,51 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { VideoCallModal } from "@/components/VideoCallModal";
 import { supabase } from "@/integrations/supabase/client";
+
+const PROVIDER_TABS = [
+  { id: "schedule", label: "Today's Schedule", icon: Calendar },
+  { id: "availability", label: "Manage Availability", icon: Clock },
+  { id: "patients", label: "My Patients", icon: Users },
+  { id: "settings", label: "Settings", icon: Settings },
+];
+
+const TabNavigator = ({ currentTabId, onTabChange }: { currentTabId: string, onTabChange: (id: string) => void }) => {
+  const currentIndex = PROVIDER_TABS.findIndex(t => t.id === currentTabId);
+  const prevTab = currentIndex > 0 ? PROVIDER_TABS[currentIndex - 1] : null;
+  const nextTab = currentIndex < PROVIDER_TABS.length - 1 ? PROVIDER_TABS[currentIndex + 1] : null;
+
+  if (!prevTab && !nextTab) return null;
+
+  return (
+    <div className="flex items-center justify-between mt-12 pt-8 border-t border-white/5 pb-12">
+      {prevTab ? (
+        <Button 
+          variant="ghost" 
+          onClick={() => onTabChange(prevTab.id)}
+          className="group flex flex-col items-start gap-1 h-auto py-3 px-4 hover:bg-white/5 rounded-2xl transition-all active:scale-95"
+        >
+          <span className="text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-primary transition-colors flex items-center gap-2">
+            <ArrowLeft className="w-3 h-3" /> Previous Section
+          </span>
+          <span className="text-sm font-bold text-white group-hover:translate-x-1 transition-transform">{prevTab.label}</span>
+        </Button>
+      ) : <div />}
+
+      {nextTab ? (
+        <Button 
+          variant="ghost" 
+          onClick={() => onTabChange(nextTab.id)}
+          className="group flex flex-col items-end gap-1 h-auto py-3 px-4 hover:bg-white/5 rounded-2xl transition-all text-right active:scale-95"
+        >
+          <span className="text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-primary transition-colors flex items-center gap-2">
+            Next Section <ArrowRight className="w-3 h-3" />
+          </span>
+          <span className="text-sm font-bold text-white group-hover:-translate-x-1 transition-transform">{nextTab.label}</span>
+        </Button>
+      ) : <div />}
+    </div>
+  );
+};
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -114,6 +161,15 @@ const ProviderDashboard = () => {
            <h2 className="text-3xl font-black text-white mb-1">Good Morning, {doctorInfo.name.split(' ')[1]}! ✨</h2>
            <p className="text-white/60 font-medium">{doctorInfo.date}</p>
         </header>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
 
         {activeTab === "schedule" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -304,7 +360,7 @@ const ProviderDashboard = () => {
           </div>
         )}
 
-        {activeTab === "availability" && ( activeTab === "availability" && (
+        {activeTab === "availability" && (
           <div className="space-y-6">
             <Card className="p-6 glass-card border-white/10">
                <div className="flex items-center justify-between mb-8">
@@ -387,6 +443,10 @@ const ProviderDashboard = () => {
              </div>
           </Card>
         )}
+          </motion.div>
+        </AnimatePresence>
+
+        <TabNavigator currentTabId={activeTab} onTabChange={setActiveTab} />
       </main>
 
       <VideoCallModal 

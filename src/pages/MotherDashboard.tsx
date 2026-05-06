@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock } from "lucide-react";
+import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ArrowLeft, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
@@ -38,10 +39,69 @@ const TABS = [
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
+const TabNavigator = ({ currentTabId, onTabChange }: { currentTabId: string, onTabChange: (id: string) => void }) => {
+  const currentIndex = TABS.findIndex(t => t.id === currentTabId);
+  const prevTab = currentIndex > 0 ? TABS[currentIndex - 1] : null;
+  const nextTab = currentIndex < TABS.length - 1 ? TABS[currentIndex + 1] : null;
+
+  if (!prevTab && !nextTab) return null;
+
+  return (
+    <div className="flex items-center justify-between mt-12 pt-8 border-t border-white/5 pb-12">
+      {prevTab ? (
+        <Button 
+          variant="ghost" 
+          onClick={() => onTabChange(prevTab.id)}
+          className="group flex flex-col items-start gap-1 h-auto py-3 px-4 hover:bg-white/5 rounded-2xl transition-all active:scale-95"
+        >
+          <span className="text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-primary transition-colors flex items-center gap-2">
+            <ArrowLeft className="w-3 h-3" /> Previous Section
+          </span>
+          <span className="text-sm font-bold text-white group-hover:translate-x-1 transition-transform">{prevTab.label}</span>
+        </Button>
+      ) : <div />}
+
+      {nextTab ? (
+        <Button 
+          variant="ghost" 
+          onClick={() => onTabChange(nextTab.id)}
+          className="group flex flex-col items-end gap-1 h-auto py-3 px-4 hover:bg-white/5 rounded-2xl transition-all text-right active:scale-95"
+        >
+          <span className="text-[10px] uppercase font-black tracking-widest text-white/30 group-hover:text-primary transition-colors flex items-center gap-2">
+            Next Section <ArrowRight className="w-3 h-3" />
+          </span>
+          <span className="text-sm font-bold text-white group-hover:-translate-x-1 transition-transform">{nextTab.label}</span>
+        </Button>
+      ) : <div />}
+    </div>
+  );
+};
+
 export default function MotherDashboard() {
   const navigate = useNavigate();
   const { tab } = useParams();
   const activeTab = tab || "overview";
+
+  // Navigation History tracking for the "Back" button
+  const [navHistory, setNavHistory] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (activeTab && navHistory[navHistory.length - 1] !== activeTab) {
+      setNavHistory(prev => [...prev, activeTab]);
+    }
+  }, [activeTab]);
+
+  const handleBack = () => {
+    if (navHistory.length > 1) {
+      const newHistory = [...navHistory];
+      newHistory.pop(); // Remove current
+      const lastTab = newHistory.pop(); // Get previous
+      setNavHistory(newHistory);
+      navigate(`/mother-dashboard/${lastTab}`);
+    } else {
+      navigate('/mother-dashboard/overview');
+    }
+  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [isLiteMode, setIsLiteMode] = useState(false);
@@ -379,9 +439,15 @@ export default function MotherDashboard() {
         {/* Header */}
         <header className={`border-b border-white/10 px-4 md:px-8 py-3 flex flex-row items-center justify-between flex-row-mobile-stack shrink-0 transition-colors ${isLiteMode ? 'bg-background' : 'backdrop-blur-xl bg-background/60'}`}>
           <div className="md:hidden flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-tertiary/20 flex items-center justify-center">
-              <Heart className="w-5 h-5 text-primary" fill="currentColor" />
-            </div>
+            {activeTab !== "overview" ? (
+              <Button variant="ghost" size="icon" onClick={handleBack} className="p-0 h-8 w-8 hover:bg-white/5 rounded-full active:scale-90 transition-transform">
+                <ArrowLeft className="w-5 h-5 text-primary" />
+              </Button>
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-tertiary/20 flex items-center justify-center">
+                <Heart className="w-5 h-5 text-primary" fill="currentColor" />
+              </div>
+            )}
             <span className="font-bold">MamaCare</span>
           </div>
           
@@ -422,7 +488,15 @@ export default function MotherDashboard() {
 
         {/* Main Tab Content Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-          <div className="w-full space-y-6 pb-24 md:pb-8 animate-fade-in-up">
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full space-y-6 pb-24 md:pb-8"
+            >
             
             {activeTab === "settings" && (
               <div className="max-w-2xl mx-auto space-y-8 pb-12">
@@ -991,7 +1065,9 @@ export default function MotherDashboard() {
                 </div>
               </div>
             )}
-          </div>
+            <TabNavigator currentTabId={activeTab} onTabChange={handleTabChange} />
+          </motion.div>
+          </AnimatePresence>
 
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
             <DialogContent className="sm:max-w-[500px] glass-card border-white/10 p-0 overflow-hidden rounded-[32px]">

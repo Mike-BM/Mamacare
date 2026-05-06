@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,15 +165,25 @@ const Landing = () => {
       <div className="relative z-10 flex flex-col items-center min-h-screen px-4 pt-24 pb-10 overflow-y-auto">
         <div className="flex flex-col items-center w-full my-auto">
           {/* Logo */}
-          <div className="mb-6 sm:mb-8 animate-fade-in-up flex items-center gap-2 sm:gap-3">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mb-6 sm:mb-8 flex items-center gap-2 sm:gap-3"
+          >
             <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-float" fill="currentColor" />
             <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               MamaCare
             </h1>
-          </div>
+          </motion.div>
 
           {/* Glass Login Card */}
-          <div className="w-full max-w-md animate-scale-in flex justify-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-full max-w-md flex justify-center"
+          >
             <div className="glass-card">
               <h2 className="text-xl sm:text-2xl font-semibold text-center mb-2">Welcome Back</h2>
               <p className="text-sm sm:text-base text-center mb-6">Sign in to continue your journey</p>
@@ -184,7 +195,7 @@ const Landing = () => {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full glass-input"
+                    className="w-full glass-input active:scale-[0.99] transition-transform"
                     required
                   />
                 </div>
@@ -195,12 +206,12 @@ const Landing = () => {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full glass-input"
+                    className="w-full glass-input active:scale-[0.99] transition-transform"
                     required
                   />
                 </div>
 
-                <button type="submit" className="w-full glass-button" disabled={loading}>
+                <button type="submit" className="w-full glass-button active:scale-95 transition-transform" disabled={loading}>
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
               </form>
@@ -208,42 +219,32 @@ const Landing = () => {
               <div className="mt-8 pt-6 border-t border-white/10">
                 <p className="text-[10px] uppercase tracking-widest text-white/40 font-bold mb-4 text-center">Quick Access Dashboards</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button 
-                    variant="glass" 
-                    size="sm" 
-                    onClick={() => navigate("/mother-dashboard")}
-                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
-                  >
-                    <Heart className="w-3 h-3 text-primary" /> Mother
-                  </Button>
-                  <Button 
-                    variant="glass" 
-                    size="sm" 
-                    onClick={() => navigate("/hospital-dashboard")}
-                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
-                  >
-                    <Building2 className="w-3 h-3 text-secondary" /> Hospital
-                  </Button>
-                  <Button 
-                    variant="glass" 
-                    size="sm" 
-                    onClick={() => navigate("/admin-dashboard")}
-                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
-                  >
-                    <ShieldCheck className="w-3 h-3 text-accent" /> Admin
-                  </Button>
-                  <Button 
-                    variant="glass" 
-                    size="sm" 
-                    onClick={() => navigate("/baba")}
-                    className="flex items-center gap-2 h-11 text-[10px] font-bold"
-                  >
-                    <Users className="w-3 h-3 text-tertiary" /> Baba
-                  </Button>
+                  {[
+                    { label: "Mother", icon: Heart, path: "/mother-dashboard", color: "text-primary" },
+                    { label: "Hospital", icon: Building2, path: "/hospital-dashboard", color: "text-secondary" },
+                    { label: "Admin", icon: ShieldCheck, path: "/admin-dashboard", color: "text-accent" },
+                    { label: "Baba", icon: Users, path: "/baba", color: "text-tertiary" },
+                  ].map((dash, i) => (
+                    <motion.div
+                      key={dash.label}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + i * 0.1 }}
+                    >
+                      <Button 
+                        variant="glass" 
+                        size="sm" 
+                        onClick={() => navigate(dash.path)}
+                        className="flex items-center gap-2 h-11 w-full text-[10px] font-bold active:scale-95 transition-transform"
+                      >
+                        <dash.icon className={`w-3 h-3 ${dash.color}`} /> {dash.label}
+                      </Button>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Motivational Text */}
           <p className="mt-8 text-base sm:text-xl text-foreground/80 text-center animate-fade-in max-w-2xl px-4">

@@ -1,9 +1,12 @@
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Baby, Activity, Heart, Calendar, ArrowRight, Share2, MessageCircle } from "lucide-react";
+import { Baby, Activity, Heart, Calendar, ArrowRight, Share2, MessageCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
+import { useNavigate } from "react-router-dom";
 
 export default function BabaDashboard() {
+  const navigate = useNavigate();
   const currentWeek = 24;
 
   const tasks = [
@@ -24,10 +27,22 @@ export default function BabaDashboard() {
               Baba Mode
             </h1>
           </div>
-          <Button variant="outline" className="border-white/10 glass-card">
-            <Share2 className="w-4 h-4 mr-2" /> Share Updates
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="border-white/10 glass-card">
+              <Share2 className="w-4 h-4 mr-2" /> Share Updates
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors">
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </header>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-6"
+        >
 
         <DynamicGreeting userName="David" />
 
@@ -102,6 +117,7 @@ export default function BabaDashboard() {
             </Card>
           </div>
         </div>
+        </motion.div>
       </div>
     </div>
   );
