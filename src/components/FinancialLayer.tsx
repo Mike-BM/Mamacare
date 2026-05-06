@@ -148,7 +148,7 @@ export const FinancialLayer = () => {
                   <HeartHandshake className="w-4 h-4 text-primary" /> Your Social Impact
                 </h3>
                 <div className="flex items-center gap-6 mb-8">
-                  <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary drop-shadow-[0_0_15px_rgba(255,126,179,0.3)]">3</div>
+                  <div className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary drop-shadow-[0_0_15px_rgba(255,126,179,0.3)] text-responsive-huge">3</div>
                   <div>
                     <p className="text-lg font-bold text-white leading-tight">Mamas helped through you</p>
                     <p className="text-sm text-white/50 mt-1">Your contributions provide safe care access.</p>
@@ -198,7 +198,7 @@ export const FinancialLayer = () => {
               </div>
               
               <div className="flex items-baseline gap-3">
-                <span className="text-6xl font-black text-white">${walletBalance.toFixed(2)}</span>
+                <span className="text-6xl font-black text-white text-responsive-xl">${walletBalance.toFixed(2)}</span>
                 {isLowBalance && <Badge className="bg-red-500/20 text-red-400 border-red-500/40 animate-pulse font-bold px-3 py-1">LOW BALANCE</Badge>}
               </div>
 

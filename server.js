@@ -53,10 +53,10 @@ Rule of thumb for risk:
 - medium: mild cramping, spotting, headache.
 - low: general questions, nutrition, normal pregnancy symptoms.`;
 
-const analyzeRiskAndRespond = async (messages, modelName = 'gemini-1.5-pro') => {
+const analyzeRiskAndRespond = async (messages, modelName = 'gemini-1.5-flash') => {
   const model = genAI.getGenerativeModel({ model: modelName });
   const chat = model.startChat({
-    history: messages.map(m => ({
+    history: messages.slice(0, -1).map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     })),
@@ -107,7 +107,7 @@ const analyzeRiskAndRespond = async (messages, modelName = 'gemini-1.5-pro') => 
 
 app.post('/api/ai/chat', async (req, res) => {
   const { messages, language, userId } = req.body;
-  const result = await analyzeRiskAndRespond(messages, 'gemini-1.5-pro');
+  const result = await analyzeRiskAndRespond(messages, 'gemini-1.5-flash');
   
   // Log to Supabase
   if (userId) {

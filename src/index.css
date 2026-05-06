@@ -260,7 +260,39 @@ All colors MUST be HSL.
 
   /* Ensure bottom nav icons are clear and touchable */
   .mobile-bottom-nav button {
-    padding: 0.5rem !important;
+    padding: 0.5rem 0 !important;
+    min-height: 56px !important;
+    min-width: 0 !important;
+    flex: 1;
+  }
+  
+  .mobile-bottom-nav span {
+    font-size: 8px !important;
+    letter-spacing: 0 !important;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Responsive Typography System */
+  .text-responsive-huge {
+    font-size: clamp(3rem, 10vw, 6rem) !important;
+    line-height: 1 !important;
+  }
+  
+  .text-responsive-xl {
+    font-size: clamp(2rem, 8vw, 4rem) !important;
+    line-height: 1.1 !important;
+  }
+  
+  .text-responsive-lg {
+    font-size: clamp(1.25rem, 5vw, 2rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Word Break and Overflow Prevention */
+  * {
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle } from "lucide-react";
+import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
@@ -386,10 +386,17 @@ export default function MotherDashboard() {
           </div>
           
           <div className="hidden md:flex flex-col justify-center">
-            <h1 className="text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">Good Evening, {userProfile.name.split(' ')[0]} ✨</h1>
+            <h1 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent truncate max-w-[300px] lg:max-w-none">
+              Good Evening, {userProfile.name.split(' ')[0]} ✨
+            </h1>
             <span key={messageIndex} className="text-sm text-primary font-medium animate-fade-in-up mt-1">
               {SUPPORTIVE_MESSAGES[messageIndex]}
             </span>
+          </div>
+          
+          <div className="md:hidden flex flex-col items-center flex-1">
+             <span className="text-xs font-black text-white/40 uppercase tracking-[0.2em]">Mother Dashboard</span>
+             <h1 className="text-lg font-bold text-white truncate max-w-[150px]">{userProfile.name.split(' ')[0]}</h1>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4 ml-auto">
@@ -690,7 +697,7 @@ export default function MotherDashboard() {
                       <div className="flex items-end justify-between bg-white/5 p-6 rounded-2xl border border-white/10">
                         <div>
                           <p className="text-sm text-white/50 mb-1 font-medium uppercase tracking-wider">Heart Rate</p>
-                          <div className="text-4xl font-black flex items-baseline gap-1">
+                          <div className="text-4xl sm:text-5xl font-black flex items-baseline gap-1 text-responsive-lg">
                             72 <span className="text-sm font-normal text-white/40">bpm</span>
                           </div>
                           <p className="text-xs text-white/30 mt-2">Last sync: 2 min ago</p>
@@ -1197,11 +1204,35 @@ export default function MotherDashboard() {
       </nav>
 
       {/* Global Floating Elements */}
-      <div className="fixed bottom-28 md:bottom-12 left-4 sm:left-6 md:left-8 z-50">
+      <div className="fixed bottom-24 md:bottom-12 left-4 sm:left-6 md:left-8 z-50">
         <EmergencySOS />
       </div>
-      <SymptomTriageBubble />
+      <div className="fixed bottom-24 right-4 sm:right-6 md:right-8 z-50">
+        <SymptomTriageBubble />
+      </div>
       
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 mobile-bottom-nav border-t border-white/10 flex items-center justify-around bg-background/95 backdrop-blur-xl">
+        {TABS.slice(0, 5).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => handleTabChange(t.id)}
+            className={`flex flex-col items-center justify-center gap-1 transition-all ${
+              activeTab === t.id ? 'text-primary' : 'text-white/40'
+            }`}
+          >
+            <t.icon className={`w-5 h-5 ${activeTab === t.id ? 'fill-primary/20' : ''}`} />
+            <span className="text-[10px] font-bold uppercase truncate px-1">{t.label.split(' ')[0]}</span>
+          </button>
+        ))}
+        <button
+          onClick={() => setIsProfileModalOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 text-white/40"
+        >
+          <User className="w-5 h-5" />
+          <span className="text-[10px] font-bold uppercase">Me</span>
+        </button>
+      </nav>
       <PaywallOverlay 
         isOpen={paywallConfig.isOpen}
         onClose={() => setPaywallConfig(prev => ({ ...prev, isOpen: false }))}
