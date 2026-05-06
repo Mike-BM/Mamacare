@@ -614,42 +614,6 @@ export default function MotherDashboard() {
               </div>
             )}
 
-            {activeTab === "wallet" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                   <h2 className="text-2xl font-bold flex items-center gap-3">
-                     <Wallet className="w-6 h-6 text-primary" /> MamaFund Wallet
-                   </h2>
-                   <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
-                     <ShieldCheck className="w-3 h-3 text-green-400" />
-                     <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">E2E Encrypted</span>
-                   </div>
-                </div>
-
-                {!isWalletUnlocked ? (
-                  <Card className="p-12 glass-card border-white/10 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 to-transparent">
-                    <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 relative">
-                       <ShieldCheck className="w-10 h-10 text-white/20" />
-                       <div className="absolute inset-0 border-2 border-primary/30 rounded-full animate-ping" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2">Secure Vault Locked</h3>
-                    <p className="text-sm text-white/50 max-w-sm mb-8">Financial data is encrypted with your private key. Doctors and administrators cannot access this vault.</p>
-                    <Button 
-                      className="bg-primary hover:bg-primary/90 h-12 px-8 rounded-2xl font-black shadow-lg shadow-primary/20"
-                      onClick={unlockVault}
-                      disabled={isDecrypting}
-                    >
-                      {isDecrypting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <ShieldCheck className="w-5 h-5 mr-2" />}
-                      {isDecrypting ? "DECRYPTING..." : "UNLOCK VAULT"}
-                    </Button>
-                  </Card>
-                ) : (
-                  <div className="animate-in fade-in zoom-in duration-500">
-                    <MamaFundWallet balance={2450} transactions={[]} />
-                  </div>
-                )}
-              </div>
-            )}
 
             {activeTab === "health" && (
               <div className="space-y-6">
@@ -661,13 +625,12 @@ export default function MotherDashboard() {
                   </div>
                 </div>
                 
-                {/* Top row: Band (60%) + Watch (40%) */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   <div className="lg:col-span-3">
                     <WearableMedicationWidgets />
                   </div>
                   <div className="lg:col-span-2">
-                    <Card className="p-6 glass-card border-white/10 hover:border-white/20 transition-all group h-full flex flex-col justify-center">
+                    <Card className="p-6 glass-card border-white/10 h-full flex flex-col justify-center">
                       <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -675,106 +638,17 @@ export default function MotherDashboard() {
                           </div>
                           <h4 className="font-bold text-lg">Apple Watch</h4>
                         </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 h-8 font-bold"
-                          onClick={() => {
-                            if (!isPremium) {
-                              triggerPaywall({
-                                featureName: "Wearable Sync",
-                                featureValue: "Track baby's heartbeat & your health",
-                                perks: ["✓ Real-time sync", "✓ Automatic health logs", "✓ Abnormal heart rate alerts", "✓ Sleep quality tracking"],
-                                price: 7,
-                                onSuccess: () => setIsPremium(true)
-                              });
-                            }
-                          }}
-                        >
-                          Connect Device
-                        </Button>
+                        <Button variant="outline" size="sm" className="bg-green-500/10 text-green-400 border-green-500/20 h-8 font-bold" onClick={() => setIsPremium(true)}>Connect</Button>
                       </div>
                       <div className="flex items-end justify-between bg-white/5 p-6 rounded-2xl border border-white/10">
                         <div>
                           <p className="text-sm text-white/50 mb-1 font-medium uppercase tracking-wider">Heart Rate</p>
-                          <div className="text-4xl sm:text-5xl font-black flex items-baseline gap-1 text-responsive-lg">
-                            72 <span className="text-sm font-normal text-white/40">bpm</span>
-                          </div>
-                          <p className="text-xs text-white/30 mt-2">Last sync: 2 min ago</p>
-                        </div>
-                        <div className="w-32 h-16 flex items-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
-                          {[4, 7, 5, 8, 6, 9, 7, 8, 5, 9].map((h, i) => (
-                            <div key={i} className="w-full bg-green-500 rounded-t-sm" style={{ height: `${h * 10}%` }} />
-                          ))}
+                          <div className="text-4xl font-black text-responsive-lg">72 <span className="text-sm font-normal text-white/40">bpm</span></div>
                         </div>
                       </div>
                     </Card>
                   </div>
                 </div>
-
-                {/* Middle: Weight Chart (Full Width) */}
-                <Card className="p-6 glass-card border-white/10">
-                  <h4 className="font-bold text-lg mb-6 flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-primary" /> Weight Progress
-                  </h4>
-                  <div className="h-48 w-full bg-white/5 rounded-2xl border border-white/5 flex items-end justify-between px-8 pb-4 relative overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-around pointer-events-none">
-                      <div className="w-full h-px bg-white/5"></div>
-                      <div className="w-full h-px bg-white/5"></div>
-                    </div>
-                    {[65, 65.5, 66, 66.8, 67.2, 67.8, 68].map((w, i) => (
-                      <div key={i} className="flex flex-col items-center gap-2 relative z-10">
-                        <div className="w-10 bg-primary/40 rounded-t-lg transition-all hover:bg-primary" style={{ height: `${(w-60)*10}px` }}></div>
-                        <span className="text-[10px] text-white/50 font-bold">W{20+i}</span>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-
-                {/* Bottom row: Meds (60%) + Journal (40%) */}
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                   <div className="lg:col-span-3">
-                     <Card className="p-6 glass-card border-white/10 h-full">
-                       <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-6">
-                         <h4 className="font-bold text-lg flex items-center gap-2"><Pill className="w-5 h-5 text-primary" /> Medication Checklist</h4>
-                         <Badge className="bg-primary/20 text-primary border-primary/30">2 Reminders</Badge>
-                       </div>
-                       <div className="space-y-3">
-                         {["Prenatal Vitamins", "Iron Supplement"].map((med, i) => (
-                           <div key={med} className="flex flex-row items-center justify-between flex-row-mobile-stack p-4 bg-white/5 rounded-2xl border border-white/5">
-                             <div className="flex items-center gap-3">
-                               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-xl">💊</div>
-                               <div>
-                                 <p className="font-bold text-white">{med}</p>
-                                 <p className="text-xs text-white/40">1 pill • 8:00 AM</p>
-                               </div>
-                             </div>
-                             <Button size="sm" variant={i === 0 ? "hero" : "glass"} className="h-9 px-4 rounded-xl font-bold">{i === 0 ? "Taken" : "Take Now"}</Button>
-                           </div>
-                         ))}
-                       </div>
-                     </Card>
-                   </div>
-                   <div className="lg:col-span-2">
-                     <Card className="p-6 glass-card border-white/10 h-full">
-                        <h4 className="font-bold text-lg mb-6 flex items-center gap-2"><FileText className="w-5 h-5 text-secondary" /> Health Journal</h4>
-                        <div className="space-y-3 mb-6">
-                          <div className="bg-white/5 p-4 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-bold text-white">Mild swelling</span>
-                              <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Yesterday</span>
-                            </div>
-                            <p className="text-xs text-white/60 leading-relaxed">Noticed some swelling in ankles after walking. Drank extra water.</p>
-                          </div>
-                        </div>
-                        <Button className="w-full bg-white/10 hover:bg-white/20 border-0 h-11 rounded-xl font-bold" variant="outline">
-                          <Plus className="w-4 h-4 mr-2" /> Add New Entry
-                        </Button>
-                     </Card>
-                   </div>
-                </div>
-
-                {/* Bottom: Mood Tracker (Full Width) */}
                 <MoodTracker />
               </div>
             )}
@@ -1076,75 +950,47 @@ export default function MotherDashboard() {
                 </div>
               </div>
             )}
-
             {activeTab === "settings" && (
-              <div className="space-y-6 w-full">
-                <h2 className="text-2xl font-bold mb-6">Settings</h2>
-                
+              <div className="space-y-6 w-full pb-20">
+                <h2 className="text-2xl font-bold mb-6">Settings & Privacy</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   <Card className="lg:col-span-3 p-6 glass-card border-white/10 space-y-6">
                     <div className="flex items-center gap-4 mb-2">
                       <User className="w-6 h-6 text-primary" />
-                      <h3 className="text-xl font-bold">Profile & Preferences</h3>
+                      <h3 className="text-xl font-bold">Account Preferences</h3>
                     </div>
-                    <div className="space-y-4">
-                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
                         <div>
-                          <p className="font-medium">Lite Mode</p>
-                          <p className="text-xs text-white/60">Disables heavy animations and effects</p>
-                        </div>
-                        <Switch checked={isLiteMode} onCheckedChange={toggleLiteMode} />
-                      </div>
-                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
-                        <div>
-                          <p className="font-medium">Push Notifications</p>
-                          <p className="text-xs text-white/60">Receive alerts for appointments and tips</p>
+                          <p className="font-bold text-sm">Low Data Mode</p>
+                          <p className="text-xs text-white/50">Optimized for village connectivity</p>
                         </div>
                         <Switch defaultChecked />
                       </div>
-                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
+                      <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
                         <div>
-                          <p className="font-medium">Language</p>
+                          <p className="font-bold text-sm">SMS Alerts</p>
+                          <p className="text-xs text-white/50">Get reminders via text message</p>
                         </div>
-                        <select className="bg-background border border-white/20 rounded-md px-2 py-1 text-sm outline-none">
-                          <option>English</option>
-                          <option>Swahili</option>
-                          <option>French</option>
-                        </select>
+                        <Switch defaultChecked />
                       </div>
                     </div>
                   </Card>
-
                   <Card className="lg:col-span-2 p-6 glass-card border-white/10 space-y-6">
                     <div className="flex items-center gap-4 mb-2">
                       <ShieldCheck className="w-6 h-6 text-green-400" />
-                      <h3 className="text-xl font-bold">Privacy & Data</h3>
+                      <h3 className="text-xl font-bold">Data Security</h3>
                     </div>
-                    <div className="space-y-4">
-                      <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                        <p className="text-sm font-medium flex items-center gap-2"><CloudOff className="w-4 h-4 text-primary" /> Mama's Book (Offline Mode)</p>
-                        <p className="text-xs text-white/60 mt-1">Your data is synced locally and works entirely offline for 30 days.</p>
-                      </div>
-                      <div className="p-3 bg-white/5 rounded-lg border border-white/5">
-                        <p className="text-sm font-medium flex items-center gap-2"><LockIcon /> End-to-End Encrypted</p>
-                        <p className="text-xs text-white/60 mt-1">Your health data is securely encrypted.</p>
-                      </div>
-                      <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
-                        <div>
-                          <p className="font-medium text-sm">Anonymous Research Opt-in</p>
-                          <p className="text-xs text-white/60">Help improve maternal health algorithms</p>
-                        </div>
-                        <Switch />
-                      </div>
-                      <Button variant="outline" className="w-full border-white/20 hover:bg-white/10 mt-2">
-                        <Download className="w-4 h-4 mr-2" /> Download My Data
-                      </Button>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5 text-sm">
+                      <p className="text-white/80 leading-relaxed italic">"Your health data is end-to-end encrypted and never sold to third parties."</p>
                     </div>
+                    <Button variant="outline" className="w-full border-white/10 hover:bg-white/5 h-12 font-bold rounded-xl">
+                      Download My Data
+                    </Button>
                   </Card>
                 </div>
               </div>
             )}
-
           </div>
 
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
@@ -1211,28 +1057,6 @@ export default function MotherDashboard() {
         <SymptomTriageBubble />
       </div>
       
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-2 mobile-bottom-nav border-t border-white/10 flex items-center justify-around bg-background/95 backdrop-blur-xl">
-        {TABS.slice(0, 5).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => handleTabChange(t.id)}
-            className={`flex flex-col items-center justify-center gap-1 transition-all ${
-              activeTab === t.id ? 'text-primary' : 'text-white/40'
-            }`}
-          >
-            <t.icon className={`w-5 h-5 ${activeTab === t.id ? 'fill-primary/20' : ''}`} />
-            <span className="text-[10px] font-bold uppercase truncate px-1">{t.label.split(' ')[0]}</span>
-          </button>
-        ))}
-        <button
-          onClick={() => setIsProfileModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 text-white/40"
-        >
-          <User className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase">Me</span>
-        </button>
-      </nav>
       <PaywallOverlay 
         isOpen={paywallConfig.isOpen}
         onClose={() => setPaywallConfig(prev => ({ ...prev, isOpen: false }))}
