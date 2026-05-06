@@ -5,9 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, Clock, User, Video, MapPin, 
   ChevronRight, ArrowLeft, CheckCircle2, AlertCircle,
-  MessageSquare
+  MessageSquare, Loader2
 } from "lucide-react";
+import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { useSound } from "@/hooks/useSound";
 
 interface BookingFlowProps {
   onClose: () => void;
@@ -26,18 +29,38 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
     urgentSymptoms: 'no',
     medications: ''
   });
+  const { play, SOUNDS } = useSound();
 
-  const providers = [
-    { id: 1, name: "Dr. Eliza Keith", role: "Obstetrician", image: "https://api.dicebear.com/7.x/notionists/svg?seed=eliza" },
-    { id: 2, name: "Nurse Sarah", role: "Midwife", image: "https://api.dicebear.com/7.x/notionists/svg?seed=sarah" },
-    { id: 3, name: "Dr. Emily Chen", role: "Specialist", image: "https://api.dicebear.com/7.x/notionists/svg?seed=emily" },
-  ];
+  const [providers, setProviders] = useState<any[]>([]);
+  const [isLoadingProviders, setIsLoadingProviders] = useState(true);
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      const { data, error } = await supabase.from('providers').select('*').eq('is_active', true);
+      if (!error && data) {
+        setProviders(data);
+      }
+      setIsLoadingProviders(false);
+    };
+    fetchProviders();
+
+    const channel = supabase
+      .channel('booking-provider-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'providers' }, () => {
+        fetchProviders();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const availableDates = ["May 6, 2026", "May 7, 2026", "May 8, 2026"];
   const availableSlots = ["09:00 AM", "10:30 AM", "02:00 PM", "03:30 PM"];
 
-  const handleNext = () => setStep(prev => prev + 1);
-  const handleBack = () => setStep(prev => prev - 1);
+  const handleNext = () => { play(SOUNDS.CLICK, { volume: 0.1 }); setStep(prev => prev + 1); };
+  const handleBack = () => { play(SOUNDS.CLICK, { volume: 0.1 }); setStep(prev => prev - 1); };
 
   const handleBook = async () => {
     setIsSubmitting(true);
@@ -61,6 +84,7 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
       if (!response.ok) throw new Error("Failed to book appointment");
 
       toast.success("Booking successful! SMS confirmation sent.", { id: toastId });
+      play(SOUNDS.SUCCESS);
       onSuccess();
       onClose();
     } catch (error) {
@@ -94,7 +118,12 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
         <div className="space-y-4 animate-fade-in-right">
           <p className="text-sm text-white/50 font-medium uppercase tracking-widest">Step 1: Select Provider</p>
           <div className="space-y-3">
-            {providers.map((p) => (
+            {isLoadingProviders ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <p className="text-xs text-white/40 font-bold uppercase tracking-widest">Loading Doctors...</p>
+              </div>
+            ) : providers.map((p) => (
               <Card 
                 key={p.id}
                 className={`p-4 glass-card border-white/10 hover:border-primary/50 transition-all cursor-pointer group ${formData.provider?.id === p.id ? 'border-primary bg-primary/5' : ''}`}
@@ -102,16 +131,22 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <img src={p.image} alt={p.name} className="w-12 h-12 rounded-full border border-white/10" />
+                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl">👩‍⚕️</div>
                     <div>
-                      <h4 className="font-bold text-white">{p.name}</h4>
-                      <p className="text-xs text-white/50">{p.role}</p>
+                      <h4 className="font-bold text-white">{p.full_name}</h4>
+                      <p className="text-xs text-white/50">{p.role} • {p.specialty}</p>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-primary transition-colors" />
                 </div>
               </Card>
             ))}
+            {!isLoadingProviders && providers.length === 0 && (
+              <div className="p-8 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
+                <p className="text-white/60 font-bold">No providers available today.</p>
+                <p className="text-xs text-white/30 mt-1">Please try again later or contact support.</p>
+              </div>
+            )}
             <Button 
               variant="outline" 
               className="w-full h-14 border-dashed border-white/20 hover:border-primary/50 text-white/50 hover:text-primary rounded-2xl font-bold"
@@ -245,10 +280,10 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
           <Card className="p-6 bg-primary/5 border border-primary/20 rounded-[32px] space-y-6">
              <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl">🤰</div>
-                <div>
-                   <h4 className="text-xl font-black text-white">{formData.provider.name}</h4>
-                   <p className="text-sm text-primary font-bold">{formData.provider.role}</p>
-                </div>
+                 <div>
+                    <h4 className="text-xl font-black text-white">{formData.provider.full_name || formData.provider.name}</h4>
+                    <p className="text-sm text-primary font-bold">{formData.provider.role} {formData.provider.specialty ? `• ${formData.provider.specialty}` : ''}</p>
+                 </div>
              </div>
 
              <div className="space-y-3">

@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, PhoneOff, Maximize2, Minimize2, Video, VideoOff, Mic, Shield } from "lucide-react";
 import { toast } from "sonner";
+import { useSound } from "@/hooks/useSound";
 
 interface VideoCallModalProps {
   isOpen: boolean;
@@ -92,10 +93,22 @@ const LocalCameraPreview = () => {
 export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoCallModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const { play, SOUNDS } = useSound();
   const isDemo = roomUrl.includes("demo-room");
 
+  useEffect(() => {
+    if (isOpen) {
+      play(SOUNDS.CALL_JOIN, { volume: 0.4 });
+    }
+  }, [isOpen]);
+
+  const handleClose = () => {
+    play(SOUNDS.CALL_END, { volume: 0.4 });
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className={`glass-card border-white/10 p-0 overflow-hidden rounded-[32px] transition-all duration-500 max-w-none ${isFullScreen ? 'w-[98vw] h-[95vh]' : 'w-[90vw] max-w-5xl h-[75vh]'}`}>
         <div className="flex flex-col h-full bg-black/40 backdrop-blur-3xl relative">
           {/* Header */}
@@ -118,7 +131,7 @@ export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoC
                 variant="destructive" 
                 size="icon" 
                 className="rounded-full w-10 h-10 shadow-lg shadow-destructive/20"
-                onClick={onClose}
+                onClick={handleClose}
               >
                 <PhoneOff className="w-5 h-5" />
               </Button>
@@ -141,7 +154,10 @@ export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoC
                   src={roomUrl}
                   allow="camera; microphone; display-capture; autoplay; encrypted-media; fullscreen"
                   className="w-full h-full border-0"
-                  onLoad={() => setIsLoading(false)}
+                  onLoad={() => {
+                    setIsLoading(false);
+                    play(SOUNDS.SUCCESS, { volume: 0.2 });
+                  }}
                 />
               </>
             )}

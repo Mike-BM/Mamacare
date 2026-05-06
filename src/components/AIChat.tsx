@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from "@/integrations/supabase/client";
+import { useSound } from "@/hooks/useSound";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -20,6 +21,7 @@ export const AIChat = () => {
   const [isListening, setIsListening] = useState(false);
   const [language, setLanguage] = useState('English');
   const [showEmergencyBanner, setShowEmergencyBanner] = useState(false);
+  const { play, SOUNDS } = useSound();
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -126,6 +128,9 @@ export const AIChat = () => {
 
       if (data.riskLevel === 'emergency') {
         setShowEmergencyBanner(true);
+        play(SOUNDS.SOS, { volume: 0.3 });
+      } else {
+        play(SOUNDS.NOTIFICATION, { volume: 0.2 });
       }
 
       setMessages(prev => [...prev, assistantMessage]);

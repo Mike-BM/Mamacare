@@ -4,9 +4,11 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Smile, Meh, Frown, Heart } from "lucide-react";
 import { toast } from "sonner";
+import { useSound } from "@/hooks/useSound";
 
 export const MoodTracker = () => {
   const [mood, setMood] = useState(50);
+  const { play, SOUNDS } = useSound();
 
   const getMoodIcon = () => {
     if (mood < 33) return <Frown className="w-8 h-8 text-destructive" />;
@@ -24,6 +26,7 @@ export const MoodTracker = () => {
     toast.success("Mood saved!", {
       description: "Your weekly reflection has been recorded.",
     });
+    play(SOUNDS.SUCCESS, { volume: 0.3 });
   };
 
   return (

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useSound } from "@/hooks/useSound";
 
 type Risk = "low" | "medium" | "high" | "emergency";
 type Msg = { role: "bot" | "user"; text: string };
@@ -19,6 +20,7 @@ export const SymptomTriageBubble = () => {
   const [messages, setMessages] = useState<Msg[]>([
     { role: "bot", text: "Hi mama 🌸 I'm here to help. What symptom are you feeling right now?" },
   ]);
+  const { play, SOUNDS } = useSound();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,6 +59,7 @@ export const SymptomTriageBubble = () => {
       
       setRisk(data.riskLevel || 'low');
       setMessages(prev => [...prev, { role: "bot", text: data.message }]);
+      play(data.riskLevel === 'emergency' ? SOUNDS.SOS : SOUNDS.NOTIFICATION, { volume: 0.3 });
       
       if (data.riskLevel === 'emergency') {
         toast.error("Emergency risk detected. Please seek immediate help.", {

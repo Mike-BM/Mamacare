@@ -6,6 +6,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Video, PhoneOff, Mic, MicOff, VideoOff, FileText, Pill, Calendar, Clock, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useSound } from "@/hooks/useSound";
+import { Loader2 } from "lucide-react";
 
 // We will now fetch these from Supabase instead of using mock data
 interface Appointment {
@@ -44,6 +46,7 @@ export const TelemedicineSuite = () => {
   const [showSummary, setShowSummary] = useState(false);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const { play, SOUNDS } = useSound();
 
   useEffect(() => {
     fetchAppointments();
@@ -84,6 +87,7 @@ export const TelemedicineSuite = () => {
       }
 
       toast.info("Preparing your secure consultation...");
+      play(SOUNDS.CALL_JOIN, { volume: 0.3 });
 
       // 1. Create pending appointment on backend
       const response = await fetch('/api/appointments/book', {
@@ -116,6 +120,7 @@ export const TelemedicineSuite = () => {
   const endCall = () => {
     setInCall(false);
     setShowSummary(true);
+    play(SOUNDS.CALL_END, { volume: 0.3 });
     toast.success("Call ended — generating notes & prescription");
   };
 
@@ -163,7 +168,7 @@ export const TelemedicineSuite = () => {
                 </span>
                 
                 {apt.status === 'confirmed' && apt.video_link ? (
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700 animate-pulse" onClick={() => window.open(apt.video_link, '_blank')}>
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700 animate-pulse" onClick={() => { play(SOUNDS.CLICK); window.open(apt.video_link, '_blank'); }}>
                     <Video className="w-3 h-3 mr-1" /> Join Call
                   </Button>
                 ) : apt.status === 'pending' ? (

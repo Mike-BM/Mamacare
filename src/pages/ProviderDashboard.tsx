@@ -64,19 +64,55 @@ const ProviderDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("schedule");
 
-  // Mock Data
-  const doctorInfo = {
-    name: "Dr. Eliza Keith",
-    role: "Obstetrician",
-    date: "Monday, May 5, 2026"
-  };
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const [currentRoomUrl, setCurrentRoomUrl] = useState(""); 
+  const [isGeneratingRoom, setIsGeneratingRoom] = useState(false);
+  const [schedule, setSchedule] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const schedule = [
-    { id: 1, patient: "Jane M.", time: "09:00 AM", status: "confirmed", type: "in_person" },
-    { id: 2, patient: "Mary K.", time: "10:30 AM", status: "pending", type: "video" },
-    { id: 3, patient: "[Open]", time: "02:00 PM", status: "available", type: "—" },
-    { id: 4, patient: "Ann W.", time: "03:30 PM", status: "confirmed", type: "in_person" },
-  ];
+  useEffect(() => {
+    fetchSchedule();
+
+    const channel = supabase
+      .channel('provider-appointment-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+        fetchSchedule();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchSchedule = async () => {
+    setIsLoading(true);
+    // In a real app, we'd filter by auth.uid()
+    const { data, error } = await supabase
+      .from('appointments')
+      .select(`
+        *,
+        patients (
+          full_name,
+          phone,
+          due_date
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setSchedule(data.map(apt => ({
+        id: apt.id,
+        patient: apt.patients?.full_name || "Unknown Patient",
+        time: apt.time || "TBD",
+        status: apt.status,
+        type: apt.type,
+        patientDetails: apt.patients
+      })));
+    }
+    setIsLoading(false);
+  };
 
   const [availability, setAvailability] = useState([
     { day: "Monday", slots: ["09:00 - 12:00", "14:00 - 17:00"] },
@@ -85,11 +121,6 @@ const ProviderDashboard = () => {
     { day: "Thursday", slots: ["09:00 - 12:00", "14:00 - 17:00"] },
     { day: "Friday", slots: ["09:00 - 12:00"] },
   ]);
-
-  const [selectedPatient, setSelectedPatient] = useState<any>(null);
-  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
-  const [currentRoomUrl, setCurrentRoomUrl] = useState(""); 
-  const [isGeneratingRoom, setIsGeneratingRoom] = useState(false);
 
   const handleAction = (id: number, action: string) => {
     toast.success(`${action} for appointment ${id}`);
@@ -140,8 +171,8 @@ const ProviderDashboard = () => {
           <div className="flex items-center gap-3 p-2 mb-4">
              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-lg">👩‍⚕️</div>
              <div className="flex-1 min-w-0">
-               <p className="font-bold text-white truncate">{doctorInfo.name}</p>
-               <p className="text-xs text-white/50 truncate">{doctorInfo.role}</p>
+               <p className="font-bold text-white truncate">Dr. Eliza Keith</p>
+               <p className="text-xs text-white/50 truncate">Obstetrician</p>
              </div>
           </div>
           <Button 
@@ -158,8 +189,8 @@ const ProviderDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto relative z-10">
         <header className="mb-8">
-           <h2 className="text-3xl font-black text-white mb-1">Good Morning, {doctorInfo.name.split(' ')[1]}! ✨</h2>
-           <p className="text-white/60 font-medium">{doctorInfo.date}</p>
+           <h2 className="text-3xl font-black text-white mb-1">Good Morning, Doctor! ✨</h2>
+           <p className="text-white/60 font-medium">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
         </header>
 
         <AnimatePresence mode="wait">
@@ -181,7 +212,7 @@ const ProviderDashboard = () => {
                      <CalendarDays className="w-5 h-5 text-primary" />
                      Today's Appointments
                    </h3>
-                   <Badge className="bg-primary/20 text-primary border-primary/30">2 Pending</Badge>
+                   <Badge className="bg-primary/20 text-primary border-primary/30">{schedule.filter(a => a.status === 'pending').length} Pending</Badge>
                 </div>
 
                 <div className="space-y-4">

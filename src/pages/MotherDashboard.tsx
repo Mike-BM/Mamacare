@@ -16,6 +16,7 @@ import { FinancialLayer } from "@/components/FinancialLayer";
 import { TelemedicineSuite } from "@/components/TelemedicineSuite";
 import { WearableMedicationWidgets } from "@/components/WearableMedicationWidgets";
 import { MentorshipChat } from "@/components/MentorshipChat";
+import { useSound } from "@/hooks/useSound";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
@@ -81,6 +82,7 @@ export default function MotherDashboard() {
   const navigate = useNavigate();
   const { tab } = useParams();
   const activeTab = tab || "overview";
+  const { play, stop, SOUNDS } = useSound();
 
   // Navigation History tracking for the "Back" button
   const [navHistory, setNavHistory] = useState<string[]>([]);
@@ -218,6 +220,13 @@ export default function MotherDashboard() {
     };
   }, []);
 
+  // Play baby laugh when all tasks are done
+  useEffect(() => {
+    if (taskProgress === 100 && tasks.length > 0) {
+      play(SOUNDS.BABY_LAUGH, { volume: 0.4 });
+    }
+  }, [taskProgress]);
+
   const handleTabChange = (newTab: string) => {
     navigate(`/mother-dashboard/${newTab}`);
   };
@@ -271,6 +280,7 @@ export default function MotherDashboard() {
       if (progress >= 100) {
         clearInterval(interval);
         toast.success("Nurse Ivy is now calling your phone!", { id: toastId });
+        play(SOUNDS.CALL_RINGING, { loop: true, volume: 0.6 });
       }
     }, 400);
   };
@@ -282,6 +292,7 @@ export default function MotherDashboard() {
     
     setTimeout(() => {
       setDemoProgress(100);
+      play(SOUNDS.RIDE_FOUND);
     }, 3000);
   };
 
@@ -1154,7 +1165,7 @@ export default function MotherDashboard() {
               <p className="text-[10px] uppercase font-black tracking-widest opacity-70">Incoming Call</p>
               <p className="font-bold">Nurse Ivy (Midwife)</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setActiveDemo('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => { setActiveDemo('none'); stop(); }} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
           </Card>
         </div>
       )}

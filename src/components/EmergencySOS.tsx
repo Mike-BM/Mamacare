@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { EMERGENCY_CONTACTS } from "@/lib/offline-store";
 
 import { HospitalMap } from "./HospitalMap";
+import { useSound } from "@/hooks/useSound";
 
 const NEARBY_HOSPITALS = [
   { name: "City Maternity Hospital", distance: "1.2 km", beds: 3, eta: "6 min", lat: -1.280000, lng: 36.820000 },
@@ -23,6 +24,7 @@ export const EmergencySOS = () => {
   
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [smsSent, setSmsSent] = useState(false);
+  const { play, stop, SOUNDS } = useSound();
   
   const intervalRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
@@ -38,6 +40,11 @@ export const EmergencySOS = () => {
     intervalRef.current = window.setInterval(() => {
       const pct = Math.min(100, ((Date.now() - startedAtRef.current) / 2000) * 100);
       setProgress(pct);
+      
+      // Tick sound every 10%
+      if (Math.floor(pct) % 10 === 0 && Math.floor(pct) > 0) {
+        play(SOUNDS.CLICK, { volume: 0.2 });
+      }
       
       // Haptic feedback mock for supported devices
       if (pct > 0 && pct % 20 < 5 && navigator.vibrate) {
@@ -71,6 +78,7 @@ export const EmergencySOS = () => {
   const triggerEmergency = () => {
     setShowRadialMenu(false);
     setActivated(true);
+    play(SOUNDS.SOS, { loop: true, volume: 0.4 });
     // Capture GPS
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -199,7 +207,7 @@ export const EmergencySOS = () => {
         </div>
       </div>
 
-      <Dialog open={activated} onOpenChange={(open) => !open && setActivated(false)}>
+      <Dialog open={activated} onOpenChange={(open) => { if (!open) { setActivated(false); stop(); } }}>
         <DialogContent className="max-w-lg glass-card border-destructive/20 text-center p-8 sm:p-12">
           <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-center">
@@ -255,7 +263,7 @@ export const EmergencySOS = () => {
                 variant="outline"
                 size="lg"
                 className="w-full h-14 text-lg font-medium border-white/20 hover:bg-white/10 text-white/80"
-                onClick={() => setActivated(false)}
+                onClick={() => { setActivated(false); stop(); }}
               >
                 I'm safe now (Cancel)
               </Button>

@@ -1,13 +1,85 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Building2, AlertCircle, BookOpen, TrendingUp, LogOut, ShieldCheck, Lock, Eye, Zap } from "lucide-react";
+import { Heart, Users, Building2, AlertCircle, BookOpen, TrendingUp, LogOut, ShieldCheck, Lock, Eye, Zap, Plus, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Analytics } from "@/components/Analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [providers, setProviders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchProviders();
+    
+    // Realtime subscription for providers
+    const channel = supabase
+      .channel('admin-provider-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'providers' }, () => {
+        console.log('Provider change detected, refreshing...');
+        fetchProviders();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchProviders = async () => {
+    const { data, error } = await supabase.from('providers').select('*').order('created_at', { ascending: false });
+    if (!error && data) {
+      setProviders(data);
+    }
+  };
+
+  const seedTestProvider = async () => {
+    setLoading(true);
+    const toastId = toast.loading("Seeding test provider...");
+    
+    try {
+      // For testing, we might need a user_id. 
+      // In a real flow, the admin would create an auth user first.
+      // Here we will just use a random UUID if it's for demo, 
+      // but the table has a foreign key to auth.users.
+      // So we should check if there's an existing user or create one.
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in as admin to seed providers", { id: toastId });
+        return;
+      }
+
+      const { error } = await supabase.from('providers').insert({
+        id: "00000000-0000-0000-0000-000000000001", // MOCK ID for demo or use current user
+        full_name: "Dr. Eliza Keith (Test)",
+        role: "doctor",
+        specialty: "Obstetrics",
+        license_number: `TEST-${Math.floor(Math.random() * 10000)}`,
+        is_active: true
+      });
+
+      if (error) {
+        if (error.code === '23505') {
+           toast.info("Test provider already exists.", { id: toastId });
+        } else {
+           throw error;
+        }
+      } else {
+        toast.success("Test provider created!", { id: toastId });
+        fetchProviders();
+      }
+    } catch (err: any) {
+      toast.error(err.message, { id: toastId });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const stats = [
     { label: "Total Mothers", value: "2,847", change: "+12%", icon: Users, color: "text-primary" },
@@ -74,6 +146,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="analytics" className="w-full mb-8">
           <TabsList className="grid w-full grid-cols-4 max-w-2xl mb-6">
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="providers">Medical Staff</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
             <TabsTrigger value="security">Security Logs</TabsTrigger>
             <TabsTrigger value="audit">Full Audit Trail</TabsTrigger>
@@ -81,6 +154,63 @@ const AdminDashboard = () => {
           
           <TabsContent value="analytics">
             <Analytics />
+          </TabsContent>
+          
+          <TabsContent value="providers">
+            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">Provider Management</h3>
+                    <p className="text-xs text-muted-foreground">Verify and manage medical professionals</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={seedTestProvider} className="h-10 rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5">
+                    <Zap className="w-4 h-4" />
+                    Seed Test Doctor
+                  </Button>
+                  <Button className="bg-primary hover:bg-primary/90 text-white font-bold h-10 rounded-xl gap-2">
+                    <Plus className="w-4 h-4" />
+                    Register New Provider
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {providers.length > 0 ? providers.map((provider, index) => (
+                  <div key={provider.id || index} className="flex items-center justify-between p-4 bg-background/40 border border-border/50 rounded-2xl group hover:border-primary/40 transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl">👩‍⚕️</div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{provider.full_name}</p>
+                        <p className="text-[10px] text-white/50 uppercase tracking-widest">{provider.role} • {provider.specialty || 'General'} • {provider.license_number}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right hidden sm:block">
+                        <p className="text-[10px] text-white/30 uppercase font-black">Joined</p>
+                        <p className="text-xs font-bold text-white/70">{new Date(provider.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <Badge className={provider.is_active ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}>
+                        {provider.is_active ? 'Verified' : 'Inactive'}
+                      </Badge>
+                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5">
+                        <Settings className="w-4 h-4 text-white/40" />
+                      </Button>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="p-12 text-center border border-dashed border-white/10 rounded-3xl">
+                    <p className="text-white/40 font-bold">No providers registered yet.</p>
+                    <p className="text-xs text-white/20 mt-1">Use the 'Seed' button for testing.</p>
+                  </div>
+                )}
+              </div>
+            </Card>
           </TabsContent>
 
           <TabsContent value="activity">
