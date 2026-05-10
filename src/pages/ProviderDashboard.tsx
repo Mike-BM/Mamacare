@@ -127,7 +127,7 @@ const ProviderDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col md:flex-row">
+    <div className="min-h-screen w-full max-w-[100vw] bg-background relative overflow-x-hidden flex flex-col md:flex-row">
       {/* Background Blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse" />
@@ -207,7 +207,7 @@ const ProviderDashboard = () => {
             {/* Schedule List */}
             <div className="lg:col-span-2 space-y-6">
               <Card className="p-6 glass-card border-white/10 h-full">
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-row items-center justify-between flex-wrap gap-4 mb-8">
                    <h3 className="text-xl font-bold flex items-center gap-3">
                      <CalendarDays className="w-5 h-5 text-primary" />
                      Today's Appointments
@@ -436,7 +436,7 @@ const ProviderDashboard = () => {
                </div>
             </Card>
           </div>
-        ))}
+        )}
 
         {activeTab === "patients" && (
           <Card className="p-6 glass-card border-white/10">

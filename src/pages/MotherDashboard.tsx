@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ArrowLeft, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock, Phone } from "lucide-react";
@@ -108,8 +108,11 @@ export default function MotherDashboard() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isLiteMode, setIsLiteMode] = useState(false);
+  const [isSimpleMode, setIsSimpleMode] = useState(false);
+  const [isHospitalContactOpen, setIsHospitalContactOpen] = useState(false);
+  const [hospitals, setHospitals] = useState<any[]>([]);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [isPremium, setIsPremium] = useState(true); // SET TO TRUE FOR TESTING SMOOTHNESS
+  const [isPremium, setIsPremium] = useState(true);
   const [paywallConfig, setPaywallConfig] = useState<{
     isOpen: boolean;
     featureName: string;
@@ -175,40 +178,74 @@ export default function MotherDashboard() {
   const completedTasks = tasks.filter(t => t.done).length;
   const taskProgress = (completedTasks / tasks.length) * 100;
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          const { data } = await supabase
-            .from('mothers')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          
-          if (data) {
-            setUserProfile({
-              name: data.full_name || "Stacy Mutheu",
-              email: session.user.email || "",
-              pregnancy_week: data.pregnancy_week || 24,
-              avatar_url: data.avatar_url || "",
-              is_anonymous: data.is_anonymous || false
-            });
-          }
-        }
-      } catch (err) {
-        console.warn("Mamacare: Running in Offline Demo Mode.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [communityPosts, setCommunityPosts] = useState<any[]>([]);
 
-    fetchProfile();
+  useEffect(() => {
     const handleOnline = () => { setIsOffline(false); toast.success("Back online."); };
     const handleOffline = () => { setIsOffline(true); toast.error("Offline Mode."); };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    const fetchData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        let userId = session?.user?.id || '00000000-0000-0000-0000-000000000001';
+        
+        // 0. Fetch Hospitals
+        const { data: hospitalData } = await supabase.from('hospitals').select('*');
+        if (hospitalData) setHospitals(hospitalData);
+
+        // 1. Fetch Profile/Mother data
+        const { data: motherData } = await supabase
+          .from('mothers')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
+        
+        if (motherData) {
+          setUserProfile({
+            name: motherData.full_name || "Stacy Mutheu",
+            email: session?.user?.email || "stacy@example.com",
+            pregnancy_week: motherData.pregnancy_week || 24,
+            avatar_url: motherData.avatar_url || "",
+            is_anonymous: motherData.is_anonymous || false
+          });
+
+          // 2. Fetch Appointments
+          const { data: appts } = await supabase
+            .from('appointments')
+            .select(`
+              *,
+              hospitals (
+                name,
+                specialists
+              )
+            `)
+            .eq('mother_id', motherData.id)
+            .order('appointment_date', { ascending: true });
+          
+          if (appts) setAppointments(appts);
+        }
+
+        // 3. Fetch Community Posts
+        const { data: posts } = await supabase
+          .from('community_posts')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        
+        if (posts) setCommunityPosts(posts);
+
+      } catch (err) {
+        console.warn("Mamacare: Falling back to demo mode.", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
 
     const messageInterval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % SUPPORTIVE_MESSAGES.length);
@@ -220,6 +257,50 @@ export default function MotherDashboard() {
       clearInterval(messageInterval);
     };
   }, []);
+
+  const QuickActionsList = () => (
+    <div className={`grid ${isSimpleMode ? 'grid-cols-1 sm:grid-cols-2 gap-6' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'} mb-8 animate-in fade-in slide-in-from-top duration-500`}>
+      <Button 
+        className={`${isSimpleMode ? 'h-32 rounded-[32px] border-4' : 'h-28 rounded-[24px] border-2'} flex flex-col gap-3 bg-primary hover:bg-primary/90 text-white font-black shadow-lg shadow-primary/20 active:scale-95 transition-all border-white/10`}
+        onClick={() => setIsBookingOpen(true)}
+      >
+        <div className={`${isSimpleMode ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-white/20 flex items-center justify-center`}>
+          <Plus className={isSimpleMode ? 'w-8 h-8' : 'w-6 h-6'} />
+        </div>
+        <span className={isSimpleMode ? 'text-xl' : 'text-sm'}>{isSimpleMode ? "Uteuzi Mpya" : "Book New"}</span>
+      </Button>
+      <Button 
+        variant="outline" 
+        className={`${isSimpleMode ? 'h-32 rounded-[32px] border-4' : 'h-28 rounded-[24px] border-2'} flex flex-col gap-3 glass-card border-white/10 hover:bg-white/5 font-black active:scale-95 transition-all`}
+        onClick={() => handleTabChange('hospitals')}
+      >
+        <div className={`${isSimpleMode ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-secondary/20 flex items-center justify-center`}>
+          <Search className={`${isSimpleMode ? 'w-8 h-8' : 'w-6 h-6'} text-secondary`} />
+        </div>
+        <span className={isSimpleMode ? 'text-xl' : 'text-sm'}>{isSimpleMode ? "Tafuta Hospitali" : "Find Hospital"}</span>
+      </Button>
+      <Button 
+        variant="outline" 
+        className={`${isSimpleMode ? 'h-32 rounded-[32px] border-4' : 'h-28 rounded-[24px] border-2'} flex flex-col gap-3 glass-card border-white/10 hover:bg-white/5 font-black active:scale-95 transition-all`}
+        onClick={() => setIsRideModalOpen(true)}
+      >
+        <div className={`${isSimpleMode ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-tertiary/20 flex items-center justify-center`}>
+          <Car className={`${isSimpleMode ? 'w-8 h-8' : 'w-6 h-6'} text-tertiary`} />
+        </div>
+        <span className={isSimpleMode ? 'text-xl' : 'text-sm'}>{isSimpleMode ? "MamaRide" : "MamaRide"}</span>
+      </Button>
+      <Button 
+        variant="outline" 
+        className={`${isSimpleMode ? 'h-32 rounded-[32px] border-4 border-primary/40' : 'h-28 rounded-[24px] border-2 border-primary/20'} flex flex-col gap-3 glass-card hover:bg-white/5 font-black active:scale-95 transition-all bg-primary/5`}
+        onClick={() => setIsHospitalContactOpen(true)}
+      >
+        <div className={`${isSimpleMode ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-primary/20 flex items-center justify-center animate-pulse`}>
+          <Phone className={`${isSimpleMode ? 'w-8 h-8' : 'w-6 h-6'} text-primary`} />
+        </div>
+        <span className={isSimpleMode ? 'text-xl' : 'text-sm'}>{isSimpleMode ? "Piga Simu" : "Call Nurse"}</span>
+      </Button>
+    </div>
+  );
 
   // Play baby laugh when all tasks are done
   useEffect(() => {
@@ -449,7 +530,7 @@ export default function MotherDashboard() {
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative z-30">
         
         {/* Header */}
-        <header className={`border-b border-white/10 px-4 md:px-8 py-3 flex flex-row items-center justify-between flex-row-mobile-stack shrink-0 transition-colors ${isLiteMode ? 'bg-background' : 'backdrop-blur-xl bg-background/60'}`}>
+        <header className={`border-b border-white/10 px-4 md:px-8 py-3 flex flex-row items-center justify-between flex-row-mobile-stack shrink-0 transition-colors w-full max-w-[100vw] overflow-hidden ${isLiteMode ? 'bg-background' : 'backdrop-blur-xl bg-background/60'}`}>
           <div className="md:hidden flex items-center gap-2">
             {activeTab !== "overview" ? (
               <Button variant="ghost" size="icon" onClick={handleBack} className="p-0 h-8 w-8 hover:bg-white/5 rounded-full active:scale-90 transition-transform">
@@ -478,6 +559,20 @@ export default function MotherDashboard() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => {
+                setIsSimpleMode(!isSimpleMode);
+                toast.success(isSimpleMode ? "Back to Modern Mode" : "Mama Mboga Mode Active 🇰🇪");
+                if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+              }} 
+              className={`flex items-center gap-2 rounded-full px-4 h-10 font-black border transition-all ${isSimpleMode ? 'bg-primary text-white border-primary' : 'bg-white/5 border-white/10 text-white/50'}`}
+            >
+              <Smile className="w-5 h-5" />
+              <span className="hidden sm:inline">{isSimpleMode ? "MODERN" : "RAHISI"}</span>
+            </Button>
+
             <Button variant="ghost" size="icon" onClick={toggleLiteMode} className="relative hover:bg-white/5 rounded-full" title="Toggle Lite Mode">
               {isLiteMode ? <SmartphoneNfc className="w-5 h-5 text-muted-foreground" /> : <Smartphone className="w-5 h-5 text-primary" />}
             </Button>
@@ -490,8 +585,8 @@ export default function MotherDashboard() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-64 glass-card border-white/10">
-                <div className="p-3 border-b border-white/10 font-semibold text-sm">Notifications</div>
-                <DropdownMenuItem className="p-3 hover:bg-white/5 cursor-pointer">Appointment tomorrow at 10 AM</DropdownMenuItem>
+                <div className="p-3 border-b border-white/10 font-semibold text-sm">{isSimpleMode ? "Ujumbe" : "Notifications"}</div>
+                <DropdownMenuItem className="p-3 hover:bg-white/5 cursor-pointer">{isSimpleMode ? "Uteuzi kesho saa 4 asubuhi" : "Appointment tomorrow at 10 AM"}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -571,9 +666,45 @@ export default function MotherDashboard() {
               </div>
             )}
             
+
             {activeTab === "overview" && (
               <div className="space-y-6">
-                <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare User" : userProfile.name.split(' ')[0]} />
+                <QuickActionsList />
+                {isSimpleMode ? (
+                  <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="text-center p-6 bg-gradient-to-b from-primary/20 to-transparent rounded-[40px] border border-white/10">
+                      <h2 className="text-4xl font-black mb-2">Habari, {userProfile.name.split(' ')[0]}!</h2>
+                      <p className="text-xl text-white/70 font-bold">Uko wiki ya {userProfile.pregnancy_week}. Mtoto anaendelea vizuri. ❤️</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-6">
+                      <Button 
+                        className="h-32 rounded-[32px] bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white flex flex-row items-center justify-center gap-6 shadow-2xl shadow-red-600/30 active:scale-95 transition-transform border-4 border-white/20"
+                        onClick={() => handleTabChange('ai')}
+                      >
+                        <Bot className="w-12 h-12" />
+                        <span className="text-3xl font-black tracking-tight uppercase text-center">Ongea na Daktari (AI)</span>
+                      </Button>
+
+                      <Card className="p-8 glass-card border-white/10 rounded-[40px] bg-white/5">
+                        <div className="flex items-center gap-6">
+                           <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center">
+                              <Calendar className="w-10 h-10 text-primary" />
+                           </div>
+                           <div className="flex-1">
+                              <h3 className="text-2xl font-black">{isSimpleMode ? "Uteuzi Ujao" : "Next Visit"}</h3>
+                              <p className="text-lg text-white/70 font-bold">
+                                {appointments[0] ? new Date(appointments[0].appointment_date).toLocaleDateString() : "Hakuna uteuzi"}
+                              </p>
+                           </div>
+                           <ArrowRight className="w-8 h-8 text-white/30" />
+                        </div>
+                      </Card>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare User" : userProfile.name.split(' ')[0]} />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   {/* Left: Pregnancy Progress (60%) */}
@@ -583,23 +714,34 @@ export default function MotherDashboard() {
 
                   {/* Right: Next Appointment Preview (40%) */}
                   <div className="lg:col-span-2">
-                    <Card className="h-full p-6 glass-card border-white/10 hover:border-primary/50 transition-colors cursor-pointer group flex flex-col shadow-lg" onClick={() => handleTabChange('appointments')}>
+                    <Card 
+                      className="h-full p-6 glass-card border-white/10 hover:border-primary/50 transition-colors cursor-pointer group flex flex-col shadow-lg haptic-press" 
+                      onClick={() => {
+                        handleTabChange('appointments');
+                        if (navigator.vibrate) navigator.vibrate(5);
+                      }}
+                    >
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                           <Calendar className="w-6 h-6 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-bold text-white/90">Next Appointment</h4>
-                          <p className="text-xs text-white/50 italic">Telehealth Checkup</p>
+                          <p className="text-xs text-white/50 italic">{appointments[0]?.appointment_type || "Telehealth Checkup"}</p>
                         </div>
                       </div>
                       <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex-1 flex flex-col justify-center">
-                        <p className="text-lg font-black text-white mb-1">Today, 2:00 PM</p>
-                        <p className="text-sm text-white/70 mb-6">Dr. Eliza Keith • Routine check</p>
+                        <p className="text-lg font-black text-white mb-1">
+                          {appointments[0] ? new Date(appointments[0].appointment_date).toLocaleString('en-US', { weekday: 'long', hour: 'numeric', minute: '2-digit' }) : "No upcoming visits"}
+                        </p>
+                        <p className="text-sm text-white/70 mb-6">
+                          {appointments[0]?.hospitals?.name || "Nairobi Women's Hospital"} • {appointments[0]?.notes || "Routine check"}
+                        </p>
                         <Button 
                           size="sm" 
                           variant="hero" 
                           className="w-full h-11 text-xs animate-pulse font-bold"
+                          disabled={!appointments[0]}
                           onClick={(e) => {
                             if (!isPremium) {
                               e.stopPropagation();
@@ -645,16 +787,20 @@ export default function MotherDashboard() {
                     {/* Task pills row */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {tasks.map(task => (
-                        <div
+                        <motion.div
                           key={task.id}
+                          whileTap={{ scale: 0.98 }}
                           className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl cursor-pointer transition-all border ${task.done ? 'bg-primary/10 border-primary/20 opacity-70' : 'bg-white/5 border-white/10 hover:bg-white/15'}`}
-                          onClick={() => setTasks(tasks.map(t => t.id === task.id ? {...t, done: !t.done} : t))}
+                          onClick={() => {
+                            setTasks(tasks.map(t => t.id === task.id ? {...t, done: !t.done} : t));
+                            if (navigator.vibrate) navigator.vibrate(task.done ? 2 : 10);
+                          }}
                         >
                           <div className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center border transition-colors ${task.done ? 'bg-primary border-primary' : 'border-white/30'}`}>
                             {task.done && <CheckCircle2 className="w-3 h-3 text-white" />}
                           </div>
                           <span className={`text-sm truncate ${task.done ? 'text-white/50 line-through' : 'text-white/90 font-medium'}`}>{task.label}</span>
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
                   </div>
@@ -671,34 +817,45 @@ export default function MotherDashboard() {
                   </div>
                   
                   <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x">
-                    {[
+                    {(communityPosts.length > 0 ? communityPosts : [
                       { id: 1, topic: "#ThirdTrimesterSleep", mamas: 12, text: "I've found that using a C-shaped pillow helps with the back pain. Anyone else struggling with side-sleeping positions lately?", trending: true },
                       { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
                       { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
-                    ].map(topic => (
-                      <Card key={topic.id} className="min-w-[280px] md:min-w-[280px] sm:min-w-[320px] p-5 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col group h-[180px]">
-                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-3">
-                          <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
-                          {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
-                        </div>
-                        <p className="text-sm text-white/80 line-clamp-3 mb-auto italic leading-relaxed">"{topic.text}"</p>
-                        <div className="flex flex-row items-center justify-between flex-row-mobile-stack mt-4">
-                          <div className="flex items-center gap-2">
-                            <div className="flex -space-x-2">
-                              {[1, 2].map(i => (
-                                <div key={i} className="w-6 h-6 rounded-full border-2 border-background bg-white/10 flex items-center justify-center text-[8px] shadow-sm">🤰</div>
-                              ))}
-                            </div>
-                            <span className="text-[10px] text-white/50 font-bold">{topic.mamas} mamas discussing</span>
+                    ]).map((topic: any) => (
+                      <motion.div 
+                        key={topic.id}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => {
+                          handleTabChange('community');
+                          if (navigator.vibrate) navigator.vibrate(5);
+                        }}
+                      >
+                        <Card className="min-w-[280px] md:min-w-[280px] sm:min-w-[320px] p-5 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col group h-[180px]">
+                          <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-3">
+                            <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.title || topic.topic}</span>
+                            {topic.trending && <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30 text-[10px] h-5">Trending</Badge>}
                           </div>
-                          <span className="text-xs text-tertiary font-bold group-hover:translate-x-1 transition-transform">Join →</span>
-                        </div>
-                      </Card>
+                          <p className="text-sm text-white/80 line-clamp-3 mb-auto italic leading-relaxed">"{topic.content || topic.text}"</p>
+                          <div className="flex flex-row items-center justify-between flex-row-mobile-stack mt-4">
+                            <div className="flex items-center gap-2">
+                              <div className="flex -space-x-2">
+                                {[1, 2].map(i => (
+                                  <div key={i} className="w-6 h-6 rounded-full border-2 border-background bg-white/10 flex items-center justify-center text-[8px] shadow-sm">🤰</div>
+                                ))}
+                              </div>
+                              <span className="text-[10px] text-white/50 font-bold">{topic.likes || topic.mamas || 0} mamas discussing</span>
+                            </div>
+                            <span className="text-xs text-tertiary font-bold group-hover:translate-x-1 transition-transform">Join →</span>
+                          </div>
+                        </Card>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
-              </div>
+              </>
             )}
+          </div>
+        )}
 
 
             {activeTab === "health" && (
@@ -809,45 +966,6 @@ export default function MotherDashboard() {
 
                   {/* Right Side: Stats & Actions (40%) */}
                   <div className="lg:col-span-2 space-y-6">
-                    <Card className="p-6 glass-card border-white/10">
-                      <h3 className="text-lg font-bold mb-6">Quick Actions</h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Button 
-                          className="h-24 flex flex-col gap-2 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold transition-transform active:scale-95"
-                          onClick={() => setIsBookingOpen(true)}
-                        >
-                          <Plus className="w-6 h-6" />
-                          <span>Book New</span>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold group relative overflow-hidden"
-                          onClick={startNurseDemo}
-                        >
-                          <Smartphone className="w-6 h-6 text-primary group-hover:scale-110 transition-transform" />
-                          <span>Call Nurse</span>
-                          {activeDemo === 'nurse' && (
-                            <div className="absolute bottom-0 left-0 h-1 bg-primary transition-all duration-300" style={{ width: `${demoProgress}%` }} />
-                          )}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold"
-                          onClick={() => handleTabChange('hospitals')}
-                        >
-                          <Search className="w-6 h-6 text-secondary" />
-                          <span>Find Hospital</span>
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="h-24 flex flex-col gap-2 border-white/10 hover:bg-white/5 rounded-2xl font-bold group relative overflow-hidden"
-                          onClick={() => setIsRideModalOpen(true)}
-                        >
-                          <Car className="w-6 h-6 text-tertiary group-hover:scale-110 transition-transform" />
-                          <span>MamaRide</span>
-                        </Button>
-                      </div>
-                    </Card>
 
                     <Card className="p-6 glass-card border-white/10 bg-gradient-to-br from-primary/10 to-transparent">
                        <h3 className="text-lg font-bold mb-4">Visit Summary</h3>
@@ -1146,35 +1264,57 @@ export default function MotherDashboard() {
       </div>
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-white/10 flex items-center justify-around p-2 pb-safe mobile-bottom-nav">
+      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 mobile-nav-blur mobile-bottom-nav border-t border-white/10 flex items-center justify-around p-2 pb-safe">
         {[
           TABS[0], // Overview
           TABS[1], // Health
-          { id: 'center-ai', icon: Bot, isCenter: true },
+          { id: 'ai', icon: Bot, isCenter: true },
           TABS[2], // Appointments
           TABS[6]  // Hospitals
-        ].map((t, index) => {
+        ].map((t) => {
+          const isActive = activeTab === t.id;
           if ('isCenter' in t) {
             return (
-              <div key="center-action" className="relative -top-4">
-                <button 
-                  onClick={() => handleTabChange('ai')}
-                  className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/30 text-white transform transition active:scale-90 touch-manipulation border-4 border-background"
+              <div key="center-action" className="relative -top-6">
+                <motion.button 
+                  whileTap={{ scale: 0.8 }}
+                  onClick={() => {
+                    handleTabChange('ai');
+                    if (navigator.vibrate) navigator.vibrate(15);
+                  }}
+                  className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shadow-[0_0_20px_rgba(255,126,179,0.5)] text-white border-4 border-background"
                 >
-                  <Bot className="w-7 h-7" />
-                </button>
+                  <Bot className="w-8 h-8" />
+                </motion.button>
               </div>
             );
           }
           return (
-            <button
+            <motion.button
               key={t.id}
-              onClick={() => handleTabChange(t.id)}
-              className={`p-3 flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] transition-colors ${activeTab === t.id ? 'text-primary' : 'text-white/40 hover:text-white/80'}`}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                handleTabChange(t.id);
+                if (navigator.vibrate) navigator.vibrate(10);
+              }}
+              className={`relative p-3 flex flex-col items-center gap-1 min-w-[44px] min-h-[44px] transition-colors ${isActive ? 'text-primary' : 'text-white/40'}`}
             >
-              <t.icon className={`w-6 h-6 ${activeTab === t.id ? 'animate-pulse drop-shadow-[0_0_8px_rgba(255,126,179,0.8)]' : ''}`} />
-              <span className="text-[8px] font-bold uppercase tracking-tighter">{t.label}</span>
-            </button>
+              {isActive && (
+                <motion.div 
+                  layoutId="activeTabMobile"
+                  className="tab-bubble"
+                  transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
+                />
+              )}
+              <t.icon className={`w-6 h-6 ${isActive ? 'drop-shadow-[0_0_8px_rgba(255,126,179,0.6)]' : ''}`} />
+              <span className="text-[8px] font-black uppercase tracking-tighter">{t.label}</span>
+              {isActive && (
+                <motion.div 
+                  layoutId="activeGlowMobile"
+                  className="absolute bottom-0 w-1 h-1 bg-primary rounded-full"
+                />
+              )}
+            </motion.button>
           );
         })}
       </nav>
@@ -1272,6 +1412,70 @@ export default function MotherDashboard() {
           <p className="mt-6 text-[10px] text-center text-white/30 font-medium italic">
             "Every MamaRide driver is trained in basic maternal first aid."
           </p>
+        </DialogContent>
+      </Dialog>
+
+      {/* Hospital Contact Modal */}
+      <Dialog open={isHospitalContactOpen} onOpenChange={setIsHospitalContactOpen}>
+        <DialogContent className="glass-card border-white/10 max-w-md p-6 rounded-[32px] bg-[#0f0f1a]/95 backdrop-blur-2xl">
+          <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-white">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Phone className="w-4 h-4 text-primary" />
+            </div>
+            {isSimpleMode ? "Piga Hospitali" : "Call Hospital/Nurse"}
+          </h3>
+          
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 hide-scrollbar">
+            {hospitals.map((hospital) => (
+              <div
+                key={hospital.id}
+                className="w-full p-4 rounded-2xl border border-white/5 bg-white/10 flex flex-col gap-4"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-bold text-white text-sm">{hospital.name}</p>
+                    <p className="text-[10px] text-white/50">{hospital.address || "Nairobi, Kenya"}</p>
+                  </div>
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px]">Active</Badge>
+                </div>
+                
+                <div className="flex gap-2">
+                  <a 
+                    href={`tel:${hospital.phone || '+254700000000'}`}
+                    className="flex-1"
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+                    }}
+                  >
+                    <Button className="w-full bg-primary hover:bg-primary/90 rounded-xl h-10 flex items-center gap-2 font-black text-xs">
+                      <Phone className="w-3 h-3" />
+                      CALL NURSE
+                    </Button>
+                  </a>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1 border-white/10 rounded-xl h-10 font-bold text-xs"
+                    onClick={() => handleTabChange('hospitals')}
+                  >
+                    DIRECTIONS
+                  </Button>
+                </div>
+              </div>
+            ))}
+            
+            {hospitals.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-white/40 text-sm italic">Loading secure contacts...</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+            <p className="text-[10px] text-red-200 leading-relaxed">
+              <strong>SECURITY NOTICE:</strong> Call records are encrypted. If this is a life-threatening emergency, please use the red <strong>SOS button</strong> on your dashboard.
+            </p>
+          </div>
         </DialogContent>
       </Dialog>
 

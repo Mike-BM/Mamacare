@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Send, Bot, User, Loader2, Mic, MicOff, AlertTriangle, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -93,8 +94,8 @@ export const AIChat = () => {
     setIsLoading(true);
 
     try {
-      // Mocking user ID if not logged in
-      let userId = '00000000-0000-0000-0000-000000000000';
+      // Mocking user ID if not logged in (using seeded demo ID)
+      let userId = '00000000-0000-0000-0000-000000000001';
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.id) userId = session.user.id;
@@ -206,8 +207,11 @@ export const AIChat = () => {
           )}
 
           {messages.map((message, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.2 }}
               className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.role === 'assistant' && (
@@ -224,7 +228,7 @@ export const AIChat = () => {
                   message.role === 'user'
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted'
-                } relative`}
+                } relative shadow-sm`}
               >
                 <p className="whitespace-pre-wrap break-words text-sm sm:text-base leading-relaxed">{message.content}</p>
                 {message.role === 'assistant' && message.riskLevel && message.riskLevel !== 'low' && (
@@ -243,7 +247,7 @@ export const AIChat = () => {
                   <User className="w-5 h-5 text-secondary" />
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
 
           {isLoading && (

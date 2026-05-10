@@ -53,61 +53,80 @@ Rule of thumb for risk:
 - medium: mild cramping, spotting, headache.
 - low: general questions, nutrition, normal pregnancy symptoms.`;
 
-const analyzeRiskAndRespond = async (messages, modelName = 'gemini-1.5-flash') => {
-  const model = genAI.getGenerativeModel({ model: modelName });
-  const chat = model.startChat({
-    history: messages.slice(0, -1).map(m => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }]
-    })),
-    systemInstruction: { parts: [{ text: systemInstruction }]},
-  });
+const analyzeRiskAndRespond = async (messages, modelName = 'gemini-2.0-flash') => {
+  // Helper to attempt multiple Gemini models with graceful fallback
+  const getModelWithFallback = async (preferred, fallbacks = []) => {
+    const candidates = [preferred, ...fallbacks];
+    for (const name of candidates) {
+      try {
+        const model = genAI.getGenerativeModel({ model: name });
+        // Quick sanity check – generate a minimal harmless prompt
+        await model.generateContent('ping');
+        return { model, name };
+      } catch (e) {
+        console.warn(`Gemini model ${name} unavailable, trying next.`, e.message);
+        // continue to next candidate
+      }
+    }
+    throw new Error('No viable Gemini model found');
+  };
 
   const startTime = Date.now();
   let aiResponseText = "";
   try {
+    // Try primary then fallback models (order can be adjusted as needed)
+    const { model, name: usedModelName } = await getModelWithFallback(modelName, ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash-lite']);
+    const chat = model.startChat({
+      history: messages.slice(0, -1).map(m => ({
+        role: m.role === 'assistant' ? 'model' : 'user',
+        parts: [{ text: m.content }]
+      })),
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+    });
+
     const result = await chat.sendMessage(messages[messages.length - 1].content);
     aiResponseText = result.response.text();
     const responseTime = Date.now() - startTime;
-    
-    // Attempt to parse JSON
+
+    // Try to parse JSON response
     try {
       const parsed = JSON.parse(aiResponseText.trim().replace(/```json/g, '').replace(/```/g, ''));
-      return { success: true, data: parsed, responseTime, modelName };
+      return { success: true, data: parsed, responseTime, modelName: usedModelName };
     } catch (parseError) {
-      // Fallback rule-based parsing if JSON fails
+      // Rule‑based fallback if JSON is malformed
       let riskLevel = 'low';
-      const textLower = aiResponseText.toLowerCase();
-      if (textLower.includes('bleed') || textLower.includes('severe pain') || textLower.includes('emergency')) {
+      const txt = aiResponseText.toLowerCase();
+      if (txt.includes('bleed') || txt.includes('severe pain') || txt.includes('emergency')) {
         riskLevel = 'emergency';
       }
-      return { 
-        success: true, 
+      return {
+        success: true,
         data: { message: aiResponseText, riskLevel, symptoms: [], recommendedAction: 'Please consult a doctor if concerned.' },
         responseTime,
-        modelName
+        modelName: usedModelName,
       };
     }
-  } catch (error) {
-    // Fallback if Gemini completely fails
+  } catch (e) {
+    // All model attempts failed – deterministic safe response
     const responseTime = Date.now() - startTime;
+    console.error('All Gemini model attempts failed:', e.message);
     return {
       success: false,
       data: {
-        message: "I am having trouble connecting right now, my dear. If you are experiencing severe pain, bleeding, or other serious symptoms, please go to the nearest hospital immediately.",
-        riskLevel: "emergency",
+        message: 'I am unable to connect to the AI service at this moment. If you are experiencing serious symptoms, please seek immediate medical attention.',
+        riskLevel: 'emergency',
         symptoms: [],
-        recommendedAction: "Seek immediate medical care if urgent."
+        recommendedAction: 'Seek immediate medical care.',
       },
       responseTime,
-      modelName: "fallback-rule-based"
+      modelName: 'fallback-rule-based',
     };
   }
 };
 
 app.post('/api/ai/chat', async (req, res) => {
   const { messages, language, userId } = req.body;
-  const result = await analyzeRiskAndRespond(messages, 'gemini-1.5-flash');
+  const result = await analyzeRiskAndRespond(messages, 'gemini-2.0-flash');
   
   // Log to Supabase
   if (userId) {
@@ -147,7 +166,7 @@ app.post('/api/ai/chat', async (req, res) => {
 app.post('/api/ai/triage', async (req, res) => {
   const { symptoms, userId } = req.body;
   const messages = [{ role: 'user', content: `I am experiencing the following symptoms: ${symptoms}. What is your assessment?` }];
-  const result = await analyzeRiskAndRespond(messages, 'gemini-1.5-flash'); // use flash for simple queries
+  const result = await analyzeRiskAndRespond(messages, 'gemini-2.0-flash'); // use flash for simple queries
   
   if (userId) {
     // Log
@@ -178,7 +197,7 @@ app.post('/api/ai/voice', async (req, res) => {
   // Simple endpoint to process transcribed voice text same as chat
   const { transcript, language, userId } = req.body;
   const messages = [{ role: 'user', content: transcript }];
-  const result = await analyzeRiskAndRespond(messages, 'gemini-1.5-flash');
+  const result = await analyzeRiskAndRespond(messages, 'gemini-2.0-flash');
   
   if (userId) {
      await supabase.from('ai_conversations').insert({

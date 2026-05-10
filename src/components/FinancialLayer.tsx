@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, startTransition } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,7 +85,11 @@ export const FinancialLayer = () => {
                     min={0}
                     max={3}
                     step={1}
-                    onValueChange={(v) => setPriceIndex(v[0])}
+                    onValueChange={(v) => {
+                      startTransition(() => {
+                        setPriceIndex(v[0]);
+                      });
+                    }}
                     className="my-8 [&_[role=slider]]:w-8 [&_[role=slider]]:h-8 [&_[role=slider]]:bg-primary transition-all cursor-pointer"
                   />
                   <div className="flex justify-between text-xs font-black text-white/40 px-1">

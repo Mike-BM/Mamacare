@@ -238,8 +238,29 @@ All colors MUST be HSL.
     overflow: hidden;
   }
 
-  .truncate, .line-clamp-1, .line-clamp-2, .line-clamp-3 {
-    max-width: 100%;
+  /* Haptic Press Effect */
+  .haptic-press {
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .haptic-press:active {
+    transform: scale(0.96);
+  }
+
+  /* Improved Active State for Tabs */
+  .active-tab-glow {
+    position: relative;
+  }
+  .active-tab-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 4px;
+    background: hsl(var(--primary));
+    border-radius: 2px;
+    box-shadow: 0 0 10px hsl(var(--primary));
   }
 }
 
@@ -306,3 +327,26 @@ All colors MUST be HSL.
   }
 }
 
+/* Custom Scrollbar for Mobile Community Pulse */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Native-like Bottom Nav Glow */
+.mobile-nav-blur {
+  background: rgba(15, 15, 26, 0.8) !important;
+  backdrop-filter: blur(20px) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.tab-bubble {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.15) 0%, transparent 70%);
+  z-index: -1;
+}

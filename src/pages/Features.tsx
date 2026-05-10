@@ -1,43 +1,42 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Heart, ArrowLeft, Calendar, Hospital, Bot, Baby, Shield, MessageCircle } from "lucide-react";
-
+import { Heart, ArrowLeft, Calendar, Hospital, Bot, Baby, Shield, MessageCircle, Phone, Car } from "lucide-react";
 const features = [
   {
     icon: Calendar,
-    title: "Appointment Scheduling",
+    title: "Book Now (Uteuzi)",
     description: "Book and manage prenatal checkups with trusted hospitals seamlessly. Get reminders and never miss an important visit.",
     color: "primary",
   },
   {
     icon: Hospital,
-    title: "Hospital Connection",
+    title: "Find Hospital",
     description: "Connect with verified maternity hospitals and healthcare providers in your area. Build trust with your care team.",
+    color: "secondary",
+  },
+  {
+    icon: Car,
+    title: "MamaRide",
+    description: "Reliable emergency and standard transport for mothers. Integrated with local drivers trained in maternal safety.",
+    color: "primary",
+  },
+  {
+    icon: Phone,
+    title: "Call Nurse",
+    description: "Secure, direct calling to maternity wards and nurses. Get instant guidance and emergency advice from professionals.",
     color: "secondary",
   },
   {
     icon: Bot,
     title: "AI Pregnancy Assistant",
-    description: "Get instant answers to pregnancy questions, personalized health tips, and weekly development updates for you and your baby.",
+    description: "Get instant answers to pregnancy questions, personalized health tips, and weekly development updates in English and Swahili.",
     color: "primary",
-  },
-  {
-    icon: Baby,
-    title: "Newborn Tracking",
-    description: "Monitor your baby's growth, feeding schedule, vaccination timeline, and developmental milestones all in one place.",
-    color: "secondary",
   },
   {
     icon: Shield,
-    title: "Emergency SOS",
-    description: "One-tap emergency alerts to your hospital during critical moments. Fast response when every second counts.",
-    color: "primary",
-  },
-  {
-    icon: MessageCircle,
-    title: "Breastfeeding Support",
-    description: "Access expert guidance, tips, and a supportive community for breastfeeding mothers. You're never alone.",
+    title: "Maximum Security",
+    description: "HIPAA-compliant data encryption and secure health records. Your privacy and safety are our top priorities.",
     color: "secondary",
   },
 ];
@@ -45,24 +44,6 @@ const features = [
 const Features = () => {
   const navigate = useNavigate();
   const featuresRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in-up");
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const featureCards = featuresRef.current?.querySelectorAll(".feature-card");
-    featureCards?.forEach((card) => observer.observe(card));
-
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -112,8 +93,8 @@ const Features = () => {
               return (
                 <div
                   key={index}
-                  className="feature-card opacity-0 group"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="feature-card group animate-fade-in-up"
+                  style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'both' }}
                 >
                   <div className="h-full backdrop-blur-xl bg-gradient-to-br from-card/80 to-card/60 border border-border/50 rounded-2xl p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
                     <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${
