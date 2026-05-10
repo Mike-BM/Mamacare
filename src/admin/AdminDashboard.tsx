@@ -13,23 +13,45 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [providers, setProviders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetchProviders();
-    
-    // Realtime subscription for providers
-    const channel = supabase
-      .channel('admin-provider-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'providers' }, () => {
-        console.log('Provider change detected, refreshing...');
-        fetchProviders();
-      })
-      .subscribe();
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error("Authentication required.");
+        navigate("/");
+        return;
+      }
 
-    return () => {
-      supabase.removeChannel(channel);
+      // Check role in user metadata or a specific profile table
+      const role = session.user.user_metadata?.role;
+      
+      if (role !== 'admin') {
+        setIsAuthorized(false);
+        toast.error("Access Denied: Admin privileges required.");
+      } else {
+        setIsAuthorized(true);
+        fetchProviders();
+        
+        // Realtime subscription for providers
+        const channel = supabase
+          .channel('admin-provider-changes')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'providers' }, () => {
+            console.log('Provider change detected, refreshing...');
+            fetchProviders();
+          })
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(channel);
+        };
+      }
     };
-  }, []);
+
+    checkAuth();
+  }, [navigate]);
 
   const fetchProviders = async () => {
     const { data, error } = await supabase.from('providers').select('*').order('created_at', { ascending: false });
@@ -89,6 +111,36 @@ const AdminDashboard = () => {
     { label: "Security Threats Blocked", value: "14", change: "-20%", icon: ShieldCheck, color: "text-green-500" },
   ];
 
+  if (isAuthorized === null) {
+    return (
+      <div className="min-h-screen bg-[#0f0f1a] flex flex-col items-center justify-center text-white">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="font-bold tracking-widest text-xs uppercase opacity-50">Verifying Admin Credentials...</p>
+      </div>
+    );
+  }
+
+  if (isAuthorized === false) {
+    return (
+      <div className="min-h-screen bg-[#0f0f1a] flex flex-col items-center justify-center text-white p-8 text-center">
+        <div className="w-20 h-20 bg-destructive/20 rounded-full flex items-center justify-center mb-6">
+          <Lock className="w-10 h-10 text-destructive" />
+        </div>
+        <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter">403: Access Denied</h1>
+        <p className="text-muted-foreground max-w-md mb-8">
+          You do not have the required permissions to access the MamaCare Admin Portal. This incident has been logged for security audit.
+        </p>
+        <Button 
+          variant="hero" 
+          onClick={() => navigate("/")}
+          className="h-14 px-8 rounded-2xl font-black shadow-lg shadow-primary/20"
+        >
+          Return to Safety
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -144,7 +196,7 @@ const AdminDashboard = () => {
 
         {/* Analytics Dashboard */}
         <Tabs defaultValue="analytics" className="w-full mb-8">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl mb-6">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl mb-6">
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="providers">Medical Staff</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>

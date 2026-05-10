@@ -102,7 +102,7 @@ const Landing = () => {
       toast.success("Welcome back! 👋");
       
       if (role === 'hospital') navigate("/hospital-dashboard");
-      else if (role === 'admin') navigate("/admin-dashboard");
+      else if (role === 'admin') window.location.href = "/admin.html";
       else navigate("/mother-dashboard");
       
     } catch (error: any) {
@@ -271,7 +271,6 @@ const Landing = () => {
                   {[
                     { label: "Mother", icon: Heart, path: "/mother-dashboard", color: "text-primary" },
                     { label: "Hospital", icon: Building2, path: "/hospital-dashboard", color: "text-secondary" },
-                    { label: "Admin", icon: ShieldCheck, path: "/admin-dashboard", color: "text-accent" },
                     { label: "Baba", icon: Users, path: "/baba", color: "text-tertiary" },
                   ].map((dash, i) => (
                     <motion.div
