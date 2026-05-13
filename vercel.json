@@ -3,6 +3,17 @@
   "framework": "vite",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.js" },
+    {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "admin.mamacare-livid.vercel.app" }
+      ],
+      "destination": "/admin.html"
+    },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/admin/", "destination": "/admin.html" },
+    { "source": "/admin.html", "destination": "/admin.html" },
+    { "source": "/index.html", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "installCommand": "npm install",
