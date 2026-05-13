@@ -43,6 +43,28 @@ export const WearableMedicationWidgets = () => {
     });
   };
 
+  const handlePairing = async () => {
+    try {
+      if (!navigator.bluetooth) {
+        toast.error("Bluetooth not supported in this browser.");
+        return;
+      }
+
+      toast.info("Searching for MamaCare Africa Band...");
+      
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: ['battery_service']
+      });
+
+      setConnected(true);
+      toast.success(`${device.name || "Pregnancy Band"} connected 💕`);
+    } catch (error: any) {
+      if (error.name === 'NotFoundError') return; // User cancelled
+      toast.error("Pairing failed: " + error.message);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Wearable */}
@@ -62,7 +84,7 @@ export const WearableMedicationWidgets = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Connect your pregnancy band to track fetal heart rate, kicks, and contractions.
             </p>
-            <Button onClick={() => { setConnected(true); toast.success("Pregnancy band connected 💕"); }}>
+            <Button onClick={handlePairing}>
               <Plus className="w-4 h-4 mr-2" /> Pair device
             </Button>
           </div>

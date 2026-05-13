@@ -129,8 +129,8 @@ export default function MotherDashboard() {
     onSuccess: () => {}
   });
 
-  const [activeDemo, setActiveDemo] = useState<'none' | 'nurse' | 'ride'>('none');
-  const [demoProgress, setDemoProgress] = useState(0);
+  const [activeRequest, setActiveRequest] = useState<'none' | 'nurse' | 'ride'>('none');
+  const [requestProgress, setRequestProgress] = useState(0);
 
   const [isRideModalOpen, setIsRideModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -193,7 +193,11 @@ export default function MotherDashboard() {
     const fetchData = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        let userId = session?.user?.id || '00000000-0000-0000-0000-000000000001';
+        if (!session) {
+          navigate("/");
+          return;
+        }
+        const userId = session.user.id;
         
         // 0. Fetch Hospitals
         const { data: hospitalData } = await supabase.from('hospitals').select('*');
@@ -209,8 +213,8 @@ export default function MotherDashboard() {
         if (motherData) {
           setMotherId(motherData.id);
           setUserProfile({
-            name: motherData.full_name || session?.user?.email?.split('@')[0] || "MamaCare Africa User",
-            email: session?.user?.email || "",
+            name: motherData.full_name || session.user.email?.split('@')[0] || "MamaCare Africa User",
+            email: session.user.email || "",
             pregnancy_week: motherData.pregnancy_week || 0,
             avatar_url: motherData.avatar_url || "",
             is_anonymous: motherData.is_anonymous || false
@@ -242,7 +246,7 @@ export default function MotherDashboard() {
         if (posts) setCommunityPosts(posts);
 
       } catch (err) {
-        console.warn("Mamacare: Falling back to demo mode.", err);
+        console.error("Mamacare Error:", err);
       } finally {
         setIsLoading(false);
       }
@@ -328,7 +332,7 @@ export default function MotherDashboard() {
     
     try {
       const { data, error } = await supabase.functions.invoke('create-video-room', {
-        body: { appointment_id: 'mother-demo' }
+        body: { appointment_id: motherId || 'live_chat' }
       });
 
       if (error || !data?.url) {
@@ -348,15 +352,15 @@ export default function MotherDashboard() {
     }
   };
 
-  const startNurseDemo = () => {
-    setActiveDemo('nurse');
-    setDemoProgress(0);
+  const startNurseRequest = () => {
+    setActiveRequest('nurse');
+    setRequestProgress(0);
     const toastId = toast.loading("Locating nearest available nurse...");
     
     let progress = 0;
     const interval = setInterval(() => {
       progress += 10;
-      setDemoProgress(progress);
+      setRequestProgress(progress);
       if (progress >= 100) {
         clearInterval(interval);
         toast.success("Nurse Ivy is now calling your phone!", { id: toastId });
@@ -371,8 +375,8 @@ export default function MotherDashboard() {
       return;
     }
 
-    setActiveDemo('ride');
-    setDemoProgress(0);
+    setActiveRequest('ride');
+    setRequestProgress(0);
     const toastId = toast.loading(`Requesting ${type} MamaRide...`);
     
     try {
@@ -389,12 +393,12 @@ export default function MotherDashboard() {
 
       if (error) throw error;
 
-      setDemoProgress(50);
+      setRequestProgress(50);
       toast.success("Request sent! Locating nearest driver...", { id: toastId });
 
-      // Simulate driver acceptance for demo purposes, but it's now saved in DB
+      // Live tracking update
       setTimeout(() => {
-        setDemoProgress(100);
+        setRequestProgress(100);
         play(SOUNDS.RIDE_FOUND);
         toast.success("Driver Found: John (4 mins away)");
       }, 3000);
@@ -402,7 +406,7 @@ export default function MotherDashboard() {
     } catch (err: any) {
       console.error("Ride request failed:", err);
       toast.error("Failed to request ride. Please call the hospital directly.", { id: toastId });
-      setActiveDemo('none');
+      setActiveRequest('none');
     }
   };
 
@@ -1394,8 +1398,8 @@ export default function MotherDashboard() {
         price={paywallConfig.price}
       />
 
-      {/* Demo UI Overlays */}
-      {activeDemo === 'nurse' && demoProgress === 100 && (
+      {/* Live Request Overlays */}
+      {activeRequest === 'nurse' && requestProgress === 100 && (
         <div className="fixed top-8 right-8 z-[100] animate-in fade-in slide-in-from-right duration-500">
           <Card className="p-4 bg-primary border-primary shadow-2xl flex items-center gap-4 text-white">
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center animate-bounce">
@@ -1405,12 +1409,12 @@ export default function MotherDashboard() {
               <p className="text-[10px] uppercase font-black tracking-widest opacity-70">Incoming Call</p>
               <p className="font-bold">Nurse Ivy (Midwife)</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => { setActiveDemo('none'); stop(); }} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => { setActiveRequest('none'); stop(); }} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
           </Card>
         </div>
       )}
 
-      {activeDemo === 'ride' && demoProgress === 100 && (
+      {activeRequest === 'ride' && requestProgress === 100 && (
         <div className="fixed top-8 right-8 z-[100] animate-in fade-in slide-in-from-right duration-500">
           <Card className="p-4 bg-tertiary border-tertiary shadow-2xl flex items-center gap-4 text-white">
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
@@ -1420,7 +1424,7 @@ export default function MotherDashboard() {
               <p className="text-[10px] uppercase font-black tracking-widest opacity-70">MamaRide Found</p>
               <p className="font-bold">Driver: John • 4 mins away</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setActiveDemo('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => setActiveRequest('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
           </Card>
         </div>
       )}

@@ -103,7 +103,7 @@ export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoC
   const [isLoading, setIsLoading] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { play, stop, SOUNDS } = useSound();
-  const isDemo = roomUrl.includes("demo-room");
+  const isDemo = roomUrl.includes("demo-room") || !roomUrl;
 
   useEffect(() => {
     if (isOpen) {
