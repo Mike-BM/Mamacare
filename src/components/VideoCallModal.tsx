@@ -22,8 +22,17 @@ const LocalCameraPreview = () => {
     async function setupCamera() {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, 
-          audio: true 
+          video: { 
+            facingMode: "user", 
+            width: { ideal: 1920, min: 1280 }, 
+            height: { ideal: 1080, min: 720 },
+            frameRate: { ideal: 30 }
+          }, 
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } 
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -93,7 +102,7 @@ const LocalCameraPreview = () => {
 export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoCallModalProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const { play, SOUNDS } = useSound();
+  const { play, stop, SOUNDS } = useSound();
   const isDemo = roomUrl.includes("demo-room");
 
   useEffect(() => {
@@ -103,6 +112,7 @@ export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoC
   }, [isOpen]);
 
   const handleClose = () => {
+    stop(); // Ensure all sounds (ringing, join, etc) are killed immediately
     play(SOUNDS.CALL_END, { volume: 0.4 });
     onClose();
   };
@@ -115,7 +125,7 @@ export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoC
           <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-40 pointer-events-none">
             <div className="bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 flex items-center gap-3 pointer-events-auto">
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-white font-bold text-sm">Consultation: {patientName || "Stacy Mutheu"}</span>
+              <span className="text-white font-bold text-sm">Consultation: {patientName || "Loading..."}</span>
             </div>
             
             <div className="flex gap-2 pointer-events-auto">

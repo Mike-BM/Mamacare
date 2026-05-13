@@ -114,6 +114,13 @@ export type Database = {
             referencedRelation: "mothers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "appointments_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       chat_messages: {
@@ -342,6 +349,97 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      providers: {
+        Row: {
+          id: string
+          full_name: string
+          role: string | null
+          specialty: string | null
+          license_number: string | null
+          kmpdc_license: string | null
+          verification_status: string | null
+          hospital_affiliation: string | null
+          is_active: boolean | null
+          created_at: string | null
+        }
+        Insert: {
+          id: string
+          full_name: string
+          role?: string | null
+          specialty?: string | null
+          license_number?: string | null
+          kmpdc_license?: string | null
+          verification_status?: string | null
+          hospital_affiliation?: string | null
+          is_active?: boolean | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          role?: string | null
+          specialty?: string | null
+          license_number?: string | null
+          kmpdc_license?: string | null
+          verification_status?: string | null
+          hospital_affiliation?: string | null
+          is_active?: boolean | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "providers_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      mamaride_requests: {
+        Row: {
+          id: string
+          mother_id: string | null
+          driver_id: string | null
+          pickup_location: string | null
+          destination: string | null
+          status: string | null
+          ride_type: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          mother_id?: string | null
+          driver_id?: string | null
+          pickup_location?: string | null
+          destination?: string | null
+          status?: string | null
+          ride_type?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          mother_id?: string | null
+          driver_id?: string | null
+          pickup_location?: string | null
+          destination?: string | null
+          status?: string | null
+          ride_type?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mamaride_requests_mother_id_fkey"
+            columns: ["mother_id"]
+            isOneToOne: false
+            referencedRelation: "mothers"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {

@@ -60,6 +60,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleVerify = async (id: string, status: 'verified' | 'rejected') => {
+    const toastId = toast.loading(`Updating verification status...`);
+    const { error } = await supabase
+      .from('providers')
+      .update({ verification_status: status, is_active: status === 'verified' })
+      .eq('id', id);
+    
+    if (error) {
+      toast.error("Update failed", { id: toastId });
+    } else {
+      toast.success(`Doctor ${status} successfully!`, { id: toastId });
+      fetchProviders();
+    }
+  };
+
+  const handleInvite = () => {
+    const email = window.prompt("Enter Doctor's Email to send invitation:");
+    if (email) {
+      toast.success(`Invitation link sent to ${email}! 📧`);
+      // In production, this would trigger a Supabase Edge Function to send an email
+    }
+  };
+
   const seedTestProvider = async () => {
     setLoading(true);
     const toastId = toast.loading("Seeding test provider...");
@@ -221,13 +244,13 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={seedTestProvider} className="h-10 rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5">
-                    <Zap className="w-4 h-4" />
-                    Seed Test Doctor
-                  </Button>
-                  <Button className="bg-primary hover:bg-primary/90 text-white font-bold h-10 rounded-xl gap-2">
+                  <Button variant="outline" onClick={handleInvite} className="h-10 rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5">
                     <Plus className="w-4 h-4" />
-                    Register New Provider
+                    Invite Doctor
+                  </Button>
+                  <Button variant="outline" onClick={seedTestProvider} className="h-10 rounded-xl gap-2 border-white/10 text-white/50 hover:bg-white/5">
+                    <Zap className="w-4 h-4" />
+                    Seed Test Data
                   </Button>
                 </div>
               </div>
@@ -244,12 +267,22 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right hidden sm:block">
-                        <p className="text-[10px] text-white/30 uppercase font-black">Joined</p>
-                        <p className="text-xs font-bold text-white/70">{new Date(provider.created_at).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-white/30 uppercase font-black">License</p>
+                        <p className="text-xs font-bold text-white/70">{provider.kmpdc_license || 'Not Provided'}</p>
                       </div>
-                      <Badge className={provider.is_active ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'}>
-                        {provider.is_active ? 'Verified' : 'Inactive'}
+                      <Badge className={
+                        provider.verification_status === 'verified' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 
+                        provider.verification_status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30 animate-pulse' :
+                        'bg-red-500/20 text-red-400 border-red-500/30'
+                      }>
+                        {provider.verification_status || 'Unverified'}
                       </Badge>
+                      {provider.verification_status === 'pending' && (
+                        <div className="flex gap-1">
+                           <Button size="sm" className="h-8 bg-green-600 hover:bg-green-700" onClick={() => handleVerify(provider.id, 'verified')}>Approve</Button>
+                           <Button size="sm" variant="destructive" className="h-8" onClick={() => handleVerify(provider.id, 'rejected')}>Reject</Button>
+                        </div>
+                      )}
                       <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5">
                         <Settings className="w-4 h-4 text-white/40" />
                       </Button>

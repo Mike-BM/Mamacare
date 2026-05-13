@@ -69,6 +69,7 @@ const ProviderDashboard = () => {
   const [currentRoomUrl, setCurrentRoomUrl] = useState(""); 
   const [isGeneratingRoom, setIsGeneratingRoom] = useState(false);
   const [schedule, setSchedule] = useState<any[]>([]);
+  const [providerProfile, setProviderProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -84,6 +85,22 @@ const ProviderDashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from('providers')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        
+        if (data) setProviderProfile(data);
+      }
+    };
+    fetchProfile();
   }, []);
 
   const fetchSchedule = async () => {
@@ -169,16 +186,21 @@ const ProviderDashboard = () => {
 
         <div className="pt-6 border-t border-white/10 mt-auto">
           <div className="flex items-center gap-3 p-2 mb-4">
-             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-lg">👩‍⚕️</div>
+             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-lg">
+               {providerProfile?.avatar_url ? <img src={providerProfile.avatar_url} className="w-full h-full rounded-full" /> : "👩‍⚕️"}
+             </div>
              <div className="flex-1 min-w-0">
-               <p className="font-bold text-white truncate">Dr. Eliza Keith</p>
-               <p className="text-xs text-white/50 truncate">Obstetrician</p>
+               <p className="font-bold text-white truncate">{providerProfile?.full_name || "Doctor"}</p>
+               <p className="text-xs text-white/50 truncate">{providerProfile?.specialty || "Generalist"}</p>
              </div>
           </div>
           <Button 
             variant="ghost" 
             className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive gap-3 rounded-xl"
-            onClick={() => navigate("/")}
+            onClick={async () => {
+              await supabase.auth.signOut();
+              navigate("/");
+            }}
           >
             <LogOut className="w-5 h-5" />
             Logout
@@ -192,6 +214,38 @@ const ProviderDashboard = () => {
            <h2 className="text-3xl font-black text-white mb-1">Good Morning, Doctor! ✨</h2>
            <p className="text-white/60 font-medium">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
         </header>
+
+        {providerProfile && providerProfile.verification_status !== 'verified' && (
+          <Card className="mb-8 p-6 bg-orange-500/10 border border-orange-500/20 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-orange-400" />
+              </div>
+              <div>
+                <h4 className="font-bold text-white">License Verification Required</h4>
+                <p className="text-xs text-white/60">Please submit your KMPDC license number to enable appointment booking.</p>
+              </div>
+            </div>
+            <Button 
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold"
+              onClick={() => {
+                const license = window.prompt("Enter your KMPDC License Number:");
+                if (license) {
+                  toast.promise(
+                    supabase.from('providers').update({ kmpdc_license: license, verification_status: 'pending' }).eq('id', providerProfile.id),
+                    {
+                      loading: 'Submitting license...',
+                      success: 'License submitted! Verification is in progress.',
+                      error: 'Failed to submit license.'
+                    }
+                  );
+                }
+              }}
+            >
+              Verify Now
+            </Button>
+          </Card>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -346,22 +400,16 @@ const ProviderDashboard = () => {
                             });
 
                             if (error || !data?.url) {
-                              // Demo fallback for testing
-                              console.warn("Using Demo Room because API keys are not configured.");
-                              setCurrentRoomUrl("https://mama-care-demo.daily.co/demo-room");
-                              setIsVideoCallOpen(true);
-                              toast.info("Demo Mode: Using a test video room.");
-                              toast.dismiss(toastId);
-                              return;
+                            toast.error("Video consultation is only available for confirmed appointments.");
+                            toast.dismiss(toastId);
+                            return;
                             }
 
                             setCurrentRoomUrl(data.url);
                             setIsVideoCallOpen(true);
                             toast.dismiss(toastId);
                           } catch (err) {
-                            // Final fallback
-                            setCurrentRoomUrl("https://mama-care-demo.daily.co/demo-room");
-                            setIsVideoCallOpen(true);
+                            toast.error("Could not connect to consultation. Please check your internet.");
                             toast.dismiss(toastId);
                           } finally {
                             setIsGeneratingRoom(false);

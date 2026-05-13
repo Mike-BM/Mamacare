@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import africanBaby1 from "@/assets/african-baby-1.jpg";
@@ -51,12 +51,23 @@ const Landing = () => {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    // Check for OAuth errors in URL
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error_description');
+    if (error) {
+      toast.error(error.replace(/\+/g, ' '));
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/mother-dashboard`
+          redirectTo: window.location.origin
         }
       });
       if (error) throw error;
@@ -74,19 +85,6 @@ const Landing = () => {
           (!import.meta.env.VITE_SUPABASE_ANON_KEY && !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) || 
           import.meta.env.VITE_SUPABASE_ANON_KEY === "placeholder_key" || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY === "placeholder") {
         toast.error("System Error: Supabase API keys are missing. Please check your .env file and restart your dev server.");
-        return;
-      }
-
-      // Test credentials bypass
-      const cleanEmail = email.trim().toLowerCase();
-      if (cleanEmail === "test@test.com" && password === "password") {
-        toast.success("Welcome back (Test Mode)! 👋");
-        navigate("/mother-dashboard");
-        return;
-      }
-      if (cleanEmail === "hospital@test.com" && password === "password") {
-        toast.success("Welcome back, Provider (Test Mode)! 👋");
-        navigate("/hospital-dashboard");
         return;
       }
 

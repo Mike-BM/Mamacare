@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Register from "./pages/Register";
 import About from "./pages/About";
@@ -11,16 +12,65 @@ import HospitalDashboard from "./pages/HospitalDashboard";
 import BabaDashboard from "./pages/BabaDashboard";
 import NotFound from "./pages/NotFound";
 import { OfflineBadge } from "./components/OfflineBadge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 import ProviderDashboard from "./pages/ProviderDashboard";
 
 const queryClient = new QueryClient();
+
+const AuthRedirectHandler = () => {
+  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const role = session.user?.user_metadata?.role || 'mother';
+        if (role === 'hospital') navigate("/hospital-dashboard");
+        else if (role === 'admin') window.location.href = "/admin.html";
+        else navigate("/mother-dashboard");
+      }
+      setIsProcessing(false);
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+        const role = session.user?.user_metadata?.role || 'mother';
+        toast.success(`Signed in as ${role}`);
+        
+        if (role === 'hospital') navigate("/hospital-dashboard");
+        else if (role === 'admin') window.location.href = "/admin.html";
+        else navigate("/mother-dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-white/50 font-medium animate-pulse">Entering MamaCare...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <Toaster />
     <Sonner />
     <BrowserRouter>
+      <AuthRedirectHandler />
       <OfflineBadge />
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -31,7 +81,6 @@ const App = () => (
         <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
         <Route path="/provider-dashboard" element={<ProviderDashboard />} />
         <Route path="/baba" element={<BabaDashboard />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

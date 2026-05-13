@@ -94,13 +94,18 @@ export const AIChat = () => {
     setIsLoading(true);
 
     try {
-      // Mocking user ID if not logged in (using seeded demo ID)
-      let userId = '00000000-0000-0000-0000-000000000001';
+      let userId = null;
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.id) userId = session.user.id;
       } catch (e) {
         console.error("Auth fetch failed", e);
+      }
+      
+      if (!userId) {
+        toast.error("Please log in to chat with Dr. Nneka.");
+        setIsLoading(false);
+        return;
       }
       
       const response = await fetch('/api/ai/chat', {

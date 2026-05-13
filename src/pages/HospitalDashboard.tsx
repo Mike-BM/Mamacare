@@ -63,21 +63,93 @@ const HospitalDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState("overview");
 
-  const [appointments, setAppointments] = useState([
-    { id: 1, patient: "Eliza Keith", time: "10:00 AM", status: "pending", type: "Checkup", priority: "normal" },
-    { id: 2, patient: "Stacy Mutheu", time: "11:30 AM", status: "confirmed", type: "Ultrasound", priority: "high" },
-    { id: 3, patient: "Emily Brian", time: "2:00 PM", status: "pending", type: "Consultation", priority: "normal" },
-  ]);
-
-  const [sosAlerts, setSosAlerts] = useState([
-    { id: 1, patient: "Jane John", severity: "high", time: "5 mins ago", location: "Zone A, Floor 2", status: "active" },
-    { id: 2, patient: "Lisa Wanjiru", severity: "medium", time: "12 mins ago", location: "Emergency Ward", status: "active" },
-  ]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [sosAlerts, setSosAlerts] = useState<any[]>([]);
+  const [hospitalProfile, setHospitalProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
+    fetchHospitalData();
+
+    // Subscribe to changes
+    const aptChannel = supabase
+      .channel('hospital-updates')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, fetchHospitalData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, fetchHospitalData)
+      .subscribe();
+
+    return () => {
+      clearInterval(timer);
+      supabase.removeChannel(aptChannel);
+    };
   }, []);
+
+  const fetchHospitalData = async () => {
+    setIsLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: hospital } = await supabase
+        .from('hospitals')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (hospital) {
+        setHospitalProfile(hospital);
+        // Fetch Appointments
+        const { data: apts } = await supabase
+          .from('appointments')
+          .select(`
+            *,
+            mothers (
+              full_name
+            )
+          `)
+          .eq('hospital_id', hospital.id)
+          .order('appointment_date', { ascending: true });
+        
+        if (apts) {
+          setAppointments(apts.map(a => ({
+            id: a.id,
+            patient: a.mothers?.full_name || "Patient",
+            time: new Date(a.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            status: a.status,
+            type: a.appointment_type || "Checkup",
+            priority: a.status === 'pending' ? 'high' : 'normal'
+          })));
+        }
+
+        // Fetch SOS Alerts
+        const { data: alerts } = await supabase
+          .from('alerts')
+          .select(`
+            *,
+            mothers (
+              full_name
+            )
+          `)
+          .eq('status', 'active');
+        
+        if (alerts) {
+          setSosAlerts(alerts.map(a => ({
+            id: a.id,
+            patient: a.mothers?.full_name || "MamaCare User",
+            severity: a.severity,
+            time: "Recently",
+            location: "GPS Coordinates Registered",
+            status: a.status
+          })));
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleConfirm = (id: number) => {
     setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: 'confirmed' } : apt));
@@ -109,7 +181,7 @@ const HospitalDashboard = () => {
             </div>
             <div>
               <h1 className="text-2xl font-black bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient-shift">
-                City Medical Center
+                {hospitalProfile?.name || "Hospital Portal"}
               </h1>
               <div className="flex items-center gap-2">
                 <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Healthcare Provider Portal</p>
@@ -124,7 +196,10 @@ const HospitalDashboard = () => {
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
             </Button>
             <div className="h-8 w-px bg-white/10 mx-2 hidden sm:block" />
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")} className="hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors">
+            <Button variant="ghost" size="icon" onClick={async () => {
+              await supabase.auth.signOut();
+              navigate("/");
+            }} className="hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
@@ -154,31 +229,31 @@ const HospitalDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <div className="flex items-center justify-between border-b border-white/5 pb-2 overflow-x-auto hide-scrollbar">
-            <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl flex-nowrap w-max">
-              <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+          <div className="tabs-scroll-container">
+            <TabsList className="bg-white/5 border border-white/10 p-1 rounded-xl flex-nowrap w-max h-auto min-h-[52px]">
+              <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all h-10 px-6 active-tab-glow">
                 <Calendar className="w-4 h-4 mr-2" /> Overview
               </TabsTrigger>
-              <TabsTrigger value="queue" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+              <TabsTrigger value="queue" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all h-10 px-6 active-tab-glow">
                 <Users className="w-4 h-4 mr-2" /> Patient Queue
               </TabsTrigger>
-              <TabsTrigger value="resources" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+              <TabsTrigger value="resources" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all h-10 px-6 active-tab-glow">
                 <Heart className="w-4 h-4 mr-2" /> Resources
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+              <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all h-10 px-6 active-tab-glow">
                 <TrendingUp className="w-4 h-4 mr-2" /> Analytics
               </TabsTrigger>
-              <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+              <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all h-10 px-6 active-tab-glow">
                 <MapPin className="w-4 h-4 mr-2" /> Live Map
               </TabsTrigger>
-              <TabsTrigger value="donors" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all">
+              <TabsTrigger value="donors" className="rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-white transition-all h-10 px-6 active-tab-glow">
                 <Droplet className="w-4 h-4 mr-2" /> Blood Network
               </TabsTrigger>
             </TabsList>
-            <div className="hidden sm:flex gap-2">
-              <Button size="sm" variant="outline" className="border-white/10 hover:bg-white/5 rounded-xl text-xs font-bold h-11">Export Report</Button>
-              <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11">Add Patient</Button>
-            </div>
+          </div>
+          <div className="hidden sm:flex gap-2 mb-4">
+            <Button size="sm" variant="outline" className="border-white/10 hover:bg-white/5 rounded-xl text-xs font-bold h-11">Export Report</Button>
+            <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11">Add Patient</Button>
           </div>
 
           <AnimatePresence mode="wait">
@@ -234,8 +309,8 @@ const HospitalDashboard = () => {
                       >
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4 responsive-card-row">
                           <div className="flex items-center gap-3 w-full md:w-auto">
-                            <div className="w-10 h-10 rounded-full border-2 border-secondary/20 bg-secondary/10 flex items-center justify-center text-base shadow-inner shrink-0">
-                              {apt.patient[0]}
+                            <div className="w-12 h-12 rounded-full border-2 border-secondary/20 bg-secondary/10 flex items-center justify-center text-lg shadow-inner shrink-0">
+                              {apt.patient ? apt.patient[0] : "?"}
                             </div>
                             <div className="min-w-0 flex-1">
                               <p className="font-bold text-base text-white group-hover:text-secondary transition-colors truncate">{apt.patient}</p>
@@ -246,7 +321,7 @@ const HospitalDashboard = () => {
                             </div>
                           </div>
                           <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto mobile-stack">
-                            <p className="text-lg font-black text-white/90">{apt.time}</p>
+                            <p className="text-xl font-black text-white/90">{apt.time}</p>
                             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{apt.status}</p>
                           </div>
                         </div>
@@ -371,13 +446,15 @@ const HospitalDashboard = () => {
             <Card className="p-6 glass-card border-white/10 mt-6">
               <h3 className="text-lg font-bold mb-6">Patient Queue Details</h3>
               <div className="space-y-4">
-                <div className="flex justify-between p-4 bg-white/5 rounded-xl border border-white/10">
-                   <div className="flex items-center gap-4">
-                     <Badge className="bg-orange-500/20 text-orange-400 border-none">Waiting</Badge>
-                     <span className="font-bold">Mary Ochieng</span>
-                     <span className="text-xs text-white/50">Dr. Smith • Routine Checkup</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white/5 rounded-xl border border-white/10 gap-4">
+                   <div className="flex items-center gap-4 flex-1">
+                     <Badge className="bg-orange-500/20 text-orange-400 border-none shrink-0">Waiting</Badge>
+                     <div className="min-w-0">
+                       <p className="font-bold truncate">Mary Ochieng</p>
+                       <p className="text-xs text-white/50 truncate">Dr. Smith • Routine Checkup</p>
+                     </div>
                    </div>
-                   <span className="text-xs text-white/50">15 mins wait</span>
+                   <span className="text-xs text-white/50 font-bold shrink-0">15 mins wait</span>
                 </div>
               </div>
             </Card>

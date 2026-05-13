@@ -138,14 +138,16 @@ export default function MotherDashboard() {
   const [isDecrypting, setIsDecrypting] = useState(false);
 
   const [userProfile, setUserProfile] = useState({
-    name: "Stacy Mutheu", // Default fallback
+    name: "Loading...", 
     email: "",
-    pregnancy_week: 24,
+    pregnancy_week: 0,
     avatar_url: "",
     is_anonymous: false
   });
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<any>(null);
+  const [motherId, setMotherId] = useState<string | null>(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [currentRoomUrl, setCurrentRoomUrl] = useState("");
   const [isGeneratingRoom, setIsGeneratingRoom] = useState(false);
@@ -205,10 +207,11 @@ export default function MotherDashboard() {
           .single();
         
         if (motherData) {
+          setMotherId(motherData.id);
           setUserProfile({
-            name: motherData.full_name || "Stacy Mutheu",
-            email: session?.user?.email || "stacy@example.com",
-            pregnancy_week: motherData.pregnancy_week || 24,
+            name: motherData.full_name || session?.user?.email?.split('@')[0] || "MamaCare User",
+            email: session?.user?.email || "",
+            pregnancy_week: motherData.pregnancy_week || 0,
             avatar_url: motherData.avatar_url || "",
             is_anonymous: motherData.is_anonymous || false
           });
@@ -319,6 +322,7 @@ export default function MotherDashboard() {
   };
 
   const handleJoinCall = async () => {
+    stop(); // Stop any ringing or notification sounds immediately
     setIsGeneratingRoom(true);
     const toastId = toast.loading("Connecting to secure consultation...");
     
@@ -328,11 +332,7 @@ export default function MotherDashboard() {
       });
 
       if (error || !data?.url) {
-        // FALLBACK: If API keys are missing, use a demo room so the button still "works" for the user
-        console.warn("Using Demo Room because API keys are not configured.");
-        setCurrentRoomUrl("https://mama-care-demo.daily.co/demo-room"); 
-        setIsVideoCallOpen(true);
-        toast.info("Demo Mode: Using a test video room.");
+        toast.error("Video consultation is only available for confirmed appointments.");
         toast.dismiss(toastId);
         return;
       }
@@ -341,9 +341,7 @@ export default function MotherDashboard() {
       setIsVideoCallOpen(true);
       toast.dismiss(toastId);
     } catch (err: any) {
-      // Final fallback to ensure the button is never "broken"
-      setCurrentRoomUrl("https://mama-care-demo.daily.co/demo-room");
-      setIsVideoCallOpen(true);
+      toast.error("Could not connect to consultation. Please check your internet.");
       toast.dismiss(toastId);
     } finally {
       setIsGeneratingRoom(false);
@@ -367,15 +365,45 @@ export default function MotherDashboard() {
     }, 400);
   };
 
-  const startRideDemo = () => {
+  const requestMamaRide = async (type: string) => {
+    if (!motherId) {
+      toast.error("Profile not loaded. Please try again.");
+      return;
+    }
+
     setActiveDemo('ride');
     setDemoProgress(0);
-    toast.success("MamaRide Request Received! Locating driver...");
+    const toastId = toast.loading(`Requesting ${type} MamaRide...`);
     
-    setTimeout(() => {
-      setDemoProgress(100);
-      play(SOUNDS.RIDE_FOUND);
-    }, 3000);
+    try {
+      const { data, error } = await supabase
+        .from('mamaride_requests')
+        .insert({
+          mother_id: motherId,
+          ride_type: type,
+          pickup_location: "Current Location", // In a real app, use Geolocation API
+          status: 'requested'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setDemoProgress(50);
+      toast.success("Request sent! Locating nearest driver...", { id: toastId });
+
+      // Simulate driver acceptance for demo purposes, but it's now saved in DB
+      setTimeout(() => {
+        setDemoProgress(100);
+        play(SOUNDS.RIDE_FOUND);
+        toast.success("Driver Found: John (4 mins away)");
+      }, 3000);
+
+    } catch (err: any) {
+      console.error("Ride request failed:", err);
+      toast.error("Failed to request ride. Please call the hospital directly.", { id: toastId });
+      setActiveDemo('none');
+    }
   };
 
   const unlockVault = () => {
@@ -520,7 +548,10 @@ export default function MotherDashboard() {
             <DropdownMenuContent align="end" className="glass-card border-white/10 w-48">
               <DropdownMenuItem className="cursor-pointer" onClick={() => setIsProfileModalOpen(true)}><User className="w-4 h-4 mr-2" /> My Profile</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => handleTabChange('settings')}><Settings className="w-4 h-4 mr-2" /> Settings</DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={() => navigate("/")}><LogOut className="w-4 h-4 mr-2" /> Logout</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={async () => {
+                await supabase.auth.signOut();
+                navigate("/");
+              }}><LogOut className="w-4 h-4 mr-2" /> Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -910,20 +941,20 @@ export default function MotherDashboard() {
                         <Calendar className="w-5 h-5 text-primary" /> Upcoming Visits
                       </h3>
                       <div className="space-y-4">
-                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 hover:bg-white/10 transition-all group flex-wrap">
-                          <div className="flex items-start gap-4 flex-1 min-w-[200px]">
-                            <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                              <Video className="w-7 h-7 text-primary" />
+                        <div className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-4 hover:bg-white/10 transition-all group flex-wrap">
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                              <Video className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                             </div>
-                            <div className="space-y-1">
-                              <h4 className="font-bold text-xl text-white">Telehealth Checkup</h4>
-                              <p className="text-white/60 text-sm font-medium">Dr. Eliza Keith • Routine check</p>
-                              <p className="text-primary text-sm font-bold mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md">Today, 2:00 PM</p>
+                            <div className="space-y-1 min-w-0 flex-1">
+                              <h4 className="font-bold text-lg sm:text-xl text-white truncate">Telehealth Checkup</h4>
+                              <p className="text-white/60 text-xs sm:text-sm font-medium truncate">Dr. Eliza Keith • Routine check</p>
+                              <p className="text-primary text-[10px] sm:text-sm font-bold mt-1 bg-primary/10 inline-block px-2 py-0.5 rounded-md">Today, 2:00 PM</p>
                             </div>
                           </div>
-                          <div className="flex flex-col sm:flex-row gap-2 shrink-0 flex-wrap">
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <Button 
-                              className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl"
+                              className="flex-1 sm:flex-none bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl"
                               onClick={() => {
                                 if (!isPremium) {
                                   triggerPaywall({
@@ -940,24 +971,42 @@ export default function MotherDashboard() {
                             >
                               {isGeneratingRoom ? <Loader2 className="w-4 h-4 animate-spin" /> : "Join Call"}
                             </Button>
-                            <Button variant="outline" className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
+                            <Button 
+                              variant="outline" 
+                              className="border-white/20 h-11 px-4 rounded-xl hover:bg-white/5"
+                              onClick={() => {
+                                setReschedulingAppointment(appointments[0]);
+                                setIsBookingOpen(true);
+                              }}
+                            >
+                              Reschedule
+                            </Button>
                           </div>
                         </div>
 
-                        <div className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 hover:bg-white/10 transition-all group opacity-80 flex-wrap">
-                          <div className="flex items-start gap-4 flex-1 min-w-[200px]">
-                            <div className="w-14 h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                              <Activity className="w-7 h-7 text-secondary" />
+                        <div className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/10 flex flex-col xl:flex-row xl:items-center justify-between gap-4 hover:bg-white/10 transition-all group opacity-80 flex-wrap">
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-secondary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                              <Activity className="w-6 h-6 sm:w-7 sm:h-7 text-secondary" />
                             </div>
-                            <div className="space-y-1">
-                              <h4 className="font-bold text-xl text-white">Detailed Ultrasound</h4>
-                              <p className="text-white/60 text-sm font-medium">Dr. Emily Chen • Imaging Dept</p>
-                              <p className="text-secondary text-sm font-bold mt-1 bg-secondary/10 inline-block px-2 py-0.5 rounded-md">Next Week, Tue 10:00 AM</p>
+                            <div className="space-y-1 min-w-0 flex-1">
+                              <h4 className="font-bold text-lg sm:text-xl text-white truncate">Detailed Ultrasound</h4>
+                              <p className="text-white/60 text-xs sm:text-sm font-medium truncate">Dr. Emily Chen • Imaging Dept</p>
+                              <p className="text-secondary text-[10px] sm:text-sm font-bold mt-1 bg-secondary/10 inline-block px-2 py-0.5 rounded-md">Next Week, Tue 10:00 AM</p>
                             </div>
                           </div>
-                          <div className="flex flex-col sm:flex-row gap-2 shrink-0 flex-wrap">
-                            <Button variant="outline" className="border-white/20 h-11 px-6 rounded-xl hover:bg-white/5">Prep Instructions</Button>
-                            <Button variant="outline" className="border-white/20 text-white/50 h-11 px-4 rounded-xl hover:bg-white/5">Reschedule</Button>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Button variant="outline" className="flex-1 sm:flex-none border-white/20 h-11 px-6 rounded-xl hover:bg-white/5">Prep Instructions</Button>
+                             <Button 
+                                variant="outline" 
+                                className="border-white/20 text-white/50 h-11 px-4 rounded-xl hover:bg-white/5"
+                                onClick={() => {
+                                  setReschedulingAppointment(appointments[1] || appointments[0]);
+                                  setIsBookingOpen(true);
+                                }}
+                              >
+                                Reschedule
+                              </Button>
                           </div>
                         </div>
                       </div>
@@ -1093,7 +1142,7 @@ export default function MotherDashboard() {
                 <div className="space-y-6 pt-6">
                    <div className="flex flex-row items-center justify-between flex-row-mobile-stack">
                      <h4 className="font-black text-2xl flex items-center gap-3"><TrendingUp className="w-7 h-7 text-tertiary" /> Community Pulse</h4>
-                     <Button variant="link" className="text-tertiary font-black uppercase tracking-widest text-xs">View All Conversations →</Button>
+                     <Button variant="link" className="text-tertiary font-black uppercase tracking-widest text-xs" onClick={() => handleTabChange('community')}>View All Conversations →</Button>
                    </div>
                    <div className="flex gap-4 overflow-x-auto pb-6 hide-scrollbar snap-x px-2">
                      {[
@@ -1101,7 +1150,14 @@ export default function MotherDashboard() {
                        { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
                        { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
                      ].map(topic => (
-                       <Card key={topic.id} className="min-w-[260px] sm:min-w-[320px] p-5 sm:p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[200px] sm:h-[220px] group">
+                       <Card 
+                        key={topic.id} 
+                        className="min-w-[260px] sm:min-w-[320px] p-5 sm:p-6 glass-card border-white/10 hover:border-tertiary/50 transition-all cursor-pointer snap-center flex flex-col justify-between h-[200px] sm:h-[220px] group"
+                        onClick={() => {
+                          handleTabChange('community');
+                          if (navigator.vibrate) navigator.vibrate(5);
+                        }}
+                      >
                          <div>
                            <div className="flex flex-row items-center justify-between flex-row-mobile-stack mb-4">
                              <span className="text-tertiary text-xs font-black uppercase tracking-wider">{topic.topic}</span>
@@ -1241,14 +1297,15 @@ export default function MotherDashboard() {
           </motion.div>
           </AnimatePresence>
 
-          <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+          <Dialog open={isBookingOpen} onOpenChange={(open) => { setIsBookingOpen(open); if (!open) setReschedulingAppointment(null); }}>
             <DialogContent className="sm:max-w-[500px] glass-card border-white/10 p-0 overflow-hidden rounded-[32px]">
               <div className="p-8">
                 <BookingFlow 
-                  onClose={() => setIsBookingOpen(false)} 
+                  onClose={() => { setIsBookingOpen(false); setReschedulingAppointment(null); }} 
                   onSuccess={() => {
-                    toast.success("Appointment request sent!");
+                    toast.success(reschedulingAppointment ? "Appointment rescheduled!" : "Appointment request sent!");
                   }} 
+                  initialAppointment={reschedulingAppointment}
                 />
               </div>
             </DialogContent>
@@ -1388,7 +1445,7 @@ export default function MotherDashboard() {
                 key={option.id}
                 onClick={() => {
                   setIsRideModalOpen(false);
-                  startRideDemo();
+                  requestMamaRide(option.id);
                 }}
                 className="w-full p-4 rounded-2xl border border-white/5 bg-white/10 hover:bg-white/20 hover:border-white/20 transition-all flex items-center justify-between group active:scale-[0.98]"
               >

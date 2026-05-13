@@ -221,18 +221,34 @@ All colors MUST be HSL.
   
   /* Force verticality on all small screens for clarity */
   .responsive-header, 
-  .flex-row-mobile-stack {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 1rem !important;
+  .flex-row-mobile-stack,
+  .responsive-card-row {
+    @apply flex-col items-stretch gap-4 !important;
   }
   
-  .responsive-header > *, 
-  .flex-row-mobile-stack > * {
-    width: 100% !important;
+  @media (min-width: 768px) {
+    .responsive-card-row {
+      @apply flex-row items-center justify-between !important;
+    }
   }
 
-  /* Fix for text overflow in cards */
+  .mobile-stack {
+    @apply flex-col items-stretch gap-2 !important;
+  }
+  
+  @media (min-width: 640px) {
+    .mobile-stack {
+      @apply flex-row items-center justify-between gap-4 !important;
+    }
+  }
+
+  /* Improved Horizontal Scroll for Tabs */
+  .tabs-scroll-container {
+    @apply relative overflow-x-auto hide-scrollbar -mx-4 px-4 py-2 mb-4;
+    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+  }
+
   .glass-card {
     max-width: 100% !important;
     overflow: hidden;
@@ -317,6 +333,11 @@ All colors MUST be HSL.
   }
 }
 
+/* Fix for text overflow in cards */
+.truncate-mobile {
+  @apply truncate max-w-[150px] sm:max-w-none;
+}
+
 /* Standard Mobile Animation Overrides */
 @media (prefers-reduced-motion: reduce) {
   * {
@@ -350,3 +371,4 @@ All colors MUST be HSL.
   background: radial-gradient(circle at center, hsl(var(--primary) / 0.15) 0%, transparent 70%);
   z-index: -1;
 }
+

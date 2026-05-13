@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Heart, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
-  const [role, setRole] = useState<"mother" | "hospital" | null>(null);
+  const [role, setRole] = useState<"mother" | "hospital" | "doctor" | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,13 +20,22 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error_description');
+    if (error) {
+      toast.error(error.replace(/\+/g, ' '));
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/mother-dashboard`
+          redirectTo: window.location.origin
         }
       });
       if (error) throw error;
@@ -66,7 +75,9 @@ const Register = () => {
 
       toast.success("Registration successful! 🎉");
       setTimeout(() => {
-        navigate(role === "mother" ? "/mother-dashboard" : "/hospital-dashboard");
+        if (role === "mother") navigate("/mother-dashboard");
+        else if (role === "doctor") navigate("/provider-dashboard");
+        else navigate("/hospital-dashboard");
       }, 1000);
     } catch (error: any) {
       toast.error(error.message || "An error occurred during registration");
@@ -109,6 +120,14 @@ const Register = () => {
                 onClick={() => setRole("hospital")}
               >
                 Healthcare Provider 🏥
+              </Button>
+              <Button
+                variant="glass"
+                size="lg"
+                className="w-full justify-center text-lg hover:border-tertiary"
+                onClick={() => setRole("doctor")}
+              >
+                Specialist / Doctor 👩‍⚕️
               </Button>
             </div>
           ) : (

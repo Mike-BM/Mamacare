@@ -15,19 +15,20 @@ import { useSound } from "@/hooks/useSound";
 interface BookingFlowProps {
   onClose: () => void;
   onSuccess: () => void;
+  initialAppointment?: any;
 }
 
 export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    provider: null as any,
-    date: "May 6, 2026",
-    slot: "09:00 AM",
-    type: 'in_person',
-    reason: '',
+    provider: initialAppointment?.providers || null,
+    date: initialAppointment ? new Date(initialAppointment.appointment_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    slot: initialAppointment ? new Date(initialAppointment.appointment_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : "09:00 AM",
+    type: initialAppointment?.appointment_type || 'in_person',
+    reason: initialAppointment?.patient_notes || '',
     urgentSymptoms: 'no',
-    medications: ''
+    medications: initialAppointment?.notes?.replace('Medications: ', '') || ''
   });
   const { play, SOUNDS } = useSound();
 
@@ -56,7 +57,11 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
     };
   }, []);
 
-  const availableDates = ["May 6, 2026", "May 7, 2026", "May 8, 2026"];
+  const availableDates = [
+    new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    new Date(Date.now() + 86400000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+    new Date(Date.now() + 172800000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  ];
   const availableSlots = ["09:00 AM", "10:30 AM", "02:00 PM", "03:30 PM"];
 
   const handleNext = () => { play(SOUNDS.CLICK, { volume: 0.1 }); setStep(prev => prev + 1); };
@@ -68,28 +73,53 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
     
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id || '00000000-0000-0000-0000-000000000000';
+      if (!session) throw new Error("No session found");
 
-      const response = await fetch('/api/appointments/book', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId,
-          doctorId: formData.provider?.id || 1,
-          time: `${formData.date} ${formData.slot}`,
-          amount: 50.00
-        })
-      });
+      // First, get the mother_id for the current user
+      const { data: motherData, error: motherError } = await supabase
+        .from('mothers')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (motherError || !motherData) throw new Error("Could not find mother profile");
 
-      if (!response.ok) throw new Error("Failed to book appointment");
+      if (initialAppointment) {
+        // Reschedule - UPDATE
+        const { error } = await supabase
+          .from('appointments')
+          .update({
+            appointment_date: new Date(`${formData.date} ${formData.slot}`).toISOString(),
+            appointment_type: formData.type,
+            status: 'pending',
+            patient_notes: formData.reason,
+            notes: formData.medications ? `Medications: ${formData.medications}` : ''
+          })
+          .eq('id', initialAppointment.id);
+        if (error) throw error;
+      } else {
+        // New Booking - INSERT
+        const { error } = await supabase
+          .from('appointments')
+          .insert({
+            mother_id: motherData.id,
+            provider_id: formData.provider?.id,
+            appointment_date: new Date(`${formData.date} ${formData.slot}`).toISOString(),
+            appointment_type: formData.type,
+            status: 'pending',
+            patient_notes: formData.reason,
+            notes: formData.medications ? `Medications: ${formData.medications}` : ''
+          });
+        if (error) throw error;
+      }
 
       toast.success("Booking successful! SMS confirmation sent.", { id: toastId });
       play(SOUNDS.SUCCESS);
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Booking error:", error);
-      toast.error("Booking failed. Please try again.", { id: toastId });
+      toast.error(error.message || "Booking failed. Please try again.", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }
