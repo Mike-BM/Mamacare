@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { Lock } from "lucide-react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminDashboard from "./AdminDashboard";
 import "../index.css";
@@ -9,21 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
 
 const AdminApp = () => {
-  // Strict Domain & Role Check
-  const isAdminDomain = window.location.hostname.includes('admin');
-  
-  // For the demo, we allow it, but in production, we could block it here
-  if (!isAdminDomain && process.env.NODE_ENV === 'production') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f0f1a] text-white p-8 text-center">
-        <div>
-          <h1 className="text-4xl font-black mb-4">403: Forbidden</h1>
-          <p className="text-muted-foreground">The Admin Portal must be accessed via the secure admin subdomain.</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Security is handled inside the AdminDashboard component via Supabase role checks
   return (
     <QueryClientProvider client={queryClient}>
       <Toaster />
