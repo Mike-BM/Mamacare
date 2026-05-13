@@ -221,8 +221,21 @@ const Landing = () => {
                   </button>
                 </form>
                 <div className="mt-8 pt-6 border-t border-white/10 flex flex-col items-center">
-                  <p className="text-white/50 text-sm mb-4">Don't have an account yet?</p>
-                  <Button variant="link" onClick={() => navigate("/register")} className="text-secondary font-black hover:text-secondary/80 p-0 h-auto text-lg tracking-tight">Join MamaCare Africa Today →</Button>
+                  <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-4">New to the platform?</p>
+                  <button 
+                    type="button"
+                    onClick={() => navigate("/register")}
+                    className="w-full glass-button bg-white/5 hover:bg-white/10 text-secondary border-secondary/20 font-black h-12 rounded-xl active:scale-95 transition-all border"
+                  >
+                    CREATE AN ACCOUNT
+                  </button>
+                  <Button 
+                    variant="link" 
+                    onClick={() => navigate("/register")}
+                    className="text-white/40 hover:text-white mt-4 text-xs font-bold uppercase tracking-tighter"
+                  >
+                    Partner Hospital? Sign Up Here →
+                  </Button>
                 </div>
               </div>
             </motion.div>
