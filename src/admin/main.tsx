@@ -18,6 +18,8 @@ const AdminApp = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/" element={<AdminDashboard />} />
           <Route path="/admin.html" element={<AdminDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="*" element={<div className="p-8 text-white">Admin Page Not Found</div>} />
