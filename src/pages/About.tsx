@@ -43,7 +43,7 @@ const About = () => {
           <div className="flex items-center gap-3">
             <Heart className="w-8 h-8 text-primary" fill="currentColor" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              MamaCare
+              MamaCare Africa
             </h1>
           </div>
           <div className="w-20" />
@@ -64,7 +64,7 @@ const About = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              About MamaCare
+              About MamaCare Africa
             </h2>
             <p className="text-xl text-foreground/80 leading-relaxed">
               Empowering African mothers through digital health access and hospital connections.
@@ -81,7 +81,7 @@ const About = () => {
             <div className="backdrop-blur-xl bg-gradient-to-br from-card/80 to-card/60 border border-border/50 rounded-2xl p-8 md:p-12 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] animate-scale-in">
               <h3 className="text-3xl font-bold mb-6 text-primary">Our Mission</h3>
               <p className="text-lg text-foreground/80 leading-relaxed mb-6">
-                MamaCare was born from a simple but powerful vision: to bridge the gap between 
+                MamaCare Africa was born from a simple but powerful vision: to bridge the gap between 
                 pregnant mothers and quality healthcare services across Africa. We believe that 
                 every mother, regardless of location or circumstance, deserves access to trusted 
                 medical professionals and supportive care throughout her pregnancy journey.
@@ -100,7 +100,7 @@ const About = () => {
       <section className="py-20 relative" ref={timelineRef}>
         <div className="container mx-auto px-4">
           <h3 className="text-4xl font-bold text-center mb-16 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            The MamaCare Journey
+            The MamaCare Africa Journey
           </h3>
           
           <div className="max-w-4xl mx-auto space-y-12">
@@ -110,7 +110,7 @@ const About = () => {
               <div className="backdrop-blur-xl bg-card/60 border border-border/50 rounded-xl p-6 hover:shadow-[0_0_30px_hsl(345_100%_72%/0.3)] transition-all duration-300">
                 <h4 className="text-2xl font-bold text-primary mb-3">Discovery & Connection</h4>
                 <p className="text-foreground/80">
-                  Mothers discover MamaCare and create their profiles, connecting with nearby hospitals 
+                  Mothers discover MamaCare Africa and create their profiles, connecting with nearby hospitals 
                   and healthcare providers. The journey begins with trust and hope.
                 </p>
               </div>
@@ -147,7 +147,7 @@ const About = () => {
                 <h4 className="text-2xl font-bold text-secondary mb-3">Postnatal & Newborn Care</h4>
                 <p className="text-foreground/80">
                   The journey continues with breastfeeding support, newborn tracking, vaccination reminders, 
-                  and ongoing connection to healthcare professionals and the MamaCare community.
+                  and ongoing connection to healthcare professionals and the MamaCare Africa community.
                 </p>
               </div>
             </div>
@@ -172,7 +172,7 @@ const About = () => {
                   Building Community
                 </h3>
                 <p className="text-lg text-foreground/80 leading-relaxed mb-4">
-                  MamaCare is more than a platform—it's a movement. We're building a supportive 
+                  MamaCare Africa is more than a platform—it's a movement. We're building a supportive 
                   community where mothers share experiences, hospitals provide compassionate care, 
                   and technology bridges the gap.
                 </p>
@@ -185,7 +185,7 @@ const About = () => {
                   onClick={() => navigate("/register")}
                   className="mt-8"
                 >
-                  Join MamaCare Today
+                  Join MamaCare Africa Today
                 </Button>
               </div>
             </div>
@@ -196,7 +196,7 @@ const About = () => {
       {/* Footer */}
       <footer className="py-8 border-t border-border/50">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2026 MamaCare. Empowering mothers, nurturing futures.</p>
+          <p>© 2026 MamaCare Africa. Empowering mothers, nurturing futures.</p>
         </div>
       </footer>
     </div>

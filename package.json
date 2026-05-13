@@ -1,8 +1,8 @@
 {
-  "name": "mamacare",
+  "name": "mamacare-africa",
   "private": true,
   "version": "1.0.0",
-  "description": "MamaCare - Empowering African Mothers through digital health access",
+  "description": "MamaCare Africa - Empowering African Mothers through digital health access",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -49,8 +49,8 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       manifest: {
-        name: 'MamaCare App',
-        short_name: 'MamaCare',
+        name: 'MamaCare Africa App',
+        short_name: 'MamaCare Africa',
         description: 'Maternal health app for Africa',
         theme_color: '#ff7eb3',
         icons: [

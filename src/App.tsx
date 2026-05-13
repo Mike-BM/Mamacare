@@ -56,7 +56,7 @@ const AuthRedirectHandler = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-white/50 font-medium animate-pulse">Entering MamaCare...</p>
+          <p className="text-white/50 font-medium animate-pulse">Entering MamaCare Africa...</p>
         </div>
       </div>
     );

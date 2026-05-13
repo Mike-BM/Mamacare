@@ -87,7 +87,7 @@ export const TelemedicineSuite = () => {
       }
 
       toast.info("Preparing your secure consultation...");
-      play(SOUNDS.CALL_JOIN, { volume: 0.3 });
+      play(SOUNDS.CALL_JOIN, { volume: 0.15 });
 
       // 1. Create pending appointment on backend
       const response = await fetch('/api/appointments/book', {
@@ -120,7 +120,7 @@ export const TelemedicineSuite = () => {
   const endCall = () => {
     setInCall(false);
     setShowSummary(true);
-    play(SOUNDS.CALL_END, { volume: 0.3 });
+    play(SOUNDS.CALL_END, { volume: 0.15 });
     toast.success("Call ended — generating notes & prescription");
   };
 

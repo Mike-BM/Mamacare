@@ -209,7 +209,7 @@ export default function MotherDashboard() {
         if (motherData) {
           setMotherId(motherData.id);
           setUserProfile({
-            name: motherData.full_name || session?.user?.email?.split('@')[0] || "MamaCare User",
+            name: motherData.full_name || session?.user?.email?.split('@')[0] || "MamaCare Africa User",
             email: session?.user?.email || "",
             pregnancy_week: motherData.pregnancy_week || 0,
             avatar_url: motherData.avatar_url || "",
@@ -360,7 +360,7 @@ export default function MotherDashboard() {
       if (progress >= 100) {
         clearInterval(interval);
         toast.success("Nurse Ivy is now calling your phone!", { id: toastId });
-        play(SOUNDS.CALL_RINGING, { loop: true, volume: 0.6 });
+        play(SOUNDS.CALL_RINGING, { loop: true, volume: 0.2 });
       }
     }, 400);
   };
@@ -438,7 +438,7 @@ export default function MotherDashboard() {
             <Heart className="w-6 h-6 text-primary animate-pulse" fill="currentColor" />
           </div>
           <h1 className="text-xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            MamaCare
+            MamaCare Africa
           </h1>
         </div>
 
@@ -572,7 +572,7 @@ export default function MotherDashboard() {
                 <Heart className="w-5 h-5 text-primary" fill="currentColor" />
               </div>
             )}
-            <span className="font-bold">MamaCare</span>
+            <span className="font-bold">MamaCare Africa</span>
           </div>
           
           <div className="hidden md:flex flex-col justify-center">
@@ -735,7 +735,7 @@ export default function MotherDashboard() {
                   </div>
                 ) : (
                   <>
-                    <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare User" : userProfile.name.split(' ')[0]} />
+                    <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare Africa User" : userProfile.name.split(' ')[0]} />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   {/* Left: Pregnancy Progress (60%) */}

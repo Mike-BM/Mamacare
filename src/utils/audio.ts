@@ -11,7 +11,7 @@ export const SOUNDS = {
   CALL_END: "https://assets.mixkit.co/active_storage/sfx/1353/1353-preview.mp3",
 };
 
-export const playSound = (soundUrl: string, volume = 0.5) => {
+export const playSound = (soundUrl: string, volume = 0.2) => {
   try {
     const audio = new Audio(soundUrl);
     audio.volume = volume;

@@ -151,7 +151,7 @@ const AdminDashboard = () => {
         </div>
         <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter">403: Access Denied</h1>
         <p className="text-muted-foreground max-w-md mb-8">
-          You do not have the required permissions to access the MamaCare Admin Portal. This incident has been logged for security audit.
+          You do not have the required permissions to access the MamaCare Africa Admin Portal. This incident has been logged for security audit.
         </p>
         <Button 
           variant="hero" 
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
             <Heart className="w-8 h-8 text-primary animate-float" fill="currentColor" />
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                MamaCare Admin
+                MamaCare Africa Admin
               </h1>
               <p className="text-xs text-muted-foreground">System Management Portal</p>
             </div>
@@ -188,7 +188,7 @@ const AdminDashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8 animate-fade-in-up">
           <h2 className="text-3xl font-bold mb-2">Admin Dashboard</h2>
-          <p className="text-muted-foreground">Monitor and manage the MamaCare platform</p>
+          <p className="text-muted-foreground">Monitor and manage the MamaCare Africa platform</p>
         </div>
 
         {/* Stats Grid */}

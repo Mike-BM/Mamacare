@@ -107,13 +107,13 @@ export const VideoCallModal = ({ isOpen, onClose, roomUrl, patientName }: VideoC
 
   useEffect(() => {
     if (isOpen) {
-      play(SOUNDS.CALL_JOIN, { volume: 0.4 });
+      play(SOUNDS.CALL_JOIN, { volume: 0.2 });
     }
   }, [isOpen]);
 
   const handleClose = () => {
     stop(); // Ensure all sounds (ringing, join, etc) are killed immediately
-    play(SOUNDS.CALL_END, { volume: 0.4 });
+    play(SOUNDS.CALL_END, { volume: 0.15 });
     onClose();
   };
 

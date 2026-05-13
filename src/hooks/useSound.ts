@@ -5,7 +5,7 @@ export const useSound = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const play = useCallback((soundUrl: string, options: { volume?: number, loop?: boolean } = {}) => {
-    const { volume = 0.5, loop = false } = options;
+    const { volume = 0.2, loop = false } = options;
     
     // Stop any existing sound from this hook instance if needed
     if (audioRef.current && !audioRef.current.paused) {
