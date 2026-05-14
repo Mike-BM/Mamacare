@@ -1,461 +1,463 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Heart, Users, Building2, AlertCircle, BookOpen, TrendingUp, LogOut, ShieldCheck, Lock, Eye, Zap, Plus, Settings, ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
-import { Analytics } from "@/components/Analytics";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import {
+  Shield, Users, Building2, AlertTriangle, FileText,
+  LogOut, CheckCircle, XCircle, Plus, Terminal,
+  Lock, Eye, Activity, Database, Server, Bell,
+  ChevronRight, ArrowRight, Clock, TrendingUp
+} from "lucide-react";
 
-const AdminDashboard = () => {
-  const navigate = useNavigate();
+const NAV = [
+  { id: "overview", label: "Overview", icon: Activity },
+  { id: "providers", label: "Medical Staff", icon: Users },
+  { id: "hospitals", label: "Hospitals", icon: Building2 },
+  { id: "security", label: "Security Logs", icon: Shield },
+  { id: "audit", label: "Audit Trail", icon: FileText },
+];
+
+const STATS = [
+  { label: "Total Users", value: "2,847", delta: "+12%", up: true, icon: Users },
+  { label: "Verified Hospitals", value: "156", delta: "+8%", up: true, icon: Building2 },
+  { label: "Active Sessions", value: "34", delta: "+3", up: true, icon: Terminal },
+  { label: "Security Alerts", value: "3", delta: "-2", up: false, icon: AlertTriangle },
+];
+
+const SECURITY_LOGS = [
+  { event: "Admin privilege escalation attempt", severity: "CRITICAL", src: "192.168.1.105", time: "2m ago" },
+  { event: "Multiple failed logins from same IP", severity: "HIGH", src: "45.76.12.3", time: "15m ago" },
+  { event: "Bulk patient data export", severity: "HIGH", src: "Provider-442", time: "1h ago" },
+  { event: "Video room accessed without booking", severity: "MEDIUM", src: "Guest-772", time: "3h ago" },
+  { event: "Records access outside work hours", severity: "MEDIUM", src: "Nurse-Ivy", time: "Yesterday" },
+];
+
+const AUDIT_ROWS = [
+  { time: "2026-05-05 14:32", user: "Dr. Eliza", action: "Accessed Patient Record", ref: "APP-992", level: "HIGH" },
+  { time: "2026-05-05 12:15", user: "Admin-Mark", action: "Updated Hospital Profile", ref: "HOSP-01", level: "MEDIUM" },
+  { time: "2026-05-05 09:44", user: "Nurse-Ivy", action: "Exported Reports Bundle", ref: "DOC-88", level: "CRITICAL" },
+  { time: "2026-05-04 17:20", user: "Dr. James", action: "Created Appointment Slot", ref: "SLOT-22", level: "LOW" },
+];
+
+const severityColor: Record<string, string> = {
+  CRITICAL: "text-red-400 bg-red-900/30 border-red-700/40",
+  HIGH: "text-orange-400 bg-orange-900/30 border-orange-700/40",
+  MEDIUM: "text-yellow-400 bg-yellow-900/30 border-yellow-700/40",
+  LOW: "text-slate-400 bg-slate-800/30 border-slate-600/40",
+};
+
+export default function AdminDashboard() {
+  const [tab, setTab] = useState("overview");
   const [providers, setProviders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast.error("Authentication required.");
-        window.location.href = "/";
-        return;
-      }
-
-      // Check role in user metadata or a specific profile table
+      if (!session) { window.location.href = "/"; return; }
       const role = session.user.user_metadata?.role;
-      
-      if (role !== 'admin') {
+      if (role !== "admin") {
         setIsAuthorized(false);
-        toast.error("Access Denied: Admin privileges required.");
       } else {
         setIsAuthorized(true);
+        setAdminEmail(session.user.email || "admin");
         fetchProviders();
-        
-        // Realtime subscription for providers
-        const channel = supabase
-          .channel('admin-provider-changes')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'providers' }, () => {
-            console.log('Provider change detected, refreshing...');
-            fetchProviders();
-          })
+        const ch = supabase.channel("admin-providers")
+          .on("postgres_changes", { event: "*", schema: "public", table: "providers" }, fetchProviders)
           .subscribe();
-
-        return () => {
-          supabase.removeChannel(channel);
-        };
+        return () => { supabase.removeChannel(ch); };
       }
     };
-
     checkAuth();
-  }, [navigate]);
+  }, []);
 
   const fetchProviders = async () => {
-    const { data, error } = await supabase.from('providers').select('*').order('created_at', { ascending: false });
-    if (!error && data) {
-      setProviders(data);
-    }
+    const { data } = await supabase.from("providers").select("*").order("created_at", { ascending: false });
+    if (data) setProviders(data);
   };
 
-  const handleVerify = async (id: string, status: 'verified' | 'rejected') => {
-    const toastId = toast.loading(`Updating verification status...`);
-    const { error } = await supabase
-      .from('providers')
-      .update({ verification_status: status, is_active: status === 'verified' })
-      .eq('id', id);
-    
-    if (error) {
-      toast.error("Update failed", { id: toastId });
-    } else {
-      toast.success(`Doctor ${status} successfully!`, { id: toastId });
-      fetchProviders();
-    }
+  const handleVerify = async (id: string, status: "verified" | "rejected") => {
+    const tid = toast.loading("Updating...");
+    const { error } = await supabase.from("providers")
+      .update({ verification_status: status, is_active: status === "verified" })
+      .eq("id", id);
+    if (error) toast.error("Failed", { id: tid });
+    else { toast.success(`Doctor ${status}`, { id: tid }); fetchProviders(); }
   };
 
   const handleInvite = () => {
-    const email = window.prompt("Enter Doctor's Email to send invitation:");
-    if (email) {
-      toast.success(`Invitation link sent to ${email}! 📧`);
-      // In production, this would trigger a Supabase Edge Function to send an email
-    }
+    const email = window.prompt("Doctor email to invite:");
+    if (email) toast.success(`Invite sent to ${email}`);
   };
 
-  const seedTestProvider = async () => {
-    setLoading(true);
-    const toastId = toast.loading("Seeding test provider...");
-    
-    try {
-      // For testing, we might need a user_id. 
-      // In a real flow, the admin would create an auth user first.
-      // Here we will just use a random UUID if it's for demo, 
-      // but the table has a foreign key to auth.users.
-      // So we should check if there's an existing user or create one.
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("You must be logged in as admin to seed providers", { id: toastId });
-        return;
-      }
-
-      const { error } = await supabase.from('providers').insert({
-        id: "00000000-0000-0000-0000-000000000001", // MOCK ID for demo or use current user
-        full_name: "Dr. Eliza Keith (Test)",
-        role: "doctor",
-        specialty: "Obstetrics",
-        license_number: `TEST-${Math.floor(Math.random() * 10000)}`,
-        is_active: true
-      });
-
-      if (error) {
-        if (error.code === '23505') {
-           toast.info("Test provider already exists.", { id: toastId });
-        } else {
-           throw error;
-        }
-      } else {
-        toast.success("Test provider created!", { id: toastId });
-        fetchProviders();
-      }
-    } catch (err: any) {
-      toast.error(err.message, { id: toastId });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const stats = [
-    { label: "Total Mothers", value: "2,847", change: "+12%", icon: Users, color: "text-primary" },
-    { label: "Hospitals Verified", value: "156", change: "+8%", icon: Building2, color: "text-secondary" },
-    { label: "Emergency Calls", value: "48", change: "-5%", icon: AlertCircle, color: "text-destructive" },
-    { label: "Educational Posts", value: "324", change: "+18%", icon: BookOpen, color: "text-accent" },
-    { label: "Security Threats Blocked", value: "14", change: "-20%", icon: ShieldCheck, color: "text-green-500" },
-  ];
-
+  // ── Loading state ──
   if (isAuthorized === null) {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex flex-col items-center justify-center text-white">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="font-bold tracking-widest text-xs uppercase opacity-50">Verifying Admin Credentials...</p>
+      <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center font-mono">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-2 h-5 bg-green-400 animate-pulse" />
+          <span className="text-green-400 text-sm tracking-widest uppercase">Authenticating</span>
+        </div>
+        <div className="w-48 h-1 bg-slate-800 rounded overflow-hidden">
+          <div className="h-full bg-green-400 animate-[pulse_1s_ease-in-out_infinite] w-3/4 rounded" />
+        </div>
+        <p className="text-slate-600 text-xs mt-4 tracking-widest">MAMACARE ADMIN PORTAL v2.0</p>
       </div>
     );
   }
 
+  // ── Access denied ──
   if (isAuthorized === false) {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex flex-col items-center justify-center text-white p-8 text-center">
-        <div className="w-20 h-20 bg-destructive/20 rounded-full flex items-center justify-center mb-6">
-          <Lock className="w-10 h-10 text-destructive" />
+      <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center font-mono p-8 text-center">
+        <div className="border border-red-800 bg-red-950/40 rounded-lg p-10 max-w-md w-full">
+          <Lock className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-400 text-xs tracking-widest uppercase mb-2">HTTP 403 — Forbidden</p>
+          <h1 className="text-2xl font-black text-white mb-3">Access Denied</h1>
+          <p className="text-slate-500 text-sm mb-6">
+            You do not have admin privileges. This incident has been logged.
+          </p>
+          <button
+            onClick={() => window.location.href = "/"}
+            className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded border border-slate-700 transition-colors"
+          >
+            ← Return to Site
+          </button>
         </div>
-        <h1 className="text-4xl font-black mb-4 uppercase tracking-tighter">403: Access Denied</h1>
-        <p className="text-muted-foreground max-w-md mb-8">
-          You do not have the required permissions to access the MamaCare Africa Admin Portal. This incident has been logged for security audit.
-        </p>
-        <Button 
-          variant="hero" 
-          onClick={() => window.location.href = "/"}
-          className="h-14 px-8 rounded-2xl font-black shadow-lg shadow-primary/20"
-        >
-          Return to Safety
-        </Button>
       </div>
     );
   }
 
+  // ── Main Dashboard ──
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border/50 backdrop-blur-lg bg-card/30 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Heart className="w-8 h-8 text-primary animate-float" fill="currentColor" />
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                MamaCare Africa Admin
-              </h1>
-              <p className="text-xs text-muted-foreground">System Management Portal</p>
-            </div>
+    <div className="min-h-screen bg-[#0d1117] text-slate-300 flex font-sans">
+
+      {/* ── Sidebar ── */}
+      <aside className="w-60 shrink-0 bg-[#161b22] border-r border-slate-800 flex flex-col sticky top-0 h-screen">
+        {/* Logo */}
+        <div className="px-5 py-5 border-b border-slate-800">
+          <div className="flex items-center gap-2 mb-1">
+            <Shield className="w-5 h-5 text-green-400" />
+            <span className="text-white font-black text-sm tracking-wide">MAMACARE</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => window.location.href = "/"}>
-            <LogOut className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-6 animate-fade-in-up">
-          <h2 className="text-3xl font-bold mb-2">Admin Dashboard</h2>
-          <p className="text-muted-foreground">Monitor and manage the MamaCare Africa platform</p>
+          <p className="text-[10px] text-slate-600 uppercase tracking-widest font-mono">Admin Control Panel</p>
         </div>
 
-        {/* Partner Hospital CTA Banner */}
+        {/* Nav */}
+        <nav className="flex-1 p-3 space-y-0.5">
+          {NAV.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-all ${
+                tab === id
+                  ? "bg-green-400/10 text-green-400 border border-green-400/20"
+                  : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+              }`}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              {label}
+              {tab === id && <ChevronRight className="w-3 h-3 ml-auto" />}
+            </button>
+          ))}
+        </nav>
+
+        {/* Partner Hospital CTA */}
         <a
           href="/register"
-          className="group flex items-center justify-between w-full mb-8 px-6 py-5 rounded-2xl border border-white/10 bg-gradient-to-r from-[#1a1035] via-[#2a1a4a] to-[#1a1035] hover:from-[#2a1045] hover:to-[#2a1045] hover:border-primary/40 transition-all duration-300 shadow-lg shadow-black/30 animate-fade-in-up overflow-hidden relative"
-          style={{ animationDelay: '0.05s' }}
+          className="mx-3 mb-3 flex items-center gap-2 px-3 py-3 rounded border border-slate-700 hover:border-green-700/50 bg-slate-800/50 hover:bg-green-400/5 transition-all group"
         >
-          {/* Glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="flex items-center gap-4 z-10">
-            <div className="w-11 h-11 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
-              <Building2 className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70 mb-0.5">Expand Our Network</p>
-              <p className="text-base font-black text-white tracking-wide uppercase">Partner Hospital? Sign Up Here</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 z-10">
-            <span className="hidden sm:block text-xs font-bold text-white/40 group-hover:text-white/60 transition-colors">Register your facility</span>
-            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/40 group-hover:translate-x-1 transition-all duration-300">
-              <ArrowRight className="w-4 h-4 text-primary" />
-            </div>
+          <Building2 className="w-4 h-4 text-slate-500 group-hover:text-green-400 transition-colors shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-slate-600 uppercase tracking-wider">Onboard</p>
+            <p className="text-xs text-slate-300 font-bold truncate">Partner Hospital →</p>
           </div>
         </a>
 
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <Card
-              key={stat.label}
-              className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50 hover:shadow-lg transition-all duration-300 animate-scale-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <stat.icon className={`w-10 h-10 ${stat.color} opacity-70`} />
-                <span className={`text-sm font-medium ${
-                  stat.change.startsWith("+") ? "text-green-500" : "text-destructive"
-                }`}>
-                  {stat.change}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-              <p className="text-3xl font-bold">{stat.value}</p>
-              <div className="mt-4 pt-4 border-t border-border/20 flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Secured via AES-256</span>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Analytics Dashboard */}
-        <Tabs defaultValue="analytics" className="w-full mb-8">
-          <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
-            <TabsList className="flex w-max sm:grid sm:w-full sm:grid-cols-5 mb-6">
-              <TabsTrigger value="analytics" className="px-6 sm:px-2">Analytics</TabsTrigger>
-              <TabsTrigger value="providers" className="px-6 sm:px-2">Medical Staff</TabsTrigger>
-              <TabsTrigger value="activity" className="px-6 sm:px-2">Recent Activity</TabsTrigger>
-              <TabsTrigger value="security" className="px-6 sm:px-2">Security Logs</TabsTrigger>
-              <TabsTrigger value="audit" className="px-6 sm:px-2">Full Audit Trail</TabsTrigger>
-            </TabsList>
+        {/* Footer */}
+        <div className="p-3 border-t border-slate-800">
+          <div className="flex items-center gap-2 px-3 py-2 rounded bg-slate-800/50 mb-2">
+            <div className="w-6 h-6 rounded bg-green-400/20 flex items-center justify-center">
+              <span className="text-green-400 text-[10px] font-black">A</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-white font-bold truncate">{adminEmail}</p>
+              <p className="text-[10px] text-slate-600">Administrator</p>
+            </div>
           </div>
-          
-          <TabsContent value="analytics">
-            <Analytics />
-          </TabsContent>
-          
-          <TabsContent value="providers">
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-primary" />
+          <button
+            onClick={() => { supabase.auth.signOut(); window.location.href = "/"; }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-500 hover:text-red-400 hover:bg-red-900/10 rounded transition-all"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Sign Out
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main Content ── */}
+      <main className="flex-1 overflow-auto">
+        {/* Top bar */}
+        <header className="sticky top-0 z-10 bg-[#0d1117]/95 backdrop-blur border-b border-slate-800 px-8 py-3 flex items-center justify-between">
+          <div>
+            <h1 className="text-base font-bold text-white capitalize">{NAV.find(n => n.id === tab)?.label}</h1>
+            <p className="text-[11px] text-slate-600 font-mono">
+              {new Date().toUTCString().replace("GMT", "UTC")}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-[11px] text-green-500 font-mono">SYSTEM LIVE</span>
+          </div>
+        </header>
+
+        <div className="p-8">
+
+          {/* ── OVERVIEW ── */}
+          {tab === "overview" && (
+            <div className="space-y-8">
+              {/* Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {STATS.map((s) => (
+                  <div key={s.label} className="bg-[#161b22] border border-slate-800 rounded-lg p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <s.icon className="w-4 h-4 text-slate-600" />
+                      <span className={`text-xs font-mono font-bold ${s.up ? "text-green-400" : "text-red-400"}`}>
+                        {s.delta}
+                      </span>
+                    </div>
+                    <p className="text-2xl font-black text-white mb-1">{s.value}</p>
+                    <p className="text-[11px] text-slate-500 uppercase tracking-wider">{s.label}</p>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">Provider Management</h3>
-                    <p className="text-xs text-muted-foreground">Verify and manage medical professionals</p>
+                ))}
+              </div>
+
+              {/* Recent alerts */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-orange-400" />
+                    <span className="text-sm font-bold text-white">Recent Security Alerts</span>
                   </div>
+                  <span className="text-[10px] font-mono text-orange-400 bg-orange-900/30 border border-orange-700/40 px-2 py-0.5 rounded">
+                    LIVE
+                  </span>
+                </div>
+                <div className="divide-y divide-slate-800">
+                  {SECURITY_LOGS.slice(0, 3).map((log, i) => (
+                    <div key={i} className="px-6 py-3 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
+                      <div>
+                        <p className="text-sm text-slate-300">{log.event}</p>
+                        <p className="text-[11px] text-slate-600 font-mono">{log.src} · {log.time}</p>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${severityColor[log.severity]}`}>
+                        {log.severity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={() => setTab("security")} className="w-full px-6 py-3 text-xs text-slate-600 hover:text-green-400 hover:bg-slate-800/30 transition-colors flex items-center gap-1 font-mono">
+                  View all security logs <ArrowRight className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* Activity log */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800">
+                  <span className="text-sm font-bold text-white flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-600" /> Recent Activity
+                  </span>
+                </div>
+                {[
+                  "New hospital registered — Nairobi General",
+                  "Emergency alert resolved — Patient #4421",
+                  "New educational post published",
+                  "System maintenance completed",
+                ].map((a, i) => (
+                  <div key={i} className="px-6 py-3 border-b border-slate-800/50 flex items-center gap-3 hover:bg-slate-800/20 transition-colors">
+                    <div className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
+                    <span className="text-sm text-slate-400">{a}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── PROVIDERS ── */}
+          {tab === "providers" && (
+            <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-white">Medical Staff Registry</h2>
+                  <p className="text-[11px] text-slate-600 mt-0.5">{providers.length} providers on record</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={handleInvite} className="h-10 rounded-xl gap-2 border-primary/30 text-primary hover:bg-primary/5">
-                    <Plus className="w-4 h-4" />
-                    Invite Doctor
-                  </Button>
-                  <Button variant="outline" onClick={seedTestProvider} className="h-10 rounded-xl gap-2 border-white/10 text-white/50 hover:bg-white/5">
-                    <Zap className="w-4 h-4" />
-                    Seed Test Data
-                  </Button>
+                  <button onClick={handleInvite} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold">
+                    <Plus className="w-3.5 h-3.5" /> Invite Doctor
+                  </button>
                 </div>
               </div>
+              {providers.length === 0 ? (
+                <div className="px-6 py-16 text-center">
+                  <Database className="w-8 h-8 text-slate-700 mx-auto mb-3" />
+                  <p className="text-slate-600 text-sm">No providers registered yet.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                        <th className="px-6 py-3 text-left font-medium">Name</th>
+                        <th className="px-6 py-3 text-left font-medium">Specialty</th>
+                        <th className="px-6 py-3 text-left font-medium">License</th>
+                        <th className="px-6 py-3 text-left font-medium">Status</th>
+                        <th className="px-6 py-3 text-left font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {providers.map((p, i) => (
+                        <tr key={p.id || i} className="hover:bg-slate-800/30 transition-colors">
+                          <td className="px-6 py-3 font-medium text-white">{p.full_name}</td>
+                          <td className="px-6 py-3 text-slate-500">{p.specialty || "General"}</td>
+                          <td className="px-6 py-3 font-mono text-xs text-slate-600">{p.license_number || "—"}</td>
+                          <td className="px-6 py-3">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                              p.verification_status === "verified" ? "text-green-400 bg-green-900/30 border-green-700/40" :
+                              p.verification_status === "pending" ? "text-yellow-400 bg-yellow-900/30 border-yellow-700/40" :
+                              "text-red-400 bg-red-900/30 border-red-700/40"
+                            }`}>
+                              {p.verification_status || "unverified"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3">
+                            {p.verification_status === "pending" && (
+                              <div className="flex gap-2">
+                                <button onClick={() => handleVerify(p.id, "verified")} className="text-[11px] px-2.5 py-1 bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 transition-colors font-bold">
+                                  Approve
+                                </button>
+                                <button onClick={() => handleVerify(p.id, "rejected")} className="text-[11px] px-2.5 py-1 bg-red-900/40 text-red-400 border border-red-700/40 rounded hover:bg-red-900/70 transition-colors font-bold">
+                                  Reject
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
 
-              <div className="space-y-4">
-                {providers.length > 0 ? providers.map((provider, index) => (
-                  <div key={provider.id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-background/40 border border-border/50 rounded-2xl group hover:border-primary/40 transition-all gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl shrink-0">👩‍⚕️</div>
-                      <div>
-                        <p className="text-sm font-bold text-white">{provider.full_name}</p>
-                        <p className="text-[10px] text-white/50 uppercase tracking-widest">{provider.role} • {provider.specialty || 'General'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
-                      <div className="text-left sm:text-right">
-                        <p className="text-[10px] text-white/30 uppercase font-black">License</p>
-                        <p className="text-xs font-bold text-white/70">{provider.license_number || 'N/A'}</p>
-                      </div>
-                      <Badge className={
-                        provider.verification_status === 'verified' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 
-                        provider.verification_status === 'pending' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30 animate-pulse' :
-                        'bg-red-500/20 text-red-400 border-red-500/30'
-                      }>
-                        {provider.verification_status || 'Unverified'}
-                      </Badge>
-                    </div>
-                    {provider.verification_status === 'pending' && (
-                      <div className="flex gap-2 w-full sm:w-auto">
-                         <Button size="sm" className="flex-1 sm:flex-none h-8 bg-green-600 hover:bg-green-700" onClick={() => handleVerify(provider.id, 'verified')}>Approve</Button>
-                         <Button size="sm" variant="destructive" className="flex-1 sm:flex-none h-8" onClick={() => handleVerify(provider.id, 'rejected')}>Reject</Button>
-                      </div>
-                    )}
-                  </div>
-                )) : (
-                  <div className="p-12 text-center border border-dashed border-white/10 rounded-3xl">
-                    <p className="text-white/40 font-bold">No providers registered yet.</p>
-                    <p className="text-xs text-white/20 mt-1">Use the 'Seed' button for testing.</p>
-                  </div>
-                )}
+          {/* ── HOSPITALS ── */}
+          {tab === "hospitals" && (
+            <div className="space-y-4">
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-6">
+                <h2 className="text-sm font-bold text-white mb-1">Partner Hospital Onboarding</h2>
+                <p className="text-xs text-slate-500 mb-5">Review and approve hospital partnership requests</p>
+                <a href="/register" className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-400/10 text-green-400 border border-green-400/20 rounded text-sm font-bold hover:bg-green-400/20 transition-colors">
+                  <Building2 className="w-4 h-4" /> Register New Partner Hospital →
+                </a>
               </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="activity">
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-              <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
-              <div className="space-y-4">
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800">
+                  <span className="text-sm font-bold text-white">Registered Facilities</span>
+                </div>
                 {[
-                  { action: "New hospital registered", time: "5 mins ago", type: "success" },
-                  { action: "Emergency alert resolved", time: "15 mins ago", type: "info" },
-                  { action: "New educational post published", time: "1 hour ago", type: "success" },
-                  { action: "System maintenance scheduled", time: "2 hours ago", type: "warning" },
-                ].map((activity, index) => (
-                  <div
-                    key={index}
-                    className="p-3 rounded-lg border border-border/50 bg-muted/20 animate-fade-in"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
+                  { name: "Nairobi General Hospital", location: "Nairobi, KE", beds: 450, status: "Active" },
+                  { name: "Aga Khan University Hospital", location: "Nairobi, KE", beds: 254, status: "Active" },
+                  { name: "Kenyatta National Hospital", location: "Nairobi, KE", beds: 1800, status: "Active" },
+                  { name: "Mombasa Coast Hospital", location: "Mombasa, KE", beds: 120, status: "Pending" },
+                ].map((h, i) => (
+                  <div key={i} className="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                    <div>
+                      <p className="text-sm font-bold text-white">{h.name}</p>
+                      <p className="text-xs text-slate-600 font-mono">{h.location} · {h.beds} beds</p>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${h.status === "Active" ? "text-green-400 bg-green-900/30 border-green-700/40" : "text-yellow-400 bg-yellow-900/30 border-yellow-700/40"}`}>
+                      {h.status}
+                    </span>
                   </div>
                 ))}
               </div>
-            </Card>
-          </TabsContent>
+            </div>
+          )}
 
-          <TabsContent value="security">
-            <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-destructive/30 border-2">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
-                    <ShieldCheck className="w-6 h-6 text-destructive" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">Guardian Security Logs</h3>
-                    <p className="text-xs text-muted-foreground">Real-time suspicious pattern detection</p>
-                  </div>
+          {/* ── SECURITY ── */}
+          {tab === "security" && (
+            <div className="bg-[#161b22] border border-red-900/30 rounded-lg overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-red-400" />
+                  <span className="text-sm font-bold text-white">Guardian Security Monitor</span>
                 </div>
-                <Badge variant="destructive" className="animate-pulse">Live Monitoring</Badge>
+                <span className="text-[10px] font-mono text-red-400 bg-red-900/30 border border-red-700/40 px-2 py-0.5 rounded animate-pulse">
+                  LIVE MONITORING
+                </span>
               </div>
-
-              <div className="space-y-4">
-                {[
-                  { pattern: "Admin privilege escalation attempt", severity: "CRITICAL", ip: "192.168.1.105", time: "2 mins ago", icon: Lock },
-                  { pattern: "Multiple failed logins from same IP", severity: "HIGH", ip: "45.76.12.3", time: "15 mins ago", icon: AlertCircle },
-                  { pattern: "Patient data exported in bulk", severity: "HIGH", user: "Provider-ID: 442", time: "1 hour ago", icon: Zap },
-                  { pattern: "Video room accessed without appointment", severity: "MEDIUM", user: "Guest-772", time: "3 hours ago", icon: Eye },
-                  { pattern: "Provider accessing records outside work hours", severity: "MEDIUM", user: "Nurse-Ivy", time: "Yesterday", icon: Users }
-                ].map((log, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-background/40 border border-border/50 rounded-2xl group hover:border-destructive/40 transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${log.severity === 'CRITICAL' ? 'bg-destructive/20' : 'bg-orange-500/10'}`}>
-                        <log.icon className={`w-5 h-5 ${log.severity === 'CRITICAL' ? 'text-destructive' : 'text-orange-500'}`} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-white">{log.pattern}</p>
-                        <p className="text-[10px] text-white/50 uppercase tracking-widest">{log.ip || log.user} • {log.time}</p>
-                      </div>
+              <div className="divide-y divide-slate-800/50">
+                {SECURITY_LOGS.map((log, i) => (
+                  <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                    <div>
+                      <p className="text-sm text-slate-200 font-medium">{log.event}</p>
+                      <p className="text-[11px] text-slate-600 font-mono mt-0.5">{log.src} · {log.time}</p>
                     </div>
-                    <Badge className={log.severity === 'CRITICAL' ? 'bg-destructive' : 'bg-orange-500'}>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded border ${severityColor[log.severity]}`}>
                       {log.severity}
-                    </Badge>
+                    </span>
                   </div>
                 ))}
               </div>
-            </Card>
-          </TabsContent>
-          <TabsContent value="audit">
-            <Card className="p-0 overflow-hidden bg-card/30 border-border/50">
-              <div className="p-6 border-b border-border/50 bg-muted/20 flex items-center justify-between">
+            </div>
+          )}
+
+          {/* ── AUDIT ── */}
+          {tab === "audit" && (
+            <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-bold">System-Wide Audit Trail</h3>
-                  <p className="text-xs text-muted-foreground">Permanent logs for medical compliance</p>
+                  <h2 className="text-sm font-bold text-white">System-Wide Audit Trail</h2>
+                  <p className="text-[11px] text-slate-600 mt-0.5">Immutable compliance log — ISO 27001</p>
                 </div>
-                <Button size="sm" variant="outline" className="text-xs">Download ISO-Report</Button>
+                <button className="text-xs px-3 py-1.5 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 rounded transition-colors">
+                  Export CSV
+                </button>
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-muted/30 text-muted-foreground font-medium uppercase text-[10px] tracking-widest">
-                    <tr>
-                      <th className="px-6 py-4">Timestamp</th>
-                      <th className="px-6 py-4">User</th>
-                      <th className="px-6 py-4">Action</th>
-                      <th className="px-6 py-4">Record</th>
-                      <th className="px-6 py-4">Security Level</th>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                      <th className="px-6 py-3 text-left font-medium">Timestamp</th>
+                      <th className="px-6 py-3 text-left font-medium">User</th>
+                      <th className="px-6 py-3 text-left font-medium">Action</th>
+                      <th className="px-6 py-3 text-left font-medium">Reference</th>
+                      <th className="px-6 py-3 text-left font-medium">Level</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/30">
-                    {[
-                      { time: "2026-05-05 14:32", user: "Dr. Eliza", action: "Accessed Patient: Stacy", record: "APP-992", level: "HIGH" },
-                      { time: "2026-05-05 12:15", user: "Admin-Mark", action: "Updated Hospital: City Med", record: "HOSP-01", level: "MEDIUM" },
-                      { time: "2026-05-05 09:44", user: "Nurse-Ivy", action: "Exported Reports", record: "DOC-88", level: "CRITICAL" },
-                    ].map((row, i) => (
-                      <tr key={i} className="hover:bg-muted/10 transition-colors">
-                        <td className="px-6 py-4 font-mono text-[10px]">{row.time}</td>
-                        <td className="px-6 py-4 font-bold">{row.user}</td>
-                        <td className="px-6 py-4">{row.action}</td>
-                        <td className="px-6 py-4 text-primary font-medium">{row.record}</td>
-                        <td className="px-6 py-4">
-                          <Badge variant={row.level === 'CRITICAL' ? 'destructive' : 'outline'}>{row.level}</Badge>
+                  <tbody className="divide-y divide-slate-800/50 font-mono">
+                    {AUDIT_ROWS.map((r, i) => (
+                      <tr key={i} className="hover:bg-slate-800/20 transition-colors">
+                        <td className="px-6 py-3 text-xs text-slate-600">{r.time}</td>
+                        <td className="px-6 py-3 text-slate-300 font-sans font-bold">{r.user}</td>
+                        <td className="px-6 py-3 text-slate-400 font-sans">{r.action}</td>
+                        <td className="px-6 py-3 text-xs text-green-400">{r.ref}</td>
+                        <td className="px-6 py-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${severityColor[r.level] || severityColor.LOW}`}>
+                            {r.level}
+                          </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            </div>
+          )}
 
-        {/* Management Actions */}
-        <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-border/50">
-          <h3 className="text-xl font-semibold mb-6">Management Tools</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto py-6 flex-col gap-2 hover:border-primary">
-              <Users className="w-8 h-8 text-primary" />
-              <span className="font-semibold">User Management</span>
-              <span className="text-xs text-muted-foreground">Manage mothers & hospitals</span>
-            </Button>
-            
-            <Button variant="outline" className="h-auto py-6 flex-col gap-2 hover:border-secondary">
-              <Building2 className="w-8 h-8 text-secondary" />
-              <span className="font-semibold">Hospital Verification</span>
-              <span className="text-xs text-muted-foreground">Review & approve hospitals</span>
-            </Button>
-            
-            <Button variant="outline" className="h-auto py-6 flex-col gap-2 hover:border-accent">
-              <BookOpen className="w-8 h-8 text-accent" />
-              <span className="font-semibold">Content Management</span>
-              <span className="text-xs text-muted-foreground">Manage educational posts</span>
-            </Button>
-          </div>
-        </Card>
-      </div>
+        </div>
+      </main>
     </div>
   );
-};
-
-export default AdminDashboard;
+}
