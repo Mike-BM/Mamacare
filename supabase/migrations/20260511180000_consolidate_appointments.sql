@@ -17,6 +17,11 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='patient_notes') THEN
     ALTER TABLE public.appointments ADD COLUMN patient_notes text;
   END IF;
+
+  -- Add amount if not exists
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='appointments' AND column_name='amount') THEN
+    ALTER TABLE public.appointments ADD COLUMN amount numeric DEFAULT 0;
+  END IF;
 END $$;
 
 -- Ensure RLS allows providers to see appointments

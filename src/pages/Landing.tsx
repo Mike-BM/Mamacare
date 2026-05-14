@@ -164,19 +164,14 @@ const Landing = () => {
             index === currentSlide ? "opacity-100 scale-105" : "opacity-0 scale-100"
           }`}
         >
-          {/* Blurred background to fill screen */}
-          <img
-            src={slide.image}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-40 blur-2xl"
+          {/* Main image - Always filling the screen properly */}
+          <img 
+            src={slide.image} 
+            alt={`African mother and newborn - ${slide.text}`} 
+            className="absolute inset-0 w-full h-full object-cover object-center" 
+            loading="lazy" 
           />
-          {/* Main image fully visible on mobile, cover on desktop */}
-          <img
-            src={slide.image}
-            alt={`African mother and newborn - ${slide.text}`}
-          <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover opacity-40 blur-2xl" />
-          <img src={slide.image} alt={`African mother and newborn - ${slide.text}`} className="absolute inset-0 w-full h-full object-contain sm:object-cover" loading="lazy" />
-          <div className="absolute inset-0 bg-black/40 sm:bg-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
         </div>
       ))}
 

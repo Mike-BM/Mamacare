@@ -21,7 +21,7 @@ const AdminDashboard = () => {
       
       if (!session) {
         toast.error("Authentication required.");
-        navigate("/");
+        window.location.href = "/";
         return;
       }
 
@@ -155,7 +155,7 @@ const AdminDashboard = () => {
         </p>
         <Button 
           variant="hero" 
-          onClick={() => navigate("/")}
+          onClick={() => window.location.href = "/"}
           className="h-14 px-8 rounded-2xl font-black shadow-lg shadow-primary/20"
         >
           Return to Safety
@@ -178,7 +178,7 @@ const AdminDashboard = () => {
               <p className="text-xs text-muted-foreground">System Management Portal</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+          <Button variant="ghost" size="icon" onClick={() => window.location.href = "/"}>
             <LogOut className="w-5 h-5" />
           </Button>
         </div>
@@ -219,13 +219,15 @@ const AdminDashboard = () => {
 
         {/* Analytics Dashboard */}
         <Tabs defaultValue="analytics" className="w-full mb-8">
-          <TabsList className="grid w-full grid-cols-5 max-w-3xl mb-6">
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="providers">Medical Staff</TabsTrigger>
-            <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-            <TabsTrigger value="security">Security Logs</TabsTrigger>
-            <TabsTrigger value="audit">Full Audit Trail</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
+            <TabsList className="flex w-max sm:grid sm:w-full sm:grid-cols-5 mb-6">
+              <TabsTrigger value="analytics" className="px-6 sm:px-2">Analytics</TabsTrigger>
+              <TabsTrigger value="providers" className="px-6 sm:px-2">Medical Staff</TabsTrigger>
+              <TabsTrigger value="activity" className="px-6 sm:px-2">Recent Activity</TabsTrigger>
+              <TabsTrigger value="security" className="px-6 sm:px-2">Security Logs</TabsTrigger>
+              <TabsTrigger value="audit" className="px-6 sm:px-2">Full Audit Trail</TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value="analytics">
             <Analytics />
@@ -257,18 +259,18 @@ const AdminDashboard = () => {
 
               <div className="space-y-4">
                 {providers.length > 0 ? providers.map((provider, index) => (
-                  <div key={provider.id || index} className="flex items-center justify-between p-4 bg-background/40 border border-border/50 rounded-2xl group hover:border-primary/40 transition-all">
+                  <div key={provider.id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-background/40 border border-border/50 rounded-2xl group hover:border-primary/40 transition-all gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl">👩‍⚕️</div>
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl shrink-0">👩‍⚕️</div>
                       <div>
                         <p className="text-sm font-bold text-white">{provider.full_name}</p>
-                        <p className="text-[10px] text-white/50 uppercase tracking-widest">{provider.role} • {provider.specialty || 'General'} • {provider.license_number}</p>
+                        <p className="text-[10px] text-white/50 uppercase tracking-widest">{provider.role} • {provider.specialty || 'General'}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right hidden sm:block">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                      <div className="text-left sm:text-right">
                         <p className="text-[10px] text-white/30 uppercase font-black">License</p>
-                        <p className="text-xs font-bold text-white/70">{provider.kmpdc_license || 'Not Provided'}</p>
+                        <p className="text-xs font-bold text-white/70">{provider.license_number || 'N/A'}</p>
                       </div>
                       <Badge className={
                         provider.verification_status === 'verified' ? 'bg-green-500/20 text-green-400 border-green-500/30' : 
@@ -277,16 +279,13 @@ const AdminDashboard = () => {
                       }>
                         {provider.verification_status || 'Unverified'}
                       </Badge>
-                      {provider.verification_status === 'pending' && (
-                        <div className="flex gap-1">
-                           <Button size="sm" className="h-8 bg-green-600 hover:bg-green-700" onClick={() => handleVerify(provider.id, 'verified')}>Approve</Button>
-                           <Button size="sm" variant="destructive" className="h-8" onClick={() => handleVerify(provider.id, 'rejected')}>Reject</Button>
-                        </div>
-                      )}
-                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/5">
-                        <Settings className="w-4 h-4 text-white/40" />
-                      </Button>
                     </div>
+                    {provider.verification_status === 'pending' && (
+                      <div className="flex gap-2 w-full sm:w-auto">
+                         <Button size="sm" className="flex-1 sm:flex-none h-8 bg-green-600 hover:bg-green-700" onClick={() => handleVerify(provider.id, 'verified')}>Approve</Button>
+                         <Button size="sm" variant="destructive" className="flex-1 sm:flex-none h-8" onClick={() => handleVerify(provider.id, 'rejected')}>Reject</Button>
+                      </div>
+                    )}
                   </div>
                 )) : (
                   <div className="p-12 text-center border border-dashed border-white/10 rounded-3xl">

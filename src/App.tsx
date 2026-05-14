@@ -29,7 +29,9 @@ const AuthRedirectHandler = () => {
       if (session) {
         const role = session.user?.user_metadata?.role || 'mother';
         if (role === 'hospital') navigate("/hospital-dashboard");
-        else if (role === 'admin') window.location.href = "/admin.html";
+        else if (role === 'admin') {
+          window.location.href = "/admin.html";
+        }
         else navigate("/mother-dashboard");
       }
       setIsProcessing(false);

@@ -33,16 +33,16 @@ export const BackgroundMedia = () => {
             key={index}
             className={`absolute inset-0 transition-all duration-1000 ${
               index === currentSlide
-                ? "opacity-20 scale-100"
+                ? "opacity-40 scale-100"
                 : "opacity-0 scale-105"
             }`}
           >
             <img
               src={slide}
               alt={`Maternal care ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/90 to-background/95" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-transparent to-background/90" />
           </div>
         ))}
       </div>

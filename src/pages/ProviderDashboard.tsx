@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Heart, Calendar, Users, Clock, CheckCircle2, XCircle, 
-  Plus, ArrowRight, Video, FileText, Settings, LogOut,
+  Plus, Video, FileText, Settings, LogOut,
   ChevronRight, CalendarDays, User, Phone, Info, Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";

@@ -56,7 +56,7 @@ const About = () => {
           <img
             src={aboutHero}
             alt="African mother holding newborn"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/70 to-background" />
         </div>
