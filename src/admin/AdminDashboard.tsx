@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Building2, AlertCircle, BookOpen, TrendingUp, LogOut, ShieldCheck, Lock, Eye, Zap, Plus, Settings } from "lucide-react";
+import { Heart, Users, Building2, AlertCircle, BookOpen, TrendingUp, LogOut, ShieldCheck, Lock, Eye, Zap, Plus, Settings, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { Analytics } from "@/components/Analytics";
@@ -186,10 +186,36 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
-        <div className="mb-8 animate-fade-in-up">
+        <div className="mb-6 animate-fade-in-up">
           <h2 className="text-3xl font-bold mb-2">Admin Dashboard</h2>
           <p className="text-muted-foreground">Monitor and manage the MamaCare Africa platform</p>
         </div>
+
+        {/* Partner Hospital CTA Banner */}
+        <a
+          href="/register"
+          className="group flex items-center justify-between w-full mb-8 px-6 py-5 rounded-2xl border border-white/10 bg-gradient-to-r from-[#1a1035] via-[#2a1a4a] to-[#1a1035] hover:from-[#2a1045] hover:to-[#2a1045] hover:border-primary/40 transition-all duration-300 shadow-lg shadow-black/30 animate-fade-in-up overflow-hidden relative"
+          style={{ animationDelay: '0.05s' }}
+        >
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="flex items-center gap-4 z-10">
+            <div className="w-11 h-11 rounded-xl bg-primary/20 flex items-center justify-center shrink-0 group-hover:bg-primary/30 transition-colors">
+              <Building2 className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/70 mb-0.5">Expand Our Network</p>
+              <p className="text-base font-black text-white tracking-wide uppercase">Partner Hospital? Sign Up Here</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 z-10">
+            <span className="hidden sm:block text-xs font-bold text-white/40 group-hover:text-white/60 transition-colors">Register your facility</span>
+            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary/40 group-hover:translate-x-1 transition-all duration-300">
+              <ArrowRight className="w-4 h-4 text-primary" />
+            </div>
+          </div>
+        </a>
+
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
