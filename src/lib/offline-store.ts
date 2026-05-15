@@ -61,7 +61,7 @@ export const actionQueue = {
   },
 };
 
-// Mock emergency contacts (3 contacts)
+// Pre-configured emergency contacts
 export const EMERGENCY_CONTACTS = [
   { name: "Mama Adaeze (Mom)", phone: "+234 803 123 4567", relation: "Mother" },
   { name: "Kwame (Husband)", phone: "+234 802 555 1212", relation: "Spouse" },

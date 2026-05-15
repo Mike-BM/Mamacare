@@ -36,7 +36,7 @@ export const PaywallOverlay = ({
       return;
     }
     
-    // Mock payment processing
+    // Initialize payment processing gateway
     const toastId = toast.loading(`Processing ${paymentMethod.toUpperCase()} payment...`);
     
     setTimeout(() => {

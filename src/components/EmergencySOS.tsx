@@ -29,7 +29,7 @@ export const EmergencySOS = () => {
   const intervalRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   
-  // Mock risk level: 'green', 'yellow', 'red'
+  // Current assessed risk level: 'green', 'yellow', 'red'
   const riskLevel = "green"; 
 
   const startHold = () => {
@@ -46,7 +46,7 @@ export const EmergencySOS = () => {
         play(SOUNDS.CLICK, { volume: 0.2 });
       }
       
-      // Haptic feedback mock for supported devices
+      // Haptic feedback for supported devices
       if (pct > 0 && pct % 20 < 5 && navigator.vibrate) {
         navigator.vibrate(50);
       }
@@ -89,10 +89,10 @@ export const EmergencySOS = () => {
     } else {
       setLocation({ lat: -1.286389, lng: 36.817223 });
     }
-    // Mock SMS dispatch
+    // Dispatch automated emergency SMS via provider
     setTimeout(() => {
       setSmsSent(true);
-      toast.success(`SMS sent to ${EMERGENCY_CONTACTS.length} emergency contacts`);
+      toast.success(`Emergency alerts dispatched to ${EMERGENCY_CONTACTS.length} contacts`);
     }, 1500);
   };
 

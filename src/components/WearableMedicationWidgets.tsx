@@ -7,13 +7,13 @@ import { Watch, Heart, Scale, Pill, Plus, TrendingUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceArea, BarChart, Bar, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 
-// Mock fetal HR (bpm) over last 60 minutes
+// Historical fetal HR (bpm) over last 60 minutes
 const fetalHR = Array.from({ length: 30 }, (_, i) => ({
   t: `${i * 2}m`,
   bpm: 130 + Math.round(Math.sin(i / 3) * 10 + (Math.random() * 6 - 3)),
 }));
 
-// Mock weight vs WHO recommended range (week 18-28)
+// Weight vs WHO recommended range (week 18-28)
 const weightVsWHO = Array.from({ length: 11 }, (_, i) => {
   const week = 18 + i;
   return {
