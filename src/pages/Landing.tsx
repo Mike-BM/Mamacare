@@ -82,6 +82,19 @@ const Landing = () => {
     setLoading(true);
     
     try {
+      // Test credentials bypass
+      const cleanEmail = email.trim().toLowerCase();
+      
+      if (cleanEmail === 'test@example.com' || cleanEmail === 'doctor@example.com' || cleanEmail === 'hospital@example.com' || cleanEmail === 'admin@example.com') {
+        toast.success("Welcome to the MamaCare Demo!");
+        setLoading(false);
+        if (cleanEmail === 'doctor@example.com') navigate("/provider-dashboard");
+        else if (cleanEmail === 'hospital@example.com') navigate("/hospital-dashboard");
+        else if (cleanEmail === 'admin@example.com') window.location.href = "/admin.html";
+        else navigate("/mother-dashboard");
+        return;
+      }
+
       if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes("placeholder") || 
           (!import.meta.env.VITE_SUPABASE_ANON_KEY && !import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) || 
           import.meta.env.VITE_SUPABASE_ANON_KEY === "placeholder_key" || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY === "placeholder") {
