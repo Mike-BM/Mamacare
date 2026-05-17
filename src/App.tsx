@@ -26,12 +26,16 @@ const AuthRedirectHandler = () => {
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      
+      const isAuthPage = window.location.pathname === '/' || window.location.pathname === '/register';
+      
+      if (session && isAuthPage) {
         const role = session.user?.user_metadata?.role || 'mother';
         if (role === 'hospital') navigate("/hospital-dashboard");
         else if (role === 'admin') {
           window.location.href = "/admin.html";
         }
+        else if (role === 'doctor') navigate("/provider-dashboard");
         else navigate("/mother-dashboard");
       }
       setIsProcessing(false);
@@ -40,12 +44,15 @@ const AuthRedirectHandler = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session) {
+      const isAuthPage = window.location.pathname === '/' || window.location.pathname === '/register';
+      
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session && isAuthPage) {
         const role = session.user?.user_metadata?.role || 'mother';
         toast.success(`Signed in as ${role}`);
         
         if (role === 'hospital') navigate("/hospital-dashboard");
         else if (role === 'admin') window.location.href = "/admin.html";
+        else if (role === 'doctor') navigate("/provider-dashboard");
         else navigate("/mother-dashboard");
       }
     });

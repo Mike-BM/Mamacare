@@ -22,6 +22,9 @@ BEGIN
   ELSIF user_role = 'doctor' OR user_role = 'provider' THEN
     INSERT INTO public.providers (id, full_name, role)
     VALUES (new.id, full_name, 'doctor');
+  ELSIF user_role = 'hospital' THEN
+    INSERT INTO public.hospitals (user_id, name)
+    VALUES (new.id, full_name);
   END IF;
 
   RETURN new;

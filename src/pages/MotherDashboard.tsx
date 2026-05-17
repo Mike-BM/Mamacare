@@ -193,10 +193,26 @@ export default function MotherDashboard() {
     const fetchData = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
+        const demoBypass = localStorage.getItem("demoBypass");
+        
+        if (!session && !demoBypass) {
           navigate("/");
           return;
         }
+
+        if (demoBypass) {
+          setUserProfile({
+            name: "Demo Mama",
+            email: demoBypass,
+            pregnancy_week: 24,
+            avatar_url: "",
+            is_anonymous: false
+          });
+          setMotherId("demo-mother-id");
+          setIsLoading(false);
+          return;
+        }
+
         const userId = session.user.id;
         
         // 0. Fetch Hospitals
