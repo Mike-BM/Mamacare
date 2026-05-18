@@ -45,6 +45,7 @@ api.interceptors.response.use(
       
       if (status === 401) {
         toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("demoBypass");
         await supabase.auth.signOut();
         window.location.href = '/'; // redirect to home
       } else if (status === 429) {

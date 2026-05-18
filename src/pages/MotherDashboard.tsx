@@ -569,6 +569,7 @@ export default function MotherDashboard() {
               <DropdownMenuItem className="cursor-pointer" onClick={() => setIsProfileModalOpen(true)}><User className="w-4 h-4 mr-2" /> My Profile</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer" onClick={() => handleTabChange('settings')}><Settings className="w-4 h-4 mr-2" /> Settings</DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={async () => {
+                localStorage.removeItem("demoBypass");
                 await supabase.auth.signOut();
                 navigate("/");
               }}><LogOut className="w-4 h-4 mr-2" /> Logout</DropdownMenuItem>

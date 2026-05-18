@@ -26,17 +26,25 @@ const AuthRedirectHandler = () => {
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      const demoBypass = localStorage.getItem("demoBypass");
       
       const isAuthPage = window.location.pathname === '/' || window.location.pathname === '/register';
       
-      if (session && isAuthPage) {
-        const role = session.user?.user_metadata?.role || 'mother';
-        if (role === 'hospital') navigate("/hospital-dashboard");
-        else if (role === 'admin') {
-          window.location.href = "/admin.html";
+      if (isAuthPage) {
+        if (session) {
+          const role = session.user?.user_metadata?.role || 'mother';
+          if (role === 'hospital') navigate("/hospital-dashboard");
+          else if (role === 'admin') {
+            window.location.href = "/admin.html";
+          }
+          else if (role === 'doctor') navigate("/provider-dashboard");
+          else navigate("/mother-dashboard");
+        } else if (demoBypass) {
+          if (demoBypass === 'doctor@example.com') navigate("/provider-dashboard");
+          else if (demoBypass === 'hospital@example.com') navigate("/hospital-dashboard");
+          else if (demoBypass === 'admin@example.com') window.location.href = "/admin.html";
+          else navigate("/mother-dashboard");
         }
-        else if (role === 'doctor') navigate("/provider-dashboard");
-        else navigate("/mother-dashboard");
       }
       setIsProcessing(false);
     };

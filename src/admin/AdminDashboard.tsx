@@ -187,7 +187,11 @@ export default function AdminDashboard() {
             </div>
           </div>
           <button
-            onClick={() => { supabase.auth.signOut(); window.location.href = "/"; }}
+            onClick={() => {
+              localStorage.removeItem("demoBypass");
+              supabase.auth.signOut();
+              window.location.href = "/";
+            }}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-500 hover:text-red-400 hover:bg-red-900/10 rounded transition-all"
           >
             <LogOut className="w-3.5 h-3.5" />

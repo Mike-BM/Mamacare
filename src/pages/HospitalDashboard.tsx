@@ -197,6 +197,7 @@ const HospitalDashboard = () => {
             </Button>
             <div className="h-8 w-px bg-white/10 mx-2 hidden sm:block" />
             <Button variant="ghost" size="icon" onClick={async () => {
+              localStorage.removeItem("demoBypass");
               await supabase.auth.signOut();
               navigate("/");
             }} className="hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors">

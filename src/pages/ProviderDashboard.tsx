@@ -198,6 +198,7 @@ const ProviderDashboard = () => {
             variant="ghost" 
             className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive gap-3 rounded-xl"
             onClick={async () => {
+              localStorage.removeItem("demoBypass");
               await supabase.auth.signOut();
               navigate("/");
             }}
