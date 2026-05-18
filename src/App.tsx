@@ -73,13 +73,13 @@ const AuthRedirectHandler = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <Sonner />
-    <BrowserRouter>
-      <AuthRedirectHandler />
-      <OfflineBadge />
-      <Routes>
-        <Route path="/" element={<Landing />} />
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthRedirectHandler />
+        <OfflineBadge />
+        <Routes>
+          <Route path="/" element={<Landing />} />
         <Route path="/register" element={<Register />} />
         <Route path="/about" element={<About />} />
         <Route path="/features" element={<Features />} />
