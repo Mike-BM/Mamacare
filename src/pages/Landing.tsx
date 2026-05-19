@@ -71,7 +71,7 @@ const Landing = () => {
       // Test credentials bypass
       const cleanEmail = email.trim().toLowerCase();
       
-      if (cleanEmail === 'test@example.com' || cleanEmail === 'doctor@example.com' || cleanEmail === 'hospital@example.com' || cleanEmail === 'admin@example.com') {
+      if (cleanEmail === 'test@example.com' || cleanEmail === 'test@test.com' || cleanEmail === 'doctor@example.com' || cleanEmail === 'hospital@example.com' || cleanEmail === 'admin@example.com') {
         localStorage.setItem("demoBypass", cleanEmail);
         toast.success("Welcome to the MamaCare Demo!");
         setLoading(false);
