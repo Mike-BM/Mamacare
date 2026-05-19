@@ -69,6 +69,7 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: window.location.origin,
           data: {
             full_name: formData.name,
             role: role
@@ -100,10 +101,10 @@ const Register = () => {
           else navigate("/hospital-dashboard");
         }, 1000);
       } else {
-        toast.success("Registration successful! Please check your email to verify your account.");
+        toast.success("Registration successful! Please follow the confirmation link sent to your email to activate your account.");
         setTimeout(() => {
           navigate("/");
-        }, 3000);
+        }, 4000);
       }
     } catch (error: any) {
       toast.error(error.message || "An error occurred during registration");
