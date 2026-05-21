@@ -19,6 +19,17 @@ app.use(express.json());
 // Apply rate limiting
 app.use('/api/', standardLimiter);
 
+// Root health check endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: 'mamacare-backend',
+    message: 'MamaCare Africa API is running.',
+    timestamp: new Date().toISOString()
+  });
+});
+
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
