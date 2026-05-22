@@ -201,8 +201,9 @@ export default function MotherDashboard() {
         }
 
         if (demoBypass) {
+          const storedName = localStorage.getItem("demoProfileName");
           setUserProfile({
-            name: "Demo Mama",
+            name: storedName || "Demo Mama",
             email: demoBypass,
             pregnancy_week: 24,
             avatar_url: "",

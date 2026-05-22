@@ -73,6 +73,12 @@ const ProviderDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      fetchSchedule();
+      return;
+    }
+
     fetchSchedule();
 
     const channel = supabase
@@ -88,16 +94,31 @@ const ProviderDashboard = () => {
   }, []);
 
   useEffect(() => {
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      const storedName = localStorage.getItem("demoProfileName");
+      setProviderProfile({
+        full_name: storedName || "Dr. Nneka",
+        specialty: "Maternal Health Specialist",
+        avatar_url: ""
+      });
+      return;
+    }
+
     const fetchProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data } = await supabase
-          .from('providers')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
-        if (data) setProviderProfile(data);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data } = await supabase
+            .from('providers')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (data) setProviderProfile(data);
+        }
+      } catch (err) {
+        console.error("Error fetching provider profile:", err);
       }
     };
     fetchProfile();
@@ -105,36 +126,84 @@ const ProviderDashboard = () => {
 
   const fetchSchedule = async () => {
     setIsLoading(true);
-    // In a real app, we'd filter by auth.uid()
-    const { data, error } = await supabase
-      .from('appointments')
-      .select(`
-        *,
-        mothers (
-          due_date,
-          profiles:user_id (
-            full_name,
-            email
-          )
-        )
-      `)
-      .order('appointment_date', { ascending: false });
-
-    if (!error && data) {
-      setSchedule(data.map(apt => ({
-        id: apt.id,
-        patient: apt.mothers?.profiles?.full_name || "Unknown Patient",
-        time: apt.appointment_date ? new Date(apt.appointment_date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "TBD",
-        status: apt.status,
-        type: apt.appointment_type,
-        patientDetails: {
-          full_name: apt.mothers?.profiles?.full_name,
-          phone: apt.mothers?.profiles?.email || "—",
-          due_date: apt.mothers?.due_date
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      setSchedule([
+        {
+          id: 101,
+          patient: "Mariam Osei",
+          time: "Today, 10:00 AM",
+          status: "pending",
+          type: "video",
+          patientDetails: {
+            full_name: "Mariam Osei",
+            phone: "+254 712 345678",
+            due_date: "2026-08-15"
+          }
+        },
+        {
+          id: 102,
+          patient: "Amina Yusuf",
+          time: "Today, 11:30 AM",
+          status: "confirmed",
+          type: "in-person",
+          patientDetails: {
+            full_name: "Amina Yusuf",
+            phone: "+254 722 987654",
+            due_date: "2026-09-01"
+          }
+        },
+        {
+          id: 103,
+          patient: "Jane Doe",
+          time: "Today, 02:00 PM",
+          status: "confirmed",
+          type: "video",
+          patientDetails: {
+            full_name: "Jane Doe",
+            phone: "+254 733 111222",
+            due_date: "2026-10-10"
+          }
         }
-      })));
+      ]);
+      setIsLoading(false);
+      return;
     }
-    setIsLoading(false);
+
+    try {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select(`
+          *,
+          mothers (
+            due_date,
+            profiles:user_id (
+              full_name,
+              email
+            )
+          )
+        `)
+        .order('appointment_date', { ascending: false });
+
+      if (!error && data) {
+        setSchedule(data.map(apt => ({
+          id: apt.id,
+          patient: apt.mothers?.profiles?.full_name || "Unknown Patient",
+          time: apt.appointment_date ? new Date(apt.appointment_date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "TBD",
+          status: apt.status,
+          type: apt.appointment_type,
+          patientDetails: {
+            full_name: apt.mothers?.profiles?.full_name,
+            phone: apt.mothers?.profiles?.email || "—",
+            due_date: apt.mothers?.due_date
+          }
+        })));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const [availability, setAvailability] = useState([
@@ -204,8 +273,15 @@ const ProviderDashboard = () => {
             variant="ghost" 
             className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive gap-3 rounded-xl"
             onClick={async () => {
+              const demoBypass = localStorage.getItem("demoBypass");
               localStorage.removeItem("demoBypass");
-              await supabase.auth.signOut();
+              if (!demoBypass) {
+                try {
+                  await supabase.auth.signOut();
+                } catch (e) {
+                  console.error("Sign out error:", e);
+                }
+              }
               navigate("/");
             }}
           >
@@ -238,14 +314,24 @@ const ProviderDashboard = () => {
               onClick={() => {
                 const license = window.prompt("Enter your KMPDC License Number:");
                 if (license) {
-                  toast.promise(
-                    supabase.from('providers').update({ kmpdc_license: license, verification_status: 'pending' }).eq('id', providerProfile.id),
-                    {
-                      loading: 'Submitting license...',
-                      success: 'License submitted! Verification is in progress.',
-                      error: 'Failed to submit license.'
-                    }
-                  );
+                  const demoBypass = localStorage.getItem("demoBypass");
+                  if (demoBypass) {
+                    setProviderProfile({
+                      ...providerProfile,
+                      kmpdc_license: license,
+                      verification_status: 'pending'
+                    });
+                    toast.success("License submitted! Verification is in progress (Demo Mode).");
+                  } else {
+                    toast.promise(
+                      supabase.from('providers').update({ kmpdc_license: license, verification_status: 'pending' }).eq('id', providerProfile.id),
+                      {
+                        loading: 'Submitting license...',
+                        success: 'License submitted! Verification is in progress.',
+                        error: 'Failed to submit license.'
+                      }
+                    );
+                  }
                 }
               }}
             >
@@ -401,15 +487,26 @@ const ProviderDashboard = () => {
                           setIsGeneratingRoom(true);
                           const toastId = toast.loading("Initializing secure video room...");
                           
+                          const demoBypass = localStorage.getItem("demoBypass");
+                          if (demoBypass) {
+                            setTimeout(() => {
+                              setCurrentRoomUrl("https://meet.jit.si/MamaCareDemoConsultationRoom");
+                              setIsVideoCallOpen(true);
+                              toast.dismiss(toastId);
+                              setIsGeneratingRoom(false);
+                            }, 1000);
+                            return;
+                          }
+
                           try {
                             const { data, error } = await supabase.functions.invoke('create-video-room', {
                               body: { appointment_id: selectedPatient?.id || 'demo' }
                             });
 
                             if (error || !data?.url) {
-                            toast.error("Video consultation is only available for confirmed appointments.");
-                            toast.dismiss(toastId);
-                            return;
+                              toast.error("Video consultation is only available for confirmed appointments.");
+                              toast.dismiss(toastId);
+                              return;
                             }
 
                             setCurrentRoomUrl(data.url);

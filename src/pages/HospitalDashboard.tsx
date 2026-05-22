@@ -70,6 +70,15 @@ const HospitalDashboard = () => {
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      fetchHospitalData();
+      return () => {
+        clearInterval(timer);
+      };
+    }
+
     fetchHospitalData();
 
     // Subscribe to changes
@@ -87,6 +96,69 @@ const HospitalDashboard = () => {
 
   const fetchHospitalData = async () => {
     setIsLoading(true);
+    
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      const storedName = localStorage.getItem("demoProfileName");
+      setHospitalProfile({
+        id: "demo-hospital-id",
+        name: storedName || "Nairobi Maternity General Hospital",
+        email: demoBypass,
+        address: "Nairobi, Kenya",
+        capacity_beds: 45,
+        occupied_beds: 29
+      });
+      
+      setAppointments([
+        {
+          id: 201,
+          patient: "Fatima Kamau",
+          time: "09:30 AM",
+          status: "pending",
+          type: "Antenatal Checkup",
+          priority: "high"
+        },
+        {
+          id: 202,
+          patient: "Zainab Mwangi",
+          time: "11:00 AM",
+          status: "confirmed",
+          type: "Ultrasound Scan",
+          priority: "normal"
+        },
+        {
+          id: 203,
+          patient: "Mercy Chebet",
+          time: "02:15 PM",
+          status: "confirmed",
+          type: "Postnatal Follow-up",
+          priority: "normal"
+        }
+      ]);
+      
+      setSosAlerts([
+        {
+          id: 301,
+          patient: "Halima Juma",
+          severity: "critical",
+          time: "2 mins ago",
+          location: "South C, Nairobi (-1.3214, 36.8315)",
+          status: "active"
+        },
+        {
+          id: 302,
+          patient: "Asha Nduta",
+          severity: "high",
+          time: "15 mins ago",
+          location: "Kibera, Nairobi (-1.3129, 36.7912)",
+          status: "active"
+        }
+      ]);
+      
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -197,8 +269,15 @@ const HospitalDashboard = () => {
             </Button>
             <div className="h-8 w-px bg-white/10 mx-2 hidden sm:block" />
             <Button variant="ghost" size="icon" onClick={async () => {
+              const demoBypass = localStorage.getItem("demoBypass");
               localStorage.removeItem("demoBypass");
-              await supabase.auth.signOut();
+              if (!demoBypass) {
+                try {
+                  await supabase.auth.signOut();
+                } catch (e) {
+                  console.error("Sign out error:", e);
+                }
+              }
               navigate("/");
             }} className="hover:bg-destructive/10 hover:text-destructive rounded-full transition-colors">
               <LogOut className="w-5 h-5" />

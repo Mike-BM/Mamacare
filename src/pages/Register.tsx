@@ -107,7 +107,25 @@ const Register = () => {
         }, 4000);
       }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred during registration");
+      const errorMsg = error.message || "";
+      const isFetchError = errorMsg.toLowerCase().includes("failed to fetch") || 
+                           errorMsg.toLowerCase().includes("network") ||
+                           error.name === "TypeError";
+      
+      if (isFetchError) {
+        toast.warning("Network connection failed. Entering Demo Mode fallback.");
+        localStorage.setItem("demoBypass", formData.email.trim().toLowerCase());
+        localStorage.setItem("demoProfileName", formData.name);
+        localStorage.setItem("demoProfileRole", role || "mother");
+        
+        setTimeout(() => {
+          if (role === "mother") navigate("/mother-dashboard");
+          else if (role === "doctor") navigate("/provider-dashboard");
+          else navigate("/hospital-dashboard");
+        }, 1500);
+      } else {
+        toast.error(error.message || "An error occurred during registration");
+      }
     } finally {
       setLoading(false);
     }
