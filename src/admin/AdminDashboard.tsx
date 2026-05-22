@@ -5,11 +5,12 @@ import {
   Shield, Users, Building2, AlertTriangle, FileText,
   LogOut, CheckCircle, XCircle, Plus, Terminal,
   Lock, Eye, Activity, Database, Server, Bell,
-  ChevronRight, ArrowRight, Clock, TrendingUp
+  ChevronRight, ArrowRight, Clock, TrendingUp, Calendar
 } from "lucide-react";
 
 const NAV = [
   { id: "overview", label: "Overview", icon: Activity },
+  { id: "bookings", label: "Bookings & Consultations", icon: Calendar },
   { id: "providers", label: "Medical Staff", icon: Users },
   { id: "hospitals", label: "Hospitals", icon: Building2 },
   { id: "security", label: "Security Logs", icon: Shield },
@@ -48,25 +49,39 @@ const severityColor: Record<string, string> = {
 export default function AdminDashboard() {
   const [tab, setTab] = useState("overview");
   const [providers, setProviders] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [selectedHospital, setSelectedHospital] = useState("all");
+  const [selectedDoctor, setSelectedDoctor] = useState("all");
+  const [timeFilter, setTimeFilter] = useState("all");
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [adminEmail, setAdminEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = "/"; return; }
       const role = session.user.user_metadata?.role;
-      if (role !== "admin") {
+      if (role !== "admin" && role !== "doctor" && role !== "provider") {
         setIsAuthorized(false);
       } else {
         setIsAuthorized(true);
-        setAdminEmail(session.user.email || "admin");
+        setAdminEmail(session.user.email || role || "user");
         fetchProviders();
-        const ch = supabase.channel("admin-providers")
+        fetchAppointments();
+        fetchHospitals();
+        const ch1 = supabase.channel("admin-providers")
           .on("postgres_changes", { event: "*", schema: "public", table: "providers" }, fetchProviders)
           .subscribe();
-        return () => { supabase.removeChannel(ch); };
+        const ch2 = supabase.channel("admin-appointments")
+          .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, fetchAppointments)
+          .subscribe();
+        return () => { 
+          supabase.removeChannel(ch1); 
+          supabase.removeChannel(ch2); 
+        };
       }
     };
     checkAuth();
@@ -75,6 +90,80 @@ export default function AdminDashboard() {
   const fetchProviders = async () => {
     const { data } = await supabase.from("providers").select("*").order("created_at", { ascending: false });
     if (data) setProviders(data);
+  };
+
+  const fetchAppointments = async () => {
+    const { data, error } = await supabase
+      .from("appointments")
+      .select(`
+        *,
+        mothers (
+          due_date,
+          profiles:user_id (
+            full_name,
+            email
+          )
+        ),
+        hospitals (
+          name
+        )
+      `)
+      .order("appointment_date", { ascending: false });
+    if (!error && data) {
+      setAppointments(data);
+    }
+  };
+
+  const fetchHospitals = async () => {
+    const { data } = await supabase.from("hospitals").select("*").order("name");
+    if (data) setHospitals(data);
+  };
+
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    const tid = toast.loading("Updating appointment status...");
+    const { error } = await supabase
+      .from("appointments")
+      .update({ status: newStatus })
+      .eq("id", id);
+    if (error) {
+      toast.error("Failed to update status: " + error.message, { id: tid });
+    } else {
+      toast.success("Appointment status updated successfully!", { id: tid });
+      fetchAppointments();
+    }
+  };
+
+  const handleJoinCall = async (apt: any) => {
+    if (apt.video_link) {
+      window.open(apt.video_link, '_blank');
+      return;
+    }
+    
+    setIsGenerating(apt.id);
+    const toastId = toast.loading("Generating telehealth consultation link...");
+    try {
+      const { data, error } = await supabase.functions.invoke('create-video-room', {
+        body: { appointment_id: apt.id }
+      });
+      if (error || !data?.url) {
+        throw new Error(error?.message || "Failed to retrieve room URL");
+      }
+      
+      // Update database
+      const { error: dbErr } = await supabase
+        .from('appointments')
+        .update({ video_link: data.url, status: 'confirmed' })
+        .eq('id', apt.id);
+      if (dbErr) throw dbErr;
+      
+      toast.success("Consultation link generated!", { id: toastId });
+      fetchAppointments();
+      window.open(data.url, '_blank');
+    } catch (err: any) {
+      toast.error("Error creating room: " + err.message, { id: toastId });
+    } finally {
+      setIsGenerating(null);
+    }
   };
 
   const handleVerify = async (id: string, status: "verified" | "rejected") => {
@@ -90,6 +179,35 @@ export default function AdminDashboard() {
     const email = window.prompt("Doctor email to invite:");
     if (email) toast.success(`Invite sent to ${email}`);
   };
+
+  const filteredAppointments = appointments.filter((apt) => {
+    // Hospital Filter
+    if (selectedHospital !== "all" && apt.hospital_id !== selectedHospital) {
+      return false;
+    }
+    // Doctor Filter
+    if (selectedDoctor !== "all" && apt.doctor_id !== selectedDoctor) {
+      return false;
+    }
+    // Time Filter
+    if (timeFilter !== "all") {
+      const aptDate = apt.appointment_date ? new Date(apt.appointment_date) : null;
+      if (!aptDate) return false;
+
+      const today = new Date();
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999);
+
+      if (timeFilter === "today") {
+        return aptDate >= startOfToday && aptDate <= endOfToday;
+      } else if (timeFilter === "upcoming") {
+        return aptDate > endOfToday;
+      } else if (timeFilter === "past") {
+        return aptDate < startOfToday;
+      }
+    }
+    return true;
+  });
 
   // ── Loading state ──
   if (isAuthorized === null) {
@@ -284,6 +402,226 @@ export default function AdminDashboard() {
                     <span className="text-sm text-slate-400">{a}</span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── BOOKINGS ── */}
+          {tab === "bookings" && (
+            <div className="space-y-6">
+              {/* Filters Panel */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-4 flex flex-wrap gap-4 items-end">
+                <div>
+                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Hospital</label>
+                  <select
+                    value={selectedHospital}
+                    onChange={(e) => setSelectedHospital(e.target.value)}
+                    className="bg-[#0d1117] border border-slate-800 text-slate-300 text-xs rounded px-3 py-1.5 focus:outline-none focus:border-green-400 w-full sm:w-48"
+                  >
+                    <option value="all">All Hospitals</option>
+                    {hospitals.map(h => (
+                      <option key={h.id} value={h.id}>{h.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Doctor</label>
+                  <select
+                    value={selectedDoctor}
+                    onChange={(e) => setSelectedDoctor(e.target.value)}
+                    className="bg-[#0d1117] border border-slate-800 text-slate-300 text-xs rounded px-3 py-1.5 focus:outline-none focus:border-green-400 w-full sm:w-48"
+                  >
+                    <option value="all">All Doctors</option>
+                    {providers.map(p => (
+                      <option key={p.id} value={p.id}>{p.full_name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Timeframe</label>
+                  <div className="flex bg-[#0d1117] border border-slate-800 rounded p-0.5">
+                    {["all", "today", "upcoming", "past"].map((tf) => (
+                      <button
+                        key={tf}
+                        onClick={() => setTimeFilter(tf)}
+                        className={`px-3 py-1 text-xs rounded capitalize transition-all ${
+                          timeFilter === tf
+                            ? "bg-green-400/10 text-green-400 font-bold"
+                            : "text-slate-500 hover:text-slate-300"
+                        }`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bookings List Card */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-sm font-bold text-white">Appointments & Consultations</h2>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
+                      {filteredAppointments.length} matching appointments
+                    </p>
+                  </div>
+                </div>
+
+                {filteredAppointments.length === 0 ? (
+                  <div className="px-6 py-16 text-center">
+                    <Calendar className="w-8 h-8 text-slate-700 mx-auto mb-3" />
+                    <p className="text-slate-600 text-sm">No appointments matching the selected filters.</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Desktop View */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                            <th className="px-6 py-3 text-left font-medium">Patient</th>
+                            <th className="px-6 py-3 text-left font-medium">Hospital</th>
+                            <th className="px-6 py-3 text-left font-medium">Doctor</th>
+                            <th className="px-6 py-3 text-left font-medium">Date & Time</th>
+                            <th className="px-6 py-3 text-left font-medium">Type</th>
+                            <th className="px-6 py-3 text-left font-medium">Status</th>
+                            <th className="px-6 py-3 text-left font-medium">Notes</th>
+                            <th className="px-6 py-3 text-right font-medium">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/50">
+                          {filteredAppointments.map((apt) => {
+                            const patientName = apt.mothers?.profiles?.full_name || apt.mothers?.profiles?.email || "Unknown";
+                            const doctorName = providers.find(p => p.id === apt.doctor_id)?.full_name || "Unassigned";
+                            const hospitalName = apt.hospitals?.name || "Telehealth/General";
+                            const aptDate = apt.appointment_date ? new Date(apt.appointment_date).toLocaleString() : "TBD";
+                            return (
+                              <tr key={apt.id} className="hover:bg-slate-800/30 transition-colors">
+                                <td className="px-6 py-4">
+                                  <div className="font-medium text-white">{patientName}</div>
+                                  <div className="text-[10px] text-slate-500 font-mono">{apt.mother_id?.slice(0, 8)}...</div>
+                                </td>
+                                <td className="px-6 py-4 text-slate-400">{hospitalName}</td>
+                                <td className="px-6 py-4 text-slate-400 font-medium">{doctorName}</td>
+                                <td className="px-6 py-4 font-mono text-xs text-slate-300">{aptDate}</td>
+                                <td className="px-6 py-4">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+                                    {apt.appointment_type || "General"}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <select
+                                    value={apt.status || "pending"}
+                                    onChange={(e) => handleStatusUpdate(apt.id, e.target.value)}
+                                    className={`text-xs font-bold px-2 py-1 rounded bg-[#0d1117] border focus:outline-none ${
+                                      apt.status === "confirmed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
+                                      apt.status === "completed" ? "text-blue-400 border-blue-700/40 bg-blue-900/10" :
+                                      apt.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
+                                      "text-yellow-400 border-yellow-700/40 bg-yellow-900/10"
+                                    }`}
+                                  >
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                </td>
+                                <td className="px-6 py-4 text-xs text-slate-500 max-w-[150px] truncate" title={apt.notes}>
+                                  {apt.notes || "—"}
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                  <button
+                                    onClick={() => handleJoinCall(apt)}
+                                    disabled={isGenerating === apt.id}
+                                    className="px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold disabled:opacity-50"
+                                  >
+                                    {isGenerating === apt.id ? "Generating..." : apt.video_link ? "Join Call" : "Create Call"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className="block md:hidden p-4 space-y-4">
+                      {filteredAppointments.map((apt) => {
+                        const patientName = apt.mothers?.profiles?.full_name || apt.mothers?.profiles?.email || "Unknown";
+                        const doctorName = providers.find(p => p.id === apt.doctor_id)?.full_name || "Unassigned";
+                        const hospitalName = apt.hospitals?.name || "Telehealth/General";
+                        const aptDate = apt.appointment_date ? new Date(apt.appointment_date).toLocaleString() : "TBD";
+                        return (
+                          <div key={apt.id} className="bg-[#0d1117]/40 border border-slate-800 rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="font-bold text-white text-sm">{patientName}</div>
+                                <div className="text-[10px] text-slate-500 font-mono">ID: {apt.id?.slice(0, 8)}...</div>
+                              </div>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+                                {apt.appointment_type || "General"}
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Hospital</span>
+                                <span className="text-slate-300 font-medium">{hospitalName}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Doctor</span>
+                                <span className="text-slate-300 font-medium">{doctorName}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Date & Time</span>
+                                <span className="text-slate-300 font-mono">{aptDate}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Status</span>
+                                <select
+                                  value={apt.status || "pending"}
+                                  onChange={(e) => handleStatusUpdate(apt.id, e.target.value)}
+                                  className={`text-[11px] font-bold px-2 py-0.5 rounded bg-[#0d1117] border focus:outline-none mt-0.5 w-full ${
+                                    apt.status === "confirmed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
+                                    apt.status === "completed" ? "text-blue-400 border-blue-700/40 bg-blue-900/10" :
+                                    apt.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
+                                    "text-yellow-400 border-yellow-700/40 bg-yellow-900/10"
+                                  }`}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="confirmed">Confirmed</option>
+                                  <option value="completed">Completed</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {apt.notes && (
+                              <div className="bg-slate-800/20 border border-slate-800/40 p-2 rounded text-xs text-slate-400">
+                                <span className="text-slate-500 block uppercase text-[8px] tracking-wider mb-0.5">Notes</span>
+                                {apt.notes}
+                              </div>
+                            )}
+
+                            <div className="pt-2">
+                              <button
+                                onClick={() => handleJoinCall(apt)}
+                                disabled={isGenerating === apt.id}
+                                className="w-full py-2 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-all font-bold disabled:opacity-50 flex items-center justify-center gap-1.5"
+                              >
+                                {isGenerating === apt.id ? "Generating..." : apt.video_link ? "Join Call" : "Create Call"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}

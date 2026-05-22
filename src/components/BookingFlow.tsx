@@ -18,7 +18,7 @@ interface BookingFlowProps {
   initialAppointment?: any;
 }
 
-export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
+export const BookingFlow = ({ onClose, onSuccess, initialAppointment }: BookingFlowProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -84,6 +84,8 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
       
       if (motherError || !motherData) throw new Error("Could not find mother profile");
 
+      const notesValue = `Reason: ${formData.reason || ''}${formData.medications ? ' | Medications: ' + formData.medications : ''}`;
+
       if (initialAppointment) {
         // Reschedule - UPDATE
         const { error } = await supabase
@@ -92,8 +94,7 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
             appointment_date: new Date(`${formData.date} ${formData.slot}`).toISOString(),
             appointment_type: formData.type,
             status: 'pending',
-            patient_notes: formData.reason,
-            notes: formData.medications ? `Medications: ${formData.medications}` : ''
+            notes: notesValue
           })
           .eq('id', initialAppointment.id);
         if (error) throw error;
@@ -103,15 +104,29 @@ export const BookingFlow = ({ onClose, onSuccess }: BookingFlowProps) => {
           .from('appointments')
           .insert({
             mother_id: motherData.id,
-            provider_id: formData.provider?.id,
+            doctor_id: formData.provider?.id,
             appointment_date: new Date(`${formData.date} ${formData.slot}`).toISOString(),
             appointment_type: formData.type,
             status: 'pending',
-            patient_notes: formData.reason,
-            notes: formData.medications ? `Medications: ${formData.medications}` : ''
+            notes: notesValue
           });
         if (error) throw error;
       }
+
+      // Call backend to send notification emails
+      fetch('/api/appointments/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
+          doctorName: formData.provider?.full_name || 'First Available Specialist',
+          date: formData.date,
+          slot: formData.slot,
+          type: formData.type,
+          notes: formData.reason
+        })
+      }).catch(err => console.error("Notification trigger failed:", err));
 
       toast.success("Booking successful! SMS confirmation sent.", { id: toastId });
       play(SOUNDS.SUCCESS);

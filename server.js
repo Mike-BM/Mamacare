@@ -368,6 +368,31 @@ app.post('/api/webhooks/flutterwave', async (req, res) => {
   res.status(200).end();
 });
 
+app.post('/api/appointments/notify', async (req, res) => {
+  const { email, name, doctorName, date, slot, type, notes } = req.body;
+  try {
+    const emailData = {
+      name,
+      doctorName,
+      date,
+      slot,
+      type,
+      notes
+    };
+    if (email) {
+      await emailService.sendAppointmentConfirmation(email, emailData);
+    }
+    await emailService.sendAppointmentConfirmation('hellomamacareafrica@gmail.com', {
+      ...emailData,
+      name: `${name} (Admin Notification)`
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error triggering appointment confirmation email:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default app;
 
 const PORT = process.env.PORT || 3001;

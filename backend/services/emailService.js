@@ -48,6 +48,22 @@ const templates = {
       <p>Thank you for your contribution of <strong>{{amount}}</strong> to your MamaCare wallet.</p>
       <p>Transaction ID: {{transactionId}}</p>
     </div>
+  `),
+  appointmentConfirmation: Handlebars.compile(`
+    <div style="font-family: sans-serif; padding: 20px; border-left: 4px solid #10b981; background-color: #f9fafb; color: #111827;">
+      <h2 style="color: #10b981; margin-top: 0;">MamaCare Appointment Confirmed! 🎉</h2>
+      <p>Dear {{name}},</p>
+      <p>Your appointment has been successfully booked with <strong>{{doctorName}}</strong>.</p>
+      <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
+        <p style="margin: 5px 0;"><strong>Date:</strong> {{date}}</p>
+        <p style="margin: 5px 0;"><strong>Time Slot:</strong> {{slot}}</p>
+        <p style="margin: 5px 0;"><strong>Type:</strong> {{type}}</p>
+        {{#if notes}}
+          <p style="margin: 5px 0;"><strong>Reason/Notes:</strong> {{notes}}</p>
+        {{/if}}
+      </div>
+      <p>Stay radiant,<br>The MamaCare Team</p>
+    </div>
   `)
 };
 
@@ -75,7 +91,7 @@ export const emailService = {
   sendWelcomeEmail: async (email, name) => {
     const msg = {
       to: email,
-      from: 'hello@mamacare.africa',
+      from: 'hellomamacareafrica@gmail.com',
       subject: 'Welcome to MamaCare!',
       html: templates.welcome({ name })
     };
@@ -85,7 +101,7 @@ export const emailService = {
   sendAppointmentReminder: async (email, data) => {
     const msg = {
       to: email,
-      from: 'appointments@mamacare.africa',
+      from: 'hellomamacareafrica@gmail.com',
       subject: 'Reminder: Upcoming Hospital Appointment',
       html: templates.appointmentReminder(data)
     };
@@ -96,7 +112,7 @@ export const emailService = {
     // contacts is an array of emails
     const messages = contacts.map(contact => ({
       to: contact,
-      from: 'emergency@mamacare.africa',
+      from: 'hellomamacareafrica@gmail.com',
       subject: `🚨 EMERGENCY: ${data.patientName}`,
       html: templates.emergencyAlert(data)
     }));
@@ -109,7 +125,7 @@ export const emailService = {
   sendWeeklyReport: async (email, data) => {
     const msg = {
       to: email,
-      from: 'reports@mamacare.africa',
+      from: 'hellomamacareafrica@gmail.com',
       subject: `Your Week ${data.week} Pregnancy Update!`,
       html: templates.weeklyReport(data)
     };
@@ -119,9 +135,19 @@ export const emailService = {
   sendPaymentReceipt: async (email, data) => {
     const msg = {
       to: email,
-      from: 'billing@mamacare.africa',
+      from: 'hellomamacareafrica@gmail.com',
       subject: 'MamaCare Payment Receipt',
       html: templates.paymentReceipt(data)
+    };
+    await sendEmailWithRetry(msg);
+  },
+
+  sendAppointmentConfirmation: async (email, data) => {
+    const msg = {
+      to: email,
+      from: 'hellomamacareafrica@gmail.com',
+      subject: 'MamaCare Appointment Booking Confirmation',
+      html: templates.appointmentConfirmation(data)
     };
     await sendEmailWithRetry(msg);
   },

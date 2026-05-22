@@ -110,22 +110,28 @@ const ProviderDashboard = () => {
       .from('appointments')
       .select(`
         *,
-        patients (
-          full_name,
-          phone,
-          due_date
+        mothers (
+          due_date,
+          profiles:user_id (
+            full_name,
+            email
+          )
         )
       `)
-      .order('created_at', { ascending: false });
+      .order('appointment_date', { ascending: false });
 
     if (!error && data) {
       setSchedule(data.map(apt => ({
         id: apt.id,
-        patient: apt.patients?.full_name || "Unknown Patient",
-        time: apt.time || "TBD",
+        patient: apt.mothers?.profiles?.full_name || "Unknown Patient",
+        time: apt.appointment_date ? new Date(apt.appointment_date).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : "TBD",
         status: apt.status,
-        type: apt.type,
-        patientDetails: apt.patients
+        type: apt.appointment_type,
+        patientDetails: {
+          full_name: apt.mothers?.profiles?.full_name,
+          phone: apt.mothers?.profiles?.email || "—",
+          due_date: apt.mothers?.due_date
+        }
       })));
     }
     setIsLoading(false);
