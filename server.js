@@ -19,8 +19,8 @@ app.use(express.json());
 // Apply rate limiting
 app.use('/api/', standardLimiter);
 
-// Root health check endpoint
-app.get('/', (req, res) => {
+// Root and API health check endpoint
+app.get(['/', '/api', '/api/'], (req, res) => {
   res.json({
     status: 'healthy',
     service: 'mamacare-backend',
@@ -371,7 +371,7 @@ app.post('/api/webhooks/flutterwave', async (req, res) => {
 export default app;
 
 const PORT = process.env.PORT || 3001;
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
