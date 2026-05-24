@@ -86,8 +86,13 @@ const ProviderDashboard = () => {
 
     const channel = supabase
       .channel('provider-appointment-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
         fetchSchedule();
+        if (payload.eventType === 'INSERT') {
+          toast.success("📅 New Appointment Booked: A patient has requested a consultation!", {
+            duration: 8000,
+          });
+        }
       })
       .subscribe();
 
