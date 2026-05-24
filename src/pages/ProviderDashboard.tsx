@@ -84,20 +84,45 @@ const ProviderDashboard = () => {
 
     fetchSchedule();
 
-    const channel = supabase
-      .channel('provider-appointment-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
-        fetchSchedule();
-        if (payload.eventType === 'INSERT') {
-          toast.success("📅 New Appointment Booked: A patient has requested a consultation!", {
-            duration: 8000,
-          });
-        }
-      })
-      .subscribe();
+    let channel: any;
+    let profileChannel: any;
+
+    const setupRealtime = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return;
+
+      channel = supabase
+        .channel('provider-appointment-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
+          fetchSchedule();
+          if (payload.eventType === 'INSERT') {
+            toast.success("📅 New Appointment Booked: A patient has requested a consultation!", {
+              duration: 8000,
+            });
+          }
+        })
+        .subscribe();
+
+      profileChannel = supabase
+        .channel('provider-profile-changes')
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'providers', filter: `id=eq.${session.user.id}` },
+          (payload: any) => {
+            setProviderProfile(payload.new);
+            if (payload.new.verification_status === 'verified') {
+              toast.success("🎉 Congratulations! Your medical license has been verified. Access granted!");
+            }
+          }
+        )
+        .subscribe();
+    };
+
+    setupRealtime();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
+      if (profileChannel) supabase.removeChannel(profileChannel);
     };
   }, []);
 
@@ -412,7 +437,27 @@ const ProviderDashboard = () => {
             transition={{ duration: 0.2 }}
           >
 
-        {activeTab === "schedule" && (
+        {providerProfile && providerProfile.verification_status !== 'verified' && activeTab !== 'settings' ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center max-w-xl mx-auto space-y-6">
+            <div className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
+              🔒
+            </div>
+            <h3 className="text-2xl font-black text-white">Verification in Progress</h3>
+            <p className="text-sm text-white/60 leading-relaxed">
+              Your clinical profile and KMPDC license number are currently under review by the Nneka Health Operations Team. You will receive an automated notification once your profile is verified and activated.
+            </p>
+            <div className="p-4 bg-white/5 border border-white/10 rounded-2xl w-full text-left font-mono text-xs text-white/50 space-y-1">
+              <p><strong>License Status:</strong> {providerProfile.verification_status || 'Unsubmitted'}</p>
+              <p><strong>Submitted License:</strong> {providerProfile.kmpdc_license || 'None'}</p>
+              <p><strong>Hospital Partner:</strong> {providerProfile.hospital_affiliation || 'N/A'}</p>
+            </div>
+            <p className="text-xs text-white/30 italic">
+              Need immediate assistance? Please contact operations at support@nnekahealth.com
+            </p>
+          </div>
+        ) : (
+          <>
+            {activeTab === "schedule" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Schedule List */}
             <div className="lg:col-span-2 space-y-6">
@@ -721,6 +766,8 @@ const ProviderDashboard = () => {
                 ))}
              </div>
           </Card>
+        )}
+          </>
         )}
           </motion.div>
         </AnimatePresence>

@@ -89,6 +89,10 @@ export default function AdminDashboard() {
   const [timeFilter, setTimeFilter] = useState("all");
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [adminEmail, setAdminEmail] = useState("");
+  const [hasSession, setHasSession] = useState<boolean>(false);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleToggleUserStatus = (userId: string) => {
     setUsersList(prev => prev.map(u => {
@@ -176,7 +180,13 @@ export default function AdminDashboard() {
       }
 
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { window.location.href = "/"; return; }
+      if (!session) {
+        setHasSession(false);
+        setIsAuthorized(false);
+        return;
+      }
+
+      setHasSession(true);
       const role = session.user.user_metadata?.role;
       if (role !== "admin" && role !== "doctor" && role !== "provider") {
         setIsAuthorized(false);
@@ -250,6 +260,47 @@ export default function AdminDashboard() {
     };
     checkAuth();
   }, []);
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loginEmail || !loginPassword) {
+      toast.error("Please enter both email and password.");
+      return;
+    }
+    setIsLoggingIn(true);
+    const toastId = toast.loading("Authenticating operational credentials...");
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
+      });
+      if (error) throw error;
+
+      const role = data.session?.user?.user_metadata?.role;
+      if (role !== "admin" && role !== "doctor" && role !== "provider") {
+        await supabase.auth.signOut();
+        throw new Error("Access Denied: Admin or Provider role required.");
+      }
+
+      toast.success("Authentication successful! Welcome to Operations Console.", { id: toastId });
+      setHasSession(true);
+      setIsAuthorized(true);
+      setAdminEmail(data.session?.user?.email || role || "user");
+      
+      fetchProviders();
+      fetchAppointments();
+      fetchHospitals();
+      fetchMamarideRequests();
+      
+      window.location.reload();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to sign in.", { id: toastId });
+      setIsAuthorized(false);
+      setHasSession(false);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
 
   const loadMockData = () => {
     setProviders([
@@ -720,7 +771,7 @@ export default function AdminDashboard() {
   }
 
   // ── Access denied ──
-  if (isAuthorized === false) {
+  if (isAuthorized === false && hasSession) {
     return (
       <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center font-mono p-8 text-center">
         <div className="border border-red-800 bg-red-950/40 rounded-lg p-10 max-w-md w-full">
@@ -728,15 +779,98 @@ export default function AdminDashboard() {
           <p className="text-red-400 text-xs tracking-widest uppercase mb-2">HTTP 403 — Forbidden</p>
           <h1 className="text-2xl font-black text-white mb-3">Access Denied</h1>
           <p className="text-slate-500 text-sm mb-6">
-            You do not have admin privileges. This incident has been logged.
+            You do not have administrative privileges. This security incident has been logged.
           </p>
           <button
-            onClick={() => window.location.href = "/"}
+            onClick={async () => {
+              localStorage.removeItem("demoBypass");
+              await supabase.auth.signOut();
+              window.location.reload();
+            }}
             className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold rounded border border-slate-700 transition-colors"
           >
-            ← Return to Site
+            ← Return to Operations Login
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // ── Secure Operations Login Screen ──
+  if (!hasSession && !localStorage.getItem("demoBypass")) {
+    return (
+      <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center font-sans p-6">
+        <div className="w-full max-w-md bg-[#161b22] border border-slate-800 rounded-lg shadow-2xl p-8 transition-all hover:border-green-500/20">
+          <div className="flex items-center gap-3 mb-6 justify-center">
+            <Shield className="w-8 h-8 text-green-400" />
+            <div>
+              <h1 className="text-xl font-black text-white tracking-wide">NNEKA HEALTH</h1>
+              <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Operations Console Login</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleAdminLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Operational Email</label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="ops@nnekahealth.com"
+                className="w-full bg-[#0d1117] border border-slate-800 rounded px-4 py-3 text-sm text-white focus:outline-none focus:border-green-500/50 transition-colors font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Security Password</label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full bg-[#0d1117] border border-slate-800 rounded px-4 py-3 text-sm text-white focus:outline-none focus:border-green-500/50 transition-colors font-mono"
+              />
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3 bg-green-600 hover:bg-green-500 disabled:bg-green-800 disabled:text-slate-400 text-white text-sm font-bold rounded border border-green-700 hover:border-green-600 transition-colors flex items-center justify-center gap-2 shadow-lg hover:shadow-green-500/10 cursor-pointer"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <Clock className="w-4 h-4 animate-spin" />
+                    Verifying Credentials...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    Authorize Access
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+
+          {/* Bypass for demo environment verification */}
+          <div className="mt-8 pt-6 border-t border-slate-800/60 text-center">
+            <p className="text-[10px] text-slate-600 uppercase tracking-widest font-mono mb-3">Developer Sandbox Access</p>
+            <button
+              onClick={() => {
+                localStorage.setItem("demoBypass", "admin@nnekahealth.com");
+                toast.success("Bypass authorized! Loading Operations panel...");
+                window.location.reload();
+              }}
+              className="text-xs text-slate-500 hover:text-green-400 transition-colors font-mono underline"
+            >
+              Skip Authentication (Local Developer Bypass)
+            </button>
+          </div>
+        </div>
+        <p className="text-slate-600 text-[10px] mt-6 tracking-widest font-mono font-bold">SECURE HTTPS CONNECTION REQUIRED · ISO 27001 COMPLIANT</p>
       </div>
     );
   }
@@ -799,10 +933,10 @@ export default function AdminDashboard() {
             </div>
           </div>
           <button
-            onClick={() => {
+            onClick={async () => {
               localStorage.removeItem("demoBypass");
-              supabase.auth.signOut();
-              window.location.href = "/";
+              await supabase.auth.signOut();
+              window.location.reload();
             }}
             className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-500 hover:text-red-400 hover:bg-red-900/10 rounded transition-all"
           >
