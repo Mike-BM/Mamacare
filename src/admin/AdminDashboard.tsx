@@ -5,12 +5,14 @@ import {
   Shield, Users, Building2, AlertTriangle, FileText,
   LogOut, CheckCircle, XCircle, Plus, Terminal,
   Lock, Eye, Activity, Database, Server, Bell,
-  ChevronRight, ArrowRight, Clock, TrendingUp, Calendar
+  ChevronRight, ArrowRight, Clock, TrendingUp, Calendar,
+  Car, MapPin, Truck
 } from "lucide-react";
 
 const NAV = [
   { id: "overview", label: "Overview", icon: Activity },
   { id: "bookings", label: "Bookings & Consultations", icon: Calendar },
+  { id: "rides", label: "MamaRide Logistics", icon: Car },
   { id: "providers", label: "Medical Staff", icon: Users },
   { id: "hospitals", label: "Hospitals", icon: Building2 },
   { id: "security", label: "Security Logs", icon: Shield },
@@ -50,6 +52,7 @@ export default function AdminDashboard() {
   const [tab, setTab] = useState("overview");
   const [providers, setProviders] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [mamarideRequests, setMamarideRequests] = useState<any[]>([]);
   const [hospitals, setHospitals] = useState<any[]>([]);
   const [selectedHospital, setSelectedHospital] = useState("all");
   const [selectedDoctor, setSelectedDoctor] = useState("all");
@@ -61,6 +64,19 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      const demoBypass = localStorage.getItem("demoBypass");
+      if (demoBypass) {
+        const lowerBypass = demoBypass.toLowerCase();
+        if (lowerBypass.includes("admin") || lowerBypass.includes("doctor") || lowerBypass.includes("provider")) {
+          setIsAuthorized(true);
+          setAdminEmail(demoBypass);
+          loadMockData();
+        } else {
+          setIsAuthorized(false);
+        }
+        return;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { window.location.href = "/"; return; }
       const role = session.user.user_metadata?.role;
@@ -72,20 +88,244 @@ export default function AdminDashboard() {
         fetchProviders();
         fetchAppointments();
         fetchHospitals();
+        fetchMamarideRequests();
         const ch1 = supabase.channel("admin-providers")
           .on("postgres_changes", { event: "*", schema: "public", table: "providers" }, fetchProviders)
           .subscribe();
         const ch2 = supabase.channel("admin-appointments")
           .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, fetchAppointments)
           .subscribe();
+        const ch3 = supabase.channel("admin-mamarides")
+          .on("postgres_changes", { event: "*", schema: "public", table: "mamaride_requests" }, fetchMamarideRequests)
+          .subscribe();
         return () => { 
           supabase.removeChannel(ch1); 
           supabase.removeChannel(ch2); 
+          supabase.removeChannel(ch3); 
         };
       }
     };
     checkAuth();
   }, []);
+
+  const loadMockData = () => {
+    setProviders([
+      {
+        id: "doc-1",
+        full_name: "Dr. Eliza Keith",
+        specialty: "Obstetrics & Gynecology",
+        license_number: "KMPDC-9921",
+        verification_status: "verified",
+        is_active: true
+      },
+      {
+        id: "doc-2",
+        full_name: "Dr. James Omondi",
+        specialty: "Pediatrics",
+        license_number: "KMPDC-4412",
+        verification_status: "verified",
+        is_active: true
+      },
+      {
+        id: "doc-3",
+        full_name: "Dr. Amina Yusuf",
+        specialty: "Maternal Health Specialist",
+        license_number: "KMPDC-8812",
+        verification_status: "pending",
+        is_active: false
+      }
+    ]);
+
+    setHospitals([
+      { id: "hosp-1", name: "Nairobi General Hospital", location: "Nairobi, KE", beds: 450, status: "Active" },
+      { id: "hosp-2", name: "Aga Khan University Hospital", location: "Nairobi, KE", beds: 254, status: "Active" },
+      { id: "hosp-3", name: "Kenyatta National Hospital", location: "Nairobi, KE", beds: 1800, status: "Active" },
+      { id: "hosp-4", name: "Mombasa Coast Hospital", location: "Mombasa, KE", beds: 120, status: "Pending" }
+    ]);
+
+    setAppointments([
+      {
+        id: "apt-1",
+        mother_id: "m-1",
+        doctor_id: "doc-1",
+        hospital_id: "hosp-1",
+        appointment_date: new Date().toISOString(),
+        appointment_type: "Antenatal",
+        status: "pending",
+        notes: "Routine checkup, blood pressure check needed.",
+        mothers: {
+          due_date: "2026-09-12",
+          profiles: {
+            full_name: "Mariam Osei",
+            email: "mariam@example.com"
+          }
+        },
+        hospitals: {
+          name: "Nairobi General Hospital"
+        }
+      },
+      {
+        id: "apt-2",
+        mother_id: "m-2",
+        doctor_id: "doc-2",
+        hospital_id: "hosp-2",
+        appointment_date: new Date(Date.now() + 86400000).toISOString(),
+        appointment_type: "Ultrasound",
+        status: "confirmed",
+        notes: "Anatomy scan",
+        mothers: {
+          due_date: "2026-10-15",
+          profiles: {
+            full_name: "Amina Yusuf",
+            email: "amina@example.com"
+          }
+        },
+        hospitals: {
+          name: "Aga Khan University Hospital"
+        }
+      },
+      {
+        id: "apt-3",
+        mother_id: "m-3",
+        doctor_id: "doc-1",
+        hospital_id: undefined,
+        appointment_date: new Date(Date.now() - 86400000).toISOString(),
+        appointment_type: "Telehealth",
+        status: "completed",
+        notes: "Consultation on nutrition",
+        mothers: {
+          due_date: "2026-08-01",
+          profiles: {
+            full_name: "Jane Doe",
+            email: "jane@example.com"
+          }
+        },
+        hospitals: undefined
+      }
+    ]);
+
+    setMamarideRequests([
+      {
+        id: "ride-1",
+        mother_id: "m-1",
+        ride_type: "ambulance",
+        pickup_location: "Nairobi West Clinic, Lane 2",
+        destination: "Nairobi General Hospital",
+        status: "requested",
+        created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+        mothers: {
+          profiles: {
+            full_name: "Stacy Mutheu",
+            email: "stacy@example.com",
+            phone: "+254 711 222 333"
+          }
+        },
+        driver: null
+      },
+      {
+        id: "ride-2",
+        mother_id: "m-2",
+        ride_type: "standard",
+        pickup_location: "Mbagathi Way, Block B",
+        destination: "Aga Khan University Hospital",
+        status: "accepted",
+        created_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        mothers: {
+          profiles: {
+            full_name: "Jane Keith",
+            email: "jane.keith@example.com",
+            phone: "+254 722 333 444"
+          }
+        },
+        driver: {
+          full_name: "John Kamau",
+          phone: "+254 733 444 555"
+        }
+      },
+      {
+        id: "ride-3",
+        mother_id: "m-3",
+        ride_type: "boda",
+        pickup_location: "Kibera Drive, Gate 4",
+        destination: "Kenyatta National Hospital",
+        status: "completed",
+        created_at: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
+        mothers: {
+          profiles: {
+            full_name: "Mariam Osei",
+            email: "mariam@example.com",
+            phone: "+254 799 888 777"
+          }
+        },
+        driver: {
+          full_name: "Peter Mwangi",
+          phone: "+254 755 666 777"
+        }
+      }
+    ]);
+  };
+
+  const fetchMamarideRequests = async () => {
+    const { data } = await supabase
+      .from("mamaride_requests")
+      .select(`
+        *,
+        mothers (
+          profiles:user_id (
+            full_name,
+            email
+          )
+        )
+      `)
+      .order("created_at", { ascending: false });
+    if (data) {
+      setMamarideRequests(data);
+    }
+  };
+
+  const handleRideStatusUpdate = async (id: string, newStatus: string) => {
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      setMamarideRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+      toast.success(`Ride status updated to ${newStatus}! (Demo)`);
+      return;
+    }
+    const tid = toast.loading("Updating ride status...");
+    const { error } = await supabase
+      .from("mamaride_requests")
+      .update({ status: newStatus })
+      .eq("id", id);
+    if (error) {
+      toast.error("Failed to update status: " + error.message, { id: tid });
+    } else {
+      toast.success("Ride status updated successfully!", { id: tid });
+      fetchMamarideRequests();
+    }
+  };
+
+  const handleAssignDriver = (id: string) => {
+    const driverName = window.prompt("Enter Driver Name:", "John Kamau");
+    if (!driverName) return;
+    const driverPhone = window.prompt("Enter Driver Phone Number:", "+254 733 444 555") || "+254 733 444 555";
+
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      setMamarideRequests(prev => prev.map(r => r.id === id ? {
+        ...r,
+        status: "accepted",
+        driver: { full_name: driverName, phone: driverPhone }
+      } : r));
+      toast.success(`Driver ${driverName} assigned! (Demo)`);
+      return;
+    }
+    
+    toast.success(`Driver ${driverName} assigned to ride request!`);
+    setMamarideRequests(prev => prev.map(r => r.id === id ? {
+      ...r,
+      status: "accepted",
+      driver: { full_name: driverName, phone: driverPhone }
+    } : r));
+  };
 
   const fetchProviders = async () => {
     const { data } = await supabase.from("providers").select("*").order("created_at", { ascending: false });
@@ -120,6 +360,12 @@ export default function AdminDashboard() {
   };
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: newStatus } : apt));
+      toast.success("Appointment status updated successfully! (Demo)");
+      return;
+    }
     const tid = toast.loading("Updating appointment status...");
     const { error } = await supabase
       .from("appointments")
@@ -139,6 +385,15 @@ export default function AdminDashboard() {
       return;
     }
     
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      const demoUrl = "https://meet.jit.si/MamaCareDemoAdminConsultation";
+      setAppointments(prev => prev.map(a => a.id === apt.id ? { ...a, video_link: demoUrl, status: 'confirmed' } : a));
+      toast.success("Consultation link generated! (Demo)");
+      window.open(demoUrl, '_blank');
+      return;
+    }
+
     setIsGenerating(apt.id);
     const toastId = toast.loading("Generating telehealth consultation link...");
     try {
@@ -167,6 +422,12 @@ export default function AdminDashboard() {
   };
 
   const handleVerify = async (id: string, status: "verified" | "rejected") => {
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      setProviders(prev => prev.map(p => p.id === id ? { ...p, verification_status: status, is_active: status === "verified" } : p));
+      toast.success(`Doctor ${status} (Demo)`);
+      return;
+    }
     const tid = toast.loading("Updating...");
     const { error } = await supabase.from("providers")
       .update({ verification_status: status, is_active: status === "verified" })
@@ -614,6 +875,224 @@ export default function AdminDashboard() {
                                 className="w-full py-2 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-all font-bold disabled:opacity-50 flex items-center justify-center gap-1.5"
                               >
                                 {isGenerating === apt.id ? "Generating..." : apt.video_link ? "Join Call" : "Create Call"}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── MAMARIDE LOGISTICS ── */}
+          {tab === "rides" && (
+            <div className="space-y-6">
+              {/* Statistics Cards */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-[#161b22] border border-slate-800 rounded-lg p-5">
+                  <p className="text-2xl font-black text-white mb-1">
+                    {mamarideRequests.length}
+                  </p>
+                  <p className="text-[11px] text-slate-500 uppercase tracking-wider">Total Ride Requests</p>
+                </div>
+                <div className="bg-[#161b22] border border-slate-800 rounded-lg p-5">
+                  <p className="text-2xl font-black text-yellow-400 mb-1">
+                    {mamarideRequests.filter(r => r.status === 'requested').length}
+                  </p>
+                  <p className="text-[11px] text-slate-500 uppercase tracking-wider">Pending Dispatch</p>
+                </div>
+                <div className="bg-[#161b22] border border-slate-800 rounded-lg p-5">
+                  <p className="text-2xl font-black text-blue-400 mb-1">
+                    {mamarideRequests.filter(r => ['accepted', 'arrived', 'in_progress'].includes(r.status)).length}
+                  </p>
+                  <p className="text-[11px] text-slate-500 uppercase tracking-wider">Active Rides</p>
+                </div>
+                <div className="bg-[#161b22] border border-slate-800 rounded-lg p-5">
+                  <p className="text-2xl font-black text-green-400 mb-1">
+                    {mamarideRequests.filter(r => r.status === 'completed').length}
+                  </p>
+                  <p className="text-[11px] text-slate-500 uppercase tracking-wider">Completed Rides</p>
+                </div>
+              </div>
+
+              {/* Ride Requests Dispatch Board */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-sm font-bold text-white">MamaRide Dispatch Console</h2>
+                    <p className="text-[11px] text-slate-600 mt-0.5">
+                      Live tracking and transport dispatch
+                    </p>
+                  </div>
+                </div>
+
+                {mamarideRequests.length === 0 ? (
+                  <div className="px-6 py-16 text-center">
+                    <Car className="w-8 h-8 text-slate-700 mx-auto mb-3" />
+                    <p className="text-slate-600 text-sm">No transport requests on record.</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Desktop View */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                            <th className="px-6 py-3 text-left font-medium">Mother / Patient</th>
+                            <th className="px-6 py-3 text-left font-medium">Ride Category</th>
+                            <th className="px-6 py-3 text-left font-medium">Pickup Location</th>
+                            <th className="px-6 py-3 text-left font-medium">Destination</th>
+                            <th className="px-6 py-3 text-left font-medium">Driver Assigned</th>
+                            <th className="px-6 py-3 text-left font-medium">Status</th>
+                            <th className="px-6 py-3 text-left font-medium">Request Time</th>
+                            <th className="px-6 py-3 text-right font-medium">Dispatch Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/50">
+                          {mamarideRequests.map((ride) => {
+                            const motherName = ride.mothers?.profiles?.full_name || "Unknown Mother";
+                            const motherPhone = ride.mothers?.profiles?.phone || "+254 711 000 000";
+                            const reqTime = ride.created_at ? new Date(ride.created_at).toLocaleTimeString() : "TBD";
+                            const rideTypeIcon = 
+                              ride.ride_type === 'ambulance' ? '🚨 Ambulance' :
+                              ride.ride_type === 'boda' ? '🏍️ Boda-Boda' : '🚗 Standard Car';
+                            
+                            return (
+                              <tr key={ride.id} className="hover:bg-slate-800/30 transition-colors">
+                                <td className="px-6 py-4">
+                                  <div className="font-medium text-white">{motherName}</div>
+                                  <div className="text-[10px] text-slate-500 font-mono">{motherPhone}</div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 border ${
+                                    ride.ride_type === 'ambulance' ? 'text-red-400 border-red-700/40 bg-red-900/10' :
+                                    ride.ride_type === 'boda' ? 'text-yellow-400 border-yellow-700/40 bg-yellow-900/10' :
+                                    'text-blue-400 border-blue-700/40 bg-blue-900/10'
+                                  }`}>
+                                    {rideTypeIcon}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 text-slate-400 font-mono text-xs">{ride.pickup_location || "—"}</td>
+                                <td className="px-6 py-4 text-slate-400 font-mono text-xs">{ride.destination || "General Clinic"}</td>
+                                <td className="px-6 py-4 text-slate-300 font-medium">
+                                  {ride.driver ? (
+                                    <div>
+                                      <div>{ride.driver.full_name}</div>
+                                      <div className="text-[10px] text-slate-600 font-mono">{ride.driver.phone}</div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-slate-600 italic">Unassigned</span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <select
+                                    value={ride.status || "requested"}
+                                    onChange={(e) => handleRideStatusUpdate(ride.id, e.target.value)}
+                                    className={`text-xs font-bold px-2 py-1 rounded bg-[#0d1117] border focus:outline-none ${
+                                      ride.status === "completed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
+                                      ride.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
+                                      ride.status === "requested" ? "text-yellow-400 border-yellow-700/40 bg-yellow-900/10" :
+                                      "text-blue-400 border-blue-700/40 bg-blue-900/10"
+                                    }`}
+                                  >
+                                    <option value="requested">Requested</option>
+                                    <option value="accepted">Accepted</option>
+                                    <option value="arrived">Arrived</option>
+                                    <option value="in_progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                  </select>
+                                </td>
+                                <td className="px-6 py-4 font-mono text-xs text-slate-400">{reqTime}</td>
+                                <td className="px-6 py-4 text-right">
+                                  <button
+                                    onClick={() => handleAssignDriver(ride.id)}
+                                    className="px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold"
+                                  >
+                                    {ride.driver ? "Reassign Driver" : "Dispatch Driver"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className="block md:hidden p-4 space-y-4">
+                      {mamarideRequests.map((ride) => {
+                        const motherName = ride.mothers?.profiles?.full_name || "Unknown Mother";
+                        const motherPhone = ride.mothers?.profiles?.phone || "+254 711 000 000";
+                        const reqTime = ride.created_at ? new Date(ride.created_at).toLocaleTimeString() : "TBD";
+                        
+                        return (
+                          <div key={ride.id} className="bg-[#0d1117]/40 border border-slate-800 rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <div className="font-bold text-white text-sm">{motherName}</div>
+                                <div className="text-[10px] text-slate-500 font-mono">{motherPhone}</div>
+                              </div>
+                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 border ${
+                                ride.ride_type === 'ambulance' ? 'text-red-400 border-red-700/40 bg-red-900/10' :
+                                ride.ride_type === 'boda' ? 'text-yellow-400 border-yellow-700/40 bg-yellow-900/10' :
+                                'text-blue-400 border-blue-700/40 bg-blue-900/10'
+                              }`}>
+                                {ride.ride_type}
+                              </span>
+                            </div>
+
+                            <div className="space-y-1.5 text-xs">
+                              <div>
+                                <span className="text-slate-500 block uppercase text-[8px] tracking-wider">Locations</span>
+                                <div className="text-slate-300 font-mono text-[11px] leading-tight">
+                                  <div>From: {ride.pickup_location || "—"}</div>
+                                  <div>To: {ride.destination || "General Clinic"}</div>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <span className="text-slate-500 block uppercase text-[8px] tracking-wider">Driver</span>
+                                  <span className="text-slate-300">
+                                    {ride.driver ? `${ride.driver.full_name} (${ride.driver.phone})` : "Unassigned"}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-500 block uppercase text-[8px] tracking-wider">Requested At</span>
+                                  <span className="text-slate-300 font-mono">{reqTime}</span>
+                                </div>
+                              </div>
+                              <div>
+                                <span className="text-slate-500 block uppercase text-[8px] tracking-wider mb-1">Status</span>
+                                <select
+                                  value={ride.status || "requested"}
+                                  onChange={(e) => handleRideStatusUpdate(ride.id, e.target.value)}
+                                  className={`text-[11px] font-bold px-2 py-0.5 rounded bg-[#0d1117] border focus:outline-none w-full ${
+                                    ride.status === "completed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
+                                    ride.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
+                                    ride.status === "requested" ? "text-yellow-400 border-yellow-700/40 bg-yellow-900/10" :
+                                    "text-blue-400 border-blue-700/40 bg-blue-900/10"
+                                  }`}
+                                >
+                                  <option value="requested">Requested</option>
+                                  <option value="accepted">Accepted</option>
+                                  <option value="arrived">Arrived</option>
+                                  <option value="in_progress">In Progress</option>
+                                  <option value="completed">Completed</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="pt-2">
+                              <button
+                                onClick={() => handleAssignDriver(ride.id)}
+                                className="w-full py-2 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-all font-bold"
+                              >
+                                {ride.driver ? "Reassign Driver" : "Dispatch Driver"}
                               </button>
                             </div>
                           </div>

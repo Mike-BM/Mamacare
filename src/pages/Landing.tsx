@@ -63,6 +63,15 @@ const Landing = () => {
     }
   }, []);
 
+  const handleDemoLogin = (demoEmail: string) => {
+    localStorage.setItem("demoBypass", demoEmail);
+    toast.success(`Demo Logged in as ${demoEmail.split('@')[0]}`);
+    if (demoEmail === 'doctor@example.com') navigate("/provider-dashboard");
+    else if (demoEmail === 'hospital@example.com') navigate("/hospital-dashboard");
+    else if (demoEmail === 'admin@example.com') window.location.href = "/admin.html";
+    else navigate("/mother-dashboard");
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -296,6 +305,40 @@ const Landing = () => {
                   <button type="submit" className="w-full glass-button bg-primary hover:bg-primary/80 text-white font-black h-12 rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all" disabled={loading}>{loading ? "AUTHENTICATING..." : "SIGN IN TO DASHBOARD"}</button>
 
                 </form>
+
+                <div className="mt-4 border-t border-white/10 pt-4">
+                  <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest text-center mb-2">Developer Demo Portals</p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <button
+                      type="button"
+                      onClick={() => handleDemoLogin("admin@example.com")}
+                      className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      🛡️ Admin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDemoLogin("doctor@example.com")}
+                      className="px-2.5 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      🩺 Doctor
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDemoLogin("hospital@example.com")}
+                      className="px-2.5 py-1 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      🏥 Hospital
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDemoLogin("test@example.com")}
+                      className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
+                    >
+                      🤰 Mother
+                    </button>
+                  </div>
+                </div>
                 <div className="mt-8 pt-6 border-t border-white/10 flex flex-col items-center">
                   <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-4">New to the platform?</p>
                   <button 

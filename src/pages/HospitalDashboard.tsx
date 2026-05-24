@@ -67,6 +67,95 @@ const HospitalDashboard = () => {
   const [sosAlerts, setSosAlerts] = useState<any[]>([]);
   const [hospitalProfile, setHospitalProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [isSubmittingReferral, setIsSubmittingReferral] = useState(false);
+  const [referralForm, setReferralForm] = useState({
+    name: "",
+    phone: "",
+    mrn: "",
+    specialty: "obstetrics",
+    urgency: "urgent",
+    notes: ""
+  });
+
+  const handleReferralSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingReferral(true);
+    const toastId = toast.loading("Submitting referral to telemedicine network...");
+
+    const demoBypass = localStorage.getItem("demoBypass");
+    if (demoBypass) {
+      setTimeout(() => {
+        const newApt = {
+          id: Math.floor(Math.random() * 1000) + 1000,
+          patient: referralForm.name,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          status: "pending",
+          type: referralForm.specialty === 'obstetrics' ? 'Antenatal Checkup' : referralForm.specialty === 'pediatrics' ? 'Pediatric Review' : 'General Consultation',
+          priority: referralForm.urgency
+        };
+        setAppointments(prev => [newApt, ...prev]);
+        setIsSubmittingReferral(false);
+        setIsReferralModalOpen(false);
+        toast.success(`Referral for ${referralForm.name} submitted successfully (Demo)!`, { id: toastId });
+        setReferralForm({
+          name: "",
+          phone: "",
+          mrn: "",
+          specialty: "obstetrics",
+          urgency: "urgent",
+          notes: ""
+        });
+      }, 1500);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/hospital/referral', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          hospital_id: hospitalProfile?.id || 'aga-khan-nbi',
+          hospital_mrn: referralForm.mrn,
+          referring_doctor: 'Dr. James Ochieng',
+          patient: {
+            name: referralForm.name,
+            phone: referralForm.phone,
+            due_date: new Date(Date.now() + 86400000 * 90).toISOString().split('T')[0],
+            pregnancy_week: 24
+          },
+          referral: {
+            urgency: referralForm.urgency,
+            reason: referralForm.specialty === 'obstetrics' ? 'Pre-eclampsia monitoring' : 'Routine review',
+            preferred_specialty: referralForm.specialty,
+            notes: referralForm.notes
+          }
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to submit referral");
+
+      const data = await response.json();
+      toast.success(`Referral submitted! Assigned to ${data.assigned_doctor}.`, { id: toastId });
+      fetchHospitalData();
+      setIsReferralModalOpen(false);
+      setReferralForm({
+        name: "",
+        phone: "",
+        mrn: "",
+        specialty: "obstetrics",
+        urgency: "urgent",
+        notes: ""
+      });
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Failed to submit referral", { id: toastId });
+    } finally {
+      setIsSubmittingReferral(false);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -331,9 +420,9 @@ const HospitalDashboard = () => {
               </TabsTrigger>
             </TabsList>
           </div>
-          <div className="hidden sm:flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 flex-wrap">
             <Button size="sm" variant="outline" className="border-white/10 hover:bg-white/5 rounded-xl text-xs font-bold h-11">Export Report</Button>
-            <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11">Add Patient</Button>
+            <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11" onClick={() => setIsReferralModalOpen(true)}>Refer to Telemedicine 🏥</Button>
           </div>
 
           <AnimatePresence mode="wait">
@@ -620,6 +709,148 @@ const HospitalDashboard = () => {
           <TabNavigator currentTabId={activeTab} onTabChange={setActiveTab} />
         </Tabs>
       </div>
+
+      {/* Referral Modal Dialog */}
+      <AnimatePresence>
+        {isReferralModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setIsReferralModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#161b22] border border-white/10 rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-6 border-b border-white/10 bg-gradient-to-r from-secondary/10 to-primary/10 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center">
+                    <Heart className="w-6 h-6 text-secondary animate-pulse" fill="currentColor" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white">Refer to Telemedicine</h3>
+                    <p className="text-xs text-white/50">Onboard patient to MamaCare specialist network</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsReferralModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Form Body */}
+              <form onSubmit={handleReferralSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-white/40 uppercase font-black tracking-wider">Patient Name</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Grace Wanjiku"
+                      value={referralForm.name}
+                      onChange={(e) => setReferralForm({ ...referralForm, name: e.target.value })}
+                      className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-secondary"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-white/40 uppercase font-black tracking-wider">Patient Phone</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="+254 712 345678"
+                      value={referralForm.phone}
+                      onChange={(e) => setReferralForm({ ...referralForm, phone: e.target.value })}
+                      className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-secondary"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-white/40 uppercase font-black tracking-wider">Hospital MRN</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="AKH-2026-4457"
+                      value={referralForm.mrn}
+                      onChange={(e) => setReferralForm({ ...referralForm, mrn: e.target.value })}
+                      className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-secondary"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] text-white/40 uppercase font-black tracking-wider">Urgency Level</label>
+                    <select
+                      value={referralForm.urgency}
+                      onChange={(e) => setReferralForm({ ...referralForm, urgency: e.target.value })}
+                      className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-secondary"
+                    >
+                      <option value="routine">Routine</option>
+                      <option value="urgent">Urgent</option>
+                      <option value="emergency">Emergency</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-white/40 uppercase font-black tracking-wider">Preferred Specialty</label>
+                  <select
+                    value={referralForm.specialty}
+                    onChange={(e) => setReferralForm({ ...referralForm, specialty: e.target.value })}
+                    className="w-full bg-[#0d1117] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-secondary"
+                  >
+                    <option value="obstetrics">Obstetrics & Gynecology (Dr. Eliza Keith)</option>
+                    <option value="pediatrics">Pediatrics (Dr. James Omondi)</option>
+                    <option value="general">Maternal Health Specialist (Dr. Amina Yusuf)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-white/40 uppercase font-black tracking-wider">Clinical Notes / Reason</label>
+                  <textarea
+                    rows={3}
+                    placeholder="E.g., Pre-eclampsia monitoring. BP 150/95 at checkup. High risk triage."
+                    value={referralForm.notes}
+                    onChange={(e) => setReferralForm({ ...referralForm, notes: e.target.value })}
+                    className="w-full bg-[#0d1117] border border-white/10 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-secondary min-h-[80px]"
+                  />
+                </div>
+
+                <div className="pt-4 flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsReferralModalOpen(false)}
+                    className="flex-1 border-white/10 hover:bg-white/5 font-bold h-12 rounded-xl text-white/60"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmittingReferral}
+                    className="flex-1 bg-secondary hover:bg-secondary/95 text-white font-bold h-12 rounded-xl"
+                  >
+                    {isSubmittingReferral ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" /> Submitting...
+                      </span>
+                    ) : (
+                      "Submit Referral"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
       <footer className="py-8 mt-12 border-t border-white/5 relative z-10">

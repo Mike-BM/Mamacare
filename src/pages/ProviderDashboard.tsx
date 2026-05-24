@@ -7,16 +7,19 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Heart, Calendar, Users, Clock, CheckCircle2, XCircle, 
   Plus, Video, FileText, Settings, LogOut,
-  ChevronRight, CalendarDays, User, Phone, Info, Loader2
+  ChevronRight, CalendarDays, User, Phone, Info, Loader2,
+  MessageSquare, Shield
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { VideoCallModal } from "@/components/VideoCallModal";
 import { supabase } from "@/integrations/supabase/client";
+import { DoctorChat } from "@/components/DoctorChat";
 
 const PROVIDER_TABS = [
   { id: "schedule", label: "Today's Schedule", icon: Calendar },
+  { id: "inbox", label: "Inbox (Chat)", icon: MessageSquare },
   { id: "availability", label: "Manage Availability", icon: Clock },
   { id: "patients", label: "My Patients", icon: Users },
   { id: "settings", label: "Settings", icon: Settings },
@@ -214,8 +217,63 @@ const ProviderDashboard = () => {
     { day: "Friday", slots: ["09:00 - 12:00"] },
   ]);
 
-  const handleAction = (id: number, action: string) => {
-    toast.success(`${action} for appointment ${id}`);
+  const handleAction = async (id: number | string, action: 'Confirm' | 'Reject' | 'Reschedule' | 'Message' | 'Mark No-Show') => {
+    const demoBypass = localStorage.getItem("demoBypass");
+    
+    if (action === 'Confirm') {
+      const toastId = toast.loading("Confirming appointment and sending SMS...");
+      if (demoBypass) {
+        setSchedule(prev => prev.map(a => a.id === id ? { ...a, status: 'confirmed' } : a));
+        toast.success("Appointment confirmed! SMS/WhatsApp confirmation sent.", { id: toastId });
+      } else {
+        const { error } = await supabase.from('appointments').update({ status: 'confirmed' }).eq('id', id);
+        if (error) {
+          toast.error("Failed to confirm: " + error.message, { id: toastId });
+        } else {
+          toast.success("Appointment confirmed successfully!", { id: toastId });
+          fetchSchedule();
+        }
+      }
+    } 
+    else if (action === 'Reject') {
+      const reason = window.prompt("Reason for declining this appointment:\n1. Not my specialty\n2. Fully booked that day\n3. On leave\n4. Patient needs in-person care");
+      if (reason === null) return;
+      
+      const toastId = toast.loading("Declining appointment...");
+      if (demoBypass) {
+        setSchedule(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a));
+        toast.success("Appointment declined. Offered patient replacement doctor match.", { id: toastId });
+      } else {
+        const { error } = await supabase.from('appointments').update({ status: 'cancelled', notes: `Declined: ${reason}` }).eq('id', id);
+        if (error) {
+          toast.error("Failed to decline: " + error.message, { id: toastId });
+        } else {
+          toast.success("Appointment declined successfully.", { id: toastId });
+          fetchSchedule();
+        }
+      }
+    }
+    else if (action === 'Reschedule') {
+      const newTime = window.prompt("Suggest alternative times (e.g., 'Friday 2 PM', 'Monday 10 AM'):", "Friday 2 PM");
+      if (!newTime) return;
+      toast.success(`Reschedule proposal sent: "${newTime}". Waiting for response.`);
+      if (demoBypass) {
+        setSchedule(prev => prev.map(a => a.id === id ? { ...a, time: newTime, status: 'pending' } : a));
+      }
+    }
+    else if (action === 'Message') {
+      setActiveTab('inbox');
+      toast.info("Opening patient telemedicine chat.");
+    }
+    else if (action === 'Mark No-Show') {
+      if (demoBypass) {
+        setSchedule(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a));
+        toast.success("Marked as No-Show.");
+      } else {
+        await supabase.from('appointments').update({ status: 'cancelled' }).eq('id', id);
+        fetchSchedule();
+      }
+    }
   };
 
   return (
@@ -390,26 +448,44 @@ const ProviderDashboard = () => {
 
                       <div className="flex items-center gap-2">
                         {apt.status === 'pending' && (
-                          <>
+                          <div className="flex gap-1.5">
                             <Button 
                               size="icon" 
                               variant="glass" 
-                              className="w-10 h-10 rounded-full text-green-400 hover:bg-green-400/20"
+                              className="w-9 h-9 rounded-full text-green-400 hover:bg-green-400/20"
                               onClick={() => handleAction(apt.id, 'Confirm')}
                               title="Confirm"
                             >
-                              <CheckCircle2 className="w-5 h-5" />
+                              <CheckCircle2 className="w-4.5 h-4.5" />
                             </Button>
                             <Button 
                               size="icon" 
                               variant="glass" 
-                              className="w-10 h-10 rounded-full text-destructive hover:bg-destructive/10"
-                              onClick={() => handleAction(apt.id, 'Reject')}
-                              title="Reject"
+                              className="w-9 h-9 rounded-full text-yellow-400 hover:bg-yellow-400/20"
+                              onClick={() => handleAction(apt.id, 'Reschedule')}
+                              title="Suggest Alternative Time"
                             >
-                              <XCircle className="w-5 h-5" />
+                              <Clock className="w-4.5 h-4.5" />
                             </Button>
-                          </>
+                            <Button 
+                              size="icon" 
+                              variant="glass" 
+                              className="w-9 h-9 rounded-full text-blue-400 hover:bg-blue-400/20"
+                              onClick={() => handleAction(apt.id, 'Message')}
+                              title="Message Patient"
+                            >
+                              <MessageSquare className="w-4.5 h-4.5" />
+                            </Button>
+                            <Button 
+                              size="icon" 
+                              variant="glass" 
+                              className="w-9 h-9 rounded-full text-destructive hover:bg-destructive/10"
+                              onClick={() => handleAction(apt.id, 'Reject')}
+                              title="Decline"
+                            >
+                              <XCircle className="w-4.5 h-4.5" />
+                            </Button>
+                          </div>
                         )}
                         {apt.status === 'confirmed' && (
                           <Button 
@@ -540,6 +616,21 @@ const ProviderDashboard = () => {
                 </Card>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === "inbox" && (
+          <div className="space-y-6 animate-fade-in-right">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <MessageSquare className="w-6 h-6 text-primary" /> Provider Consultation Inbox
+              </h2>
+              <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                <Shield className="w-4 h-4 text-green-400" />
+                <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">KMPDC Encrypted Link</span>
+              </div>
+            </div>
+            <DoctorChat perspective="provider" />
           </div>
         )}
 

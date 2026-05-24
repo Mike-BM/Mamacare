@@ -17,6 +17,7 @@ import { TelemedicineSuite } from "@/components/TelemedicineSuite";
 import { WearableMedicationWidgets } from "@/components/WearableMedicationWidgets";
 import { MentorshipChat } from "@/components/MentorshipChat";
 import { useSound } from "@/hooks/useSound";
+import { DoctorChat } from "@/components/DoctorChat";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ const TABS = [
   { id: "overview", label: "Overview", icon: Home },
   { id: "health", label: "Health", icon: Activity },
   { id: "appointments", label: "Appointments", icon: Calendar },
+  { id: "chat", label: "Doctor Chat", icon: MessageCircle },
   { id: "ai", label: "Dr. Nneka (AI)", icon: Bot },
   { id: "community", label: "Community", icon: Users },
   { id: "wallet", label: "MamaFund & Wallet", icon: Wallet },
@@ -1064,6 +1066,21 @@ export default function MotherDashboard() {
                      <ArrowRight className="w-4 h-4" />
                    </Button>
                 </Card>
+              </div>
+            )}
+
+            {activeTab === "chat" && (
+              <div className="space-y-6 animate-fade-in-right">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                    <MessageCircle className="w-6 h-6 text-primary" /> Doctor Telemedicine Chat
+                  </h2>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <Shield className="w-4 h-4 text-green-400" />
+                    <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">KMPDC Secure Link</span>
+                  </div>
+                </div>
+                <DoctorChat perspective="patient" />
               </div>
             )}
 

@@ -155,6 +155,143 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          id: string
+          participant_1_id: string | null
+          participant_1_type: string | null
+          participant_2_id: string | null
+          participant_2_type: string | null
+          is_group: boolean | null
+          group_name: string | null
+          last_message_at: string | null
+          last_message_preview: string | null
+          unread_count_p1: number | null
+          unread_count_p2: number | null
+          related_appointment_id: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          participant_1_id?: string | null
+          participant_1_type?: string | null
+          participant_2_id?: string | null
+          participant_2_type?: string | null
+          is_group?: boolean | null
+          group_name?: string | null
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          unread_count_p1?: number | null
+          unread_count_p2?: number | null
+          related_appointment_id?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          participant_1_id?: string | null
+          participant_1_type?: string | null
+          participant_2_id?: string | null
+          participant_2_type?: string | null
+          is_group?: boolean | null
+          group_name?: string | null
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          unread_count_p1?: number | null
+          unread_count_p2?: number | null
+          related_appointment_id?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_participant_1_id_fkey"
+            columns: ["participant_1_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_participant_2_id_fkey"
+            columns: ["participant_2_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_related_appointment_id_fkey"
+            columns: ["related_appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      messages: {
+        Row: {
+          id: string
+          conversation_id: string
+          sender_id: string
+          sender_type: string
+          content: string
+          message_type: string | null
+          media_url: string | null
+          media_type: string | null
+          is_read: boolean | null
+          read_at: string | null
+          appointment_id: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          sender_id: string
+          sender_type: string
+          content: string
+          message_type?: string | null
+          media_url?: string | null
+          media_type?: string | null
+          is_read?: boolean | null
+          read_at?: string | null
+          appointment_id?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          sender_id?: string
+          sender_type?: string
+          content?: string
+          message_type?: string | null
+          media_url?: string | null
+          media_type?: string | null
+          is_read?: boolean | null
+          read_at?: string | null
+          appointment_id?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       community_posts: {
         Row: {
           author_id: string | null
