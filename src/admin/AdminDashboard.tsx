@@ -61,6 +61,33 @@ export default function AdminDashboard() {
   const [adminEmail, setAdminEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<any[]>([
+    {
+      id: "notif-1",
+      title: "🚨 Emergency SOS",
+      message: "Stacy Mutheu triggered an SOS alert from Kibera Sector 3.",
+      time: "2m ago",
+      read: false,
+      type: "sos"
+    },
+    {
+      id: "notif-2",
+      title: "📅 New Booking",
+      message: "Jane Keith booked an Antenatal consultation with Dr. Eliza Keith.",
+      time: "15m ago",
+      read: false,
+      type: "booking"
+    },
+    {
+      id: "notif-3",
+      title: "🚗 Ride Requested",
+      message: "Mariam Osei requested an ambulance dispatch to Nairobi West.",
+      time: "1h ago",
+      read: true,
+      type: "ride"
+    }
+  ]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -92,16 +119,61 @@ export default function AdminDashboard() {
         const ch1 = supabase.channel("admin-providers")
           .on("postgres_changes", { event: "*", schema: "public", table: "providers" }, fetchProviders)
           .subscribe();
+          
         const ch2 = supabase.channel("admin-appointments")
-          .on("postgres_changes", { event: "*", schema: "public", table: "appointments" }, fetchAppointments)
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "appointments" }, (payload: any) => {
+            fetchAppointments();
+            const newNotif = {
+              id: `db-apt-${payload.new.id}`,
+              title: "📅 New Appointment",
+              message: `A new appointment has been scheduled in the database.`,
+              time: "Just now",
+              read: false,
+              type: "booking"
+            };
+            setNotifications(prev => [newNotif, ...prev]);
+            toast.info("📅 Real-time: New appointment booked!");
+          })
+          .on("postgres_changes", { event: "UPDATE", schema: "public", table: "appointments" }, fetchAppointments)
           .subscribe();
+          
         const ch3 = supabase.channel("admin-mamarides")
-          .on("postgres_changes", { event: "*", schema: "public", table: "mamaride_requests" }, fetchMamarideRequests)
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "mamaride_requests" }, (payload: any) => {
+            fetchMamarideRequests();
+            const newNotif = {
+              id: `db-ride-${payload.new.id}`,
+              title: "🚗 MamaRide Request",
+              message: `New MamaRide transport requested: ${payload.new.ride_type || "standard"}.`,
+              time: "Just now",
+              read: false,
+              type: "ride"
+            };
+            setNotifications(prev => [newNotif, ...prev]);
+            toast.success("🚗 Real-time: New MamaRide requested!");
+          })
+          .on("postgres_changes", { event: "UPDATE", schema: "public", table: "mamaride_requests" }, fetchMamarideRequests)
           .subscribe();
+
+        const ch4 = supabase.channel("admin-alerts")
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "alerts" }, (payload: any) => {
+            const newNotif = {
+              id: `db-alert-${payload.new.id}`,
+              title: "🚨 SOS Panic Alert",
+              message: payload.new.message || "A mother has triggered an SOS emergency panic alert!",
+              time: "Just now",
+              read: false,
+              type: "sos"
+            };
+            setNotifications(prev => [newNotif, ...prev]);
+            toast.error("🚨 CRITICAL: Emergency SOS panic triggered!", { duration: 8000 });
+          })
+          .subscribe();
+
         return () => { 
           supabase.removeChannel(ch1); 
           supabase.removeChannel(ch2); 
           supabase.removeChannel(ch3); 
+          supabase.removeChannel(ch4); 
         };
       }
     };
@@ -325,6 +397,96 @@ export default function AdminDashboard() {
       status: "accepted",
       driver: { full_name: driverName, phone: driverPhone }
     } : r));
+  };
+
+  const triggerSimulation = (type: "sos" | "booking" | "ride") => {
+    const randomNames = ["Stacy Mutheu", "Jane Keith", "Mariam Osei", "Fatuma Ali", "Zahra Kamau"];
+    const randomName = randomNames[Math.floor(Math.random() * randomNames.length)];
+    const time = "Just now";
+    const id = `sim-${Date.now()}`;
+
+    if (type === "sos") {
+      const newAlert = {
+        id,
+        title: "🚨 Emergency SOS",
+        message: `${randomName} triggered a critical SOS alert. Emergency services standby.`,
+        time,
+        read: false,
+        type: "sos"
+      };
+      setNotifications(prev => [newAlert, ...prev]);
+      toast.error(`🚨 Critical Alert: SOS triggered by ${randomName}!`, { duration: 5000 });
+      
+      SECURITY_LOGS.unshift({
+        event: `Emergency SOS Alert — ${randomName}`,
+        severity: "CRITICAL",
+        src: "MAMA-SOS-PANIC",
+        time: "Just now"
+      });
+    } else if (type === "booking") {
+      const newAlert = {
+        id,
+        title: "📅 New Booking",
+        message: `${randomName} booked an Antenatal checkup at Nairobi General Hospital.`,
+        time,
+        read: false,
+        type: "booking"
+      };
+      setNotifications(prev => [newAlert, ...prev]);
+      toast.info(`📅 Booking: New appointment created by ${randomName}.`);
+
+      const newApt = {
+        id: `apt-${Date.now()}`,
+        mother_id: `m-${Date.now()}`,
+        doctor_id: "doc-1",
+        hospital_id: "hosp-1",
+        appointment_date: new Date(Date.now() + 86400000 * 2).toISOString(),
+        appointment_type: "Antenatal",
+        status: "pending",
+        notes: "Automated booking via MamaCare application.",
+        mothers: {
+          due_date: "2026-11-20",
+          profiles: {
+            full_name: randomName,
+            email: `${randomName.toLowerCase().replace(" ", "")}@example.com`
+          }
+        },
+        hospitals: {
+          name: "Nairobi General Hospital"
+        }
+      };
+      setAppointments(prev => [newApt, ...prev]);
+    } else if (type === "ride") {
+      const newAlert = {
+        id,
+        title: "🚗 Ride Dispatch",
+        message: `${randomName} requested an emergency MamaRide ambulance dispatch.`,
+        time,
+        read: false,
+        type: "ride"
+      };
+      setNotifications(prev => [newAlert, ...prev]);
+      toast.success(`🚗 Dispatch: MamaRide requested by ${randomName}.`);
+
+      const newRide = {
+        id: `ride-${Date.now()}`,
+        mother_id: `m-${Date.now()}`,
+        ride_type: "ambulance",
+        pickup_location: "Kibera Sector 3, Phase 1",
+        destination: "Nairobi General Hospital",
+        status: "requested",
+        created_at: new Date().toISOString(),
+        mothers: {
+          profiles: {
+            full_name: randomName,
+            email: `${randomName.toLowerCase().replace(" ", "")}@example.com`,
+            phone: "+254 7" + Math.floor(10000000 + Math.random() * 90000000)
+          }
+        },
+        driver: null
+      };
+      setMamarideRequests(prev => [newRide, ...prev]);
+    }
   };
 
   const fetchProviders = async () => {
@@ -589,9 +751,78 @@ export default function AdminDashboard() {
               {new Date().toUTCString().replace("GMT", "UTC")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-[11px] text-green-500 font-mono">SYSTEM LIVE</span>
+          <div className="flex items-center gap-5">
+            {/* Notification Bell Popover */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors relative"
+              >
+                <Bell className="w-4 h-4" />
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 text-[8px] text-white font-bold rounded-full flex items-center justify-center">
+                    {notifications.filter(n => !n.read).length}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2.5 w-80 bg-[#161b22] border border-slate-800 rounded-lg shadow-2xl z-50 overflow-hidden text-left">
+                  <div className="px-4 py-2 border-b border-slate-800 flex justify-between items-center bg-[#0d1117]/60">
+                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Alert Center</span>
+                    <button
+                      onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
+                      className="text-[9px] text-green-400 hover:underline font-mono"
+                    >
+                      Mark all read
+                    </button>
+                  </div>
+                  <div className="divide-y divide-slate-800 max-h-64 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <p className="p-4 text-xs text-slate-600 text-center">No new notifications</p>
+                    ) : (
+                      notifications.map(n => (
+                        <div
+                          key={n.id}
+                          className={`p-3 hover:bg-slate-800/35 transition-colors ${!n.read ? 'bg-green-400/5' : ''}`}
+                        >
+                          <div className="flex justify-between items-start mb-0.5">
+                            <span className="text-xs font-bold text-white leading-tight">{n.title}</span>
+                            <span className="text-[9px] text-slate-600 font-mono">{n.time}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 leading-normal">{n.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <div className="px-3 py-1.5 border-t border-slate-800 bg-[#0d1117]/35 flex gap-2">
+                    <button
+                      onClick={() => triggerSimulation("sos")}
+                      className="flex-1 text-[8px] py-1 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-800/50 rounded font-bold transition-all text-center uppercase tracking-wider"
+                    >
+                      + SOS Alert
+                    </button>
+                    <button
+                      onClick={() => triggerSimulation("booking")}
+                      className="flex-1 text-[8px] py-1 bg-blue-950/40 hover:bg-blue-900/40 text-blue-400 border border-blue-800/50 rounded font-bold transition-all text-center uppercase tracking-wider"
+                    >
+                      + Book Slot
+                    </button>
+                    <button
+                      onClick={() => triggerSimulation("ride")}
+                      className="flex-1 text-[8px] py-1 bg-green-950/40 hover:bg-green-900/40 text-green-400 border border-green-800/50 rounded font-bold transition-all text-center uppercase tracking-wider"
+                    >
+                      + Dispatch Ride
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[11px] text-green-500 font-mono">SYSTEM LIVE</span>
+            </div>
           </div>
         </header>
 

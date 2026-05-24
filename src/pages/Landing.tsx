@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users, Eye, EyeOff, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users, Eye, EyeOff, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,15 +63,6 @@ const Landing = () => {
     }
   }, []);
 
-  const handleDemoLogin = (demoEmail: string) => {
-    localStorage.setItem("demoBypass", demoEmail);
-    toast.success(`Demo Logged in as ${demoEmail.split('@')[0]}`);
-    if (demoEmail === 'doctor@example.com') navigate("/provider-dashboard");
-    else if (demoEmail === 'hospital@example.com') navigate("/hospital-dashboard");
-    else if (demoEmail === 'admin@example.com') window.location.href = "/admin.html";
-    else navigate("/mother-dashboard");
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -115,39 +106,7 @@ const Landing = () => {
       else navigate("/mother-dashboard");
       
     } catch (error: any) {
-      const errorMsg = error.message || "";
-      const isFetchError = errorMsg.toLowerCase().includes("failed to fetch") || 
-                           errorMsg.toLowerCase().includes("network") ||
-                           error.name === "TypeError";
-      
-      if (isFetchError) {
-        toast.warning("Network connection failed. Entering Demo Mode fallback.");
-        
-        const cleanEmail = email.trim().toLowerCase();
-        localStorage.setItem("demoBypass", cleanEmail);
-        
-        // Retrieve the saved role if it matches the current email
-        const savedBypass = localStorage.getItem("demoBypass");
-        const savedRole = localStorage.getItem("demoProfileRole");
-        
-        let targetRole = "mother";
-        if (cleanEmail === savedBypass && savedRole) {
-          targetRole = savedRole;
-        } else if (cleanEmail.includes("doctor") || cleanEmail.includes("provider")) {
-          targetRole = "doctor";
-        } else if (cleanEmail.includes("hospital") || cleanEmail.includes("clinic")) {
-          targetRole = "hospital";
-        } else if (cleanEmail.includes("admin")) {
-          targetRole = "admin";
-        }
-        
-        if (targetRole === "doctor") navigate("/provider-dashboard");
-        else if (targetRole === "hospital") navigate("/hospital-dashboard");
-        else if (targetRole === "admin") window.location.href = "/admin.html";
-        else navigate("/mother-dashboard");
-      } else {
-        toast.error(error.message || "Login failed. Please check your credentials.");
-      }
+      toast.error(error.message || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -198,12 +157,26 @@ const Landing = () => {
         </button>
       </div>
 
-      {/* Premium fixed background with glowing spots */}
-      <div className="fixed inset-0 bg-background bg-gradient-to-br from-black via-[#0a0a14] to-[#120816] -z-10" />
-      <div className="fixed top-1/4 left-1/4 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] rounded-full bg-primary/5 blur-[80px] sm:blur-[120px] pointer-events-none -z-10 animate-pulse duration-[4000ms]" />
-      <div className="fixed bottom-1/4 right-1/4 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] rounded-full bg-secondary/5 blur-[80px] sm:blur-[120px] pointer-events-none -z-10 animate-pulse duration-[6000ms]" style={{ animationDelay: "2s" }} />
+      {/* Carousel Background with zoom animation */}
+      {carouselSlides.map((slide, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-all duration-[1500ms] ease-in-out bg-background ${
+            index === currentSlide ? "opacity-100 scale-105" : "opacity-0 scale-100"
+          }`}
+        >
+          {/* Main image - Always filling the screen properly */}
+          <img 
+            src={slide.image} 
+            alt={`African mother and newborn - ${slide.text}`} 
+            className="absolute inset-0 w-full h-full object-cover object-center" 
+            loading="lazy" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+        </div>
+      ))}
 
-      <div className="relative z-10 flex flex-col items-center min-h-screen px-4 pt-24 pb-20">
+      <div className="relative z-10 flex flex-col items-center min-h-screen px-4 pt-24 pb-20 overflow-y-auto">
         <div className="flex flex-col items-center w-full max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row items-center gap-12 w-full mb-20 pt-10">
             <div className="flex-1 text-center lg:text-left animate-fade-in-up">
@@ -223,72 +196,6 @@ const Landing = () => {
                   <span className="text-xs font-bold uppercase tracking-widest text-white/60">Instant SOS</span>
                 </div>
               </div>
-
-              {/* Inline Responsive Carousel Card */}
-              <div className="mt-8 relative rounded-3xl overflow-hidden bg-white/5 border border-white/10 p-3 sm:p-4 backdrop-blur-xl shadow-xl max-w-xl mx-auto lg:mx-0">
-                <div className="relative aspect-video rounded-2xl overflow-hidden bg-black/40">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={currentSlide}
-                      initial={{ opacity: 0, scale: 1.02 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.5 }}
-                      className="absolute inset-0"
-                    >
-                      <img
-                        src={carouselSlides[currentSlide].image}
-                        alt={carouselSlides[currentSlide].text}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-left">
-                        <p className="text-sm sm:text-base font-black text-white leading-tight drop-shadow-md">
-                          {carouselSlides[currentSlide].text}
-                        </p>
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
-
-                  {/* Carousel Controls */}
-                  <div className="absolute bottom-4 right-4 flex gap-1.5 z-20">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
-                      }}
-                      className="w-8 h-8 rounded-full bg-black/60 hover:bg-primary border border-white/10 flex items-center justify-center text-white transition-all active:scale-90"
-                      aria-label="Previous slide"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-                      }}
-                      className="w-8 h-8 rounded-full bg-black/60 hover:bg-primary border border-white/10 flex items-center justify-center text-white transition-all active:scale-90"
-                      aria-label="Next slide"
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                  
-                  {/* Indicators */}
-                  <div className="absolute top-4 left-4 flex gap-1 z-20">
-                    {carouselSlides.map((_, idx) => (
-                      <div
-                        key={idx}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          idx === currentSlide ? "w-4 bg-primary" : "w-1.5 bg-white/40"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
 
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="w-full max-w-md">
@@ -305,40 +212,6 @@ const Landing = () => {
                   <button type="submit" className="w-full glass-button bg-primary hover:bg-primary/80 text-white font-black h-12 rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all" disabled={loading}>{loading ? "AUTHENTICATING..." : "SIGN IN TO DASHBOARD"}</button>
 
                 </form>
-
-                <div className="mt-4 border-t border-white/10 pt-4">
-                  <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest text-center mb-2">Developer Demo Portals</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => handleDemoLogin("admin@example.com")}
-                      className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                    >
-                      🛡️ Admin
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDemoLogin("doctor@example.com")}
-                      className="px-2.5 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                    >
-                      🩺 Doctor
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDemoLogin("hospital@example.com")}
-                      className="px-2.5 py-1 bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                    >
-                      🏥 Hospital
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDemoLogin("test@example.com")}
-                      className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/20 rounded text-[10px] font-bold uppercase tracking-wider transition-colors"
-                    >
-                      🤰 Mother
-                    </button>
-                  </div>
-                </div>
                 <div className="mt-8 pt-6 border-t border-white/10 flex flex-col items-center">
                   <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-4">New to the platform?</p>
                   <button 
