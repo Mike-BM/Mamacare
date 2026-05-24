@@ -297,7 +297,7 @@ const HospitalDashboard = () => {
         if (alerts) {
           setSosAlerts(alerts.map(a => ({
             id: a.id,
-            patient: a.mothers?.full_name || "MamaCare Africa User",
+            patient: a.mothers?.full_name || "Nneka Health User",
             severity: a.severity,
             time: "Recently",
             location: "GPS Coordinates Registered",
@@ -735,7 +735,7 @@ const HospitalDashboard = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-black text-white">Refer to Telemedicine</h3>
-                    <p className="text-xs text-white/50">Onboard patient to MamaCare specialist network</p>
+                    <p className="text-xs text-white/50">Onboard patient to Nneka Health specialist network</p>
                   </div>
                 </div>
                 <button
@@ -857,9 +857,9 @@ const HospitalDashboard = () => {
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 opacity-50">
             <Heart className="w-4 h-4 text-secondary" fill="currentColor" />
-            <span className="text-xs font-bold uppercase tracking-widest">MamaCare Africa Portal</span>
+            <span className="text-xs font-bold uppercase tracking-widest">Nneka Health Portal</span>
           </div>
-          <p className="text-xs text-muted-foreground font-medium">© 2026 MamaCare Africa. Empowering mothers, nurturing futures.</p>
+          <p className="text-xs text-muted-foreground font-medium">© 2026 Nneka Health. Empowering mothers, nurturing futures.</p>
           <div className="flex gap-6">
             <button className="text-[10px] font-bold text-muted-foreground hover:text-white transition-colors uppercase">Support</button>
             <button className="text-[10px] font-bold text-muted-foreground hover:text-white transition-colors uppercase">Privacy</button>

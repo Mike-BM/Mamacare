@@ -291,7 +291,7 @@ const ProviderDashboard = () => {
             <Heart className="w-6 h-6 text-primary animate-pulse" fill="currentColor" />
           </div>
           <h1 className="text-xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            MamaCare
+            Nneka Health
           </h1>
         </div>
 
@@ -566,7 +566,7 @@ const ProviderDashboard = () => {
                           const demoBypass = localStorage.getItem("demoBypass");
                           if (demoBypass) {
                             setTimeout(() => {
-                              setCurrentRoomUrl("https://meet.jit.si/MamaCareDemoConsultationRoom");
+                              setCurrentRoomUrl("https://meet.jit.si/NnekaHealthDemoConsultationRoom");
                               setIsVideoCallOpen(true);
                               toast.dismiss(toastId);
                               setIsGeneratingRoom(false);

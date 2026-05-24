@@ -9,7 +9,7 @@ const securityAlerts = [
 ];
 
 /**
- * Mamacare Guardian Service
+ * Nneka Guardian Service
  * Handles real-time security monitoring and alerting.
  */
 const securityService = {
@@ -24,7 +24,7 @@ const securityService = {
     console.log(`[SECURITY ALERT] [${severity.toUpperCase()}] ${alert}`);
     
     if (!webhookUrl) {
-      console.warn("Mamacare Guardian: SLACK_WEBHOOK_URL not configured. Alert logged to console only.");
+      console.warn("Nneka Guardian: SLACK_WEBHOOK_URL not configured. Alert logged to console only.");
       return;
     }
 
@@ -33,12 +33,12 @@ const securityService = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          text: `🚨 *[${severity.toUpperCase()}] Mamacare Guardian Alert* \n> ${alert}`,
+          text: `🚨 *[${severity.toUpperCase()}] Nneka Guardian Alert* \n> ${alert}`,
           icon_emoji: severity === 'critical' ? ':fire:' : ':warning:'
         })
       });
     } catch (err) {
-      console.error("Mamacare Guardian: Failed to send Slack alert:", err.message);
+      console.error("Nneka Guardian: Failed to send Slack alert:", err.message);
     }
   },
 

@@ -23,8 +23,8 @@ app.use('/api/', standardLimiter);
 app.get(['/', '/api', '/api/'], (req, res) => {
   res.json({
     status: 'healthy',
-    service: 'mamacare-backend',
-    message: 'MamaCare Africa API is running.',
+    service: 'nnekahealth-backend',
+    message: 'Nneka Health API is running.',
     timestamp: new Date().toISOString()
   });
 });
@@ -46,7 +46,7 @@ function encrypt(text) {
   return iv.toString('hex') + ':' + encrypted.toString('hex');
 }
 
-const systemInstruction = `You are Dr. Nneka, a warm, culturally-sensitive maternal health AI assistant for MamaCare Africa. 
+const systemInstruction = `You are Dr. Nneka, a warm, culturally-sensitive maternal health AI assistant for Nneka Health. 
 Your goal is to support pregnant women and mothers in Africa (with knowledge of local customs, foods, and dialects like Swahili, Yoruba, Hausa, Zulu, but you respond in the language the user speaks).
 Be warm, deeply empathetic, and professional. Use "we" and "my dear" where culturally appropriate.
 You MUST also evaluate the medical risk level of the user's situation in EVERY response, based on their message.
@@ -382,7 +382,7 @@ app.post('/api/appointments/notify', async (req, res) => {
     if (email) {
       await emailService.sendAppointmentConfirmation(email, emailData);
     }
-    await emailService.sendAppointmentConfirmation('hellomamacareafrica@gmail.com', {
+    await emailService.sendAppointmentConfirmation('hellonnekahealth@gmail.com', {
       ...emailData,
       name: `${name} (Admin Notification)`
     });
@@ -403,7 +403,7 @@ app.post('/api/v1/hospital/referral', async (req, res) => {
     let patientUserId = null;
     
     // Find matching profile by email first
-    const emailToSearch = patient.phone + '@mamacare-referred.com';
+    const emailToSearch = patient.phone + '@nnekahealth-referred.com';
     const { data: profileData } = await supabase
       .from('profiles')
       .select('id')

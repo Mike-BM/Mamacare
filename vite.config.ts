@@ -15,6 +15,15 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
       },
     },
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const cleanUrl = req.url?.split('?')[0] || '';
+        if (cleanUrl === '/admin' || cleanUrl === '/admin/') {
+          req.url = '/admin.html';
+        }
+        next();
+      });
+    }
   },
   plugins: [
     react(),
@@ -49,8 +58,8 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       manifest: {
-        name: 'MamaCare Africa App',
-        short_name: 'MamaCare Africa',
+        name: 'Nneka Health App',
+        short_name: 'Nneka Health',
         description: 'Maternal health app for Africa',
         theme_color: '#ff7eb3',
         icons: [

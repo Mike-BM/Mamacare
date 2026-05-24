@@ -24,7 +24,7 @@ const carouselSlides = [
   },
   {
     image: africanBaby1,
-    text: "MamaCare Africa — your pregnancy companion.",
+    text: "Nneka Health — your pregnancy companion.",
   },
   {
     image: maternityClinic,
@@ -73,7 +73,7 @@ const Landing = () => {
       
       if (cleanEmail === 'test@example.com' || cleanEmail === 'test@test.com' || cleanEmail === 'doctor@example.com' || cleanEmail === 'hospital@example.com' || cleanEmail === 'admin@example.com') {
         localStorage.setItem("demoBypass", cleanEmail);
-        toast.success("Welcome to the MamaCare Demo!");
+        toast.success("Welcome to the Nneka Health Demo!");
         setLoading(false);
         if (cleanEmail === 'doctor@example.com') navigate("/provider-dashboard");
         else if (cleanEmail === 'hospital@example.com') navigate("/hospital-dashboard");
@@ -182,10 +182,10 @@ const Landing = () => {
             <div className="flex-1 text-center lg:text-left animate-fade-in-up">
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-6 flex items-center justify-center lg:justify-start gap-3">
                 <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-float" fill="currentColor" />
-                <h1 className="text-4xl sm:text-6xl font-black bg-gradient-to-r from-primary via-secondary to-tertiary bg-clip-text text-transparent tracking-tighter">MamaCare Africa</h1>
+                <h1 className="text-4xl sm:text-6xl font-black bg-gradient-to-r from-primary via-secondary to-tertiary bg-clip-text text-transparent tracking-tighter">Nneka Health</h1>
               </motion.div>
               <h2 className="text-3xl sm:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">Safe Motherhood, <br/> <span className="text-secondary">Just a Tap Away.</span></h2>
-              <p className="text-lg text-white/70 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">Join thousands of mothers across Africa who trust MamaCare Africa for 24/7 AI-powered triage, instant hospital bookings, and emergency MamaRide logistics.</p>
+              <p className="text-lg text-white/70 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">Join thousands of mothers across Africa who trust Nneka Health for 24/7 AI-powered triage, instant hospital bookings, and emergency NnekaRide logistics.</p>
               <div className="flex flex-wrap justify-center lg:justify-start gap-4">
                 <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 backdrop-blur-md">
                   <ShieldCheck className="w-4 h-4 text-green-400" />
@@ -236,7 +236,7 @@ const Landing = () => {
           <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
             {[
               { title: "AI Triage (Dr. Nneka)", desc: "Get instant medical guidance powered by Gemini AI, tailored for maternal health in Africa.", icon: Zap, color: "bg-yellow-500/20 text-yellow-400" },
-              { title: "MamaRide Logistics", desc: "Integrated emergency transport system connecting you to the nearest hospital in minutes.", icon: Building2, color: "bg-blue-500/20 text-blue-400" },
+              { title: "NnekaRide Logistics", desc: "Integrated emergency transport system connecting you to the nearest hospital in minutes.", icon: Building2, color: "bg-blue-500/20 text-blue-400" },
               { title: "KMPDC Network", desc: "Access a verified network of thousands of doctors and licensed maternity clinics.", icon: ShieldCheck, color: "bg-green-500/20 text-green-400" }
             ].map((feature, i) => (
               <motion.div key={feature.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="p-8 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-xl hover:border-white/30 transition-all group">
@@ -252,7 +252,7 @@ const Landing = () => {
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="max-w-3xl mx-auto relative z-10">
               <Badge className="mb-6 bg-white/10 text-white border-none py-1 px-4">Our Mission</Badge>
               <h2 className="text-3xl sm:text-5xl font-black text-white mb-8 tracking-tighter">Revolutionizing Maternal Healthcare</h2>
-              <p className="text-lg text-white/70 leading-relaxed mb-10">MamaCare Africa was founded with a single goal: to eliminate preventable maternal deaths in Africa through technology. By bridging the gap between rural mothers and urban medical excellence, we ensure that no mother travels this journey alone.</p>
+              <p className="text-lg text-white/70 leading-relaxed mb-10">Nneka Health was founded with a single goal: to eliminate preventable maternal deaths in Africa through technology. By bridging the gap between rural mothers and urban medical excellence, we ensure that no mother travels this journey alone.</p>
               <div className="flex justify-center gap-8">
                 <div><p className="text-4xl font-black text-primary">120K+</p><p className="text-[10px] uppercase font-bold text-white/40 tracking-widest mt-2">Lives Impacted</p></div>
                 <div className="w-px h-12 bg-white/10" />
@@ -262,7 +262,7 @@ const Landing = () => {
           </div>
 
           <footer className="w-full flex flex-col sm:flex-row items-center justify-between gap-6 pt-10 border-t border-white/10">
-            <div className="flex items-center gap-2"><Heart className="w-6 h-6 text-primary" fill="currentColor" /><span className="font-bold text-white/80">MamaCare Africa © 2026</span></div>
+            <div className="flex items-center gap-2"><Heart className="w-6 h-6 text-primary" fill="currentColor" /><span className="font-bold text-white/80">Nneka Health © 2026</span></div>
             <div className="flex gap-8">
               <button className="text-xs font-bold text-white/40 hover:text-white transition-colors">Privacy Policy</button>
               <button className="text-xs font-bold text-white/40 hover:text-white transition-colors">Security Audit</button>

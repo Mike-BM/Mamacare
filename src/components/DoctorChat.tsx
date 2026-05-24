@@ -253,7 +253,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           message_type: 'system_alert'
         };
         setMessages(prev => [...prev, dangerAlert]);
-        toast.error('Emergency symptoms flagged by MamaCare Guardian.', { duration: 6000 });
+        toast.error('Emergency symptoms flagged by Nneka Health Guardian.', { duration: 6000 });
       }, 1000);
     }
 
@@ -264,7 +264,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
         setIsLoading(false);
         const doctorReplies = [
           "I understand, my dear. Let's make sure you get some rest today. I'll check on you shortly.",
-          "Please log this in your MamaCare health tab so I can view the graph before our session.",
+          "Please log this in your Nneka Health health tab so I can view the graph before our session.",
           "That is absolutely fine. If you feel any dizzy spell, let me know immediately.",
           "Got it! I am reviewing your chart now. Stay close to the phone.",
           "Thank you for sharing. I've updated your patient summary. See you tomorrow!"
@@ -621,16 +621,16 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
                 /* SMS UI Mock */
                 <div className="bg-slate-900 border border-slate-700 rounded-[32px] overflow-hidden">
                   <div className="bg-slate-800 px-6 py-4 flex items-center gap-3 border-b border-slate-700">
-                    <div className="w-9 h-9 rounded-full bg-slate-600 flex items-center justify-center text-sm font-black text-white">MC</div>
+                    <div className="w-9 h-9 rounded-full bg-slate-600 flex items-center justify-center text-sm font-black text-white">NH</div>
                     <div>
-                      <h4 className="font-bold text-white text-sm">MamaCare Africa</h4>
+                      <h4 className="font-bold text-white text-sm">Nneka Health</h4>
                       <p className="text-[10px] text-green-400">SMS Notification Channel</p>
                     </div>
                   </div>
                   <div className="p-6 bg-slate-950 space-y-4 min-h-[220px] flex flex-col justify-end">
                     <div className="bg-slate-800 border border-slate-700 rounded-2xl rounded-tl-none p-4 text-xs max-w-[85%] text-slate-200 leading-relaxed">
                       Dr. Eliza Keith confirmed your appointment for Friday, May 30 at 10:00 AM.<br/><br/>
-                      Video call link: <span className="text-primary hover:underline font-bold">https://mamacare.app/call/abc123</span><br/><br/>
+                      Video call link: <span className="text-primary hover:underline font-bold">https://nnekahealth.app/call/abc123</span><br/><br/>
                       Reply HELP for assistance. Reply CANCEL to reschedule.
                     </div>
                     <span className="text-[9px] text-slate-500 text-left pl-2">Delivered · Today 10:10 AM</span>
@@ -646,14 +646,14 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-[#128c7e] flex items-center justify-center text-sm font-black text-white">🩺</div>
                       <div>
-                        <h4 className="font-bold text-white text-sm">MamaCare Africa Support</h4>
+                        <h4 className="font-bold text-white text-sm">Nneka Health Support</h4>
                         <p className="text-[10px] text-[#25d366] font-bold">Business Account</p>
                       </div>
                     </div>
                   </div>
                   <div className="p-6 bg-[#efeae2] space-y-4 min-h-[240px] flex flex-col justify-end">
                     <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 text-xs max-w-[85%] text-slate-800 leading-relaxed shadow-sm relative">
-                      <span className="text-[10px] font-black text-green-700 block mb-1">🩺 MamaCare Chat Link</span>
+                      <span className="text-[10px] font-black text-green-700 block mb-1">🩺 Nneka Health Chat Link</span>
                       *Dr. Eliza Keith sent you a message:*<br/><br/>
                       "Hi Mary, I see your booking for Friday 10 AM. Can you check your blood pressure at any pharmacy before our call? Share the reading with me."<br/><br/>
                       <span className="text-gray-400 italic block mt-2 text-[10px]">*Reply to this message to chat with your doctor.*</span>

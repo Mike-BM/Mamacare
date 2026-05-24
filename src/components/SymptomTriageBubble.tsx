@@ -77,7 +77,7 @@ export const SymptomTriageBubble = () => {
   const escalate = () => {
     toast.error("Escalating to emergency — opening SOS");
     setOpen(false);
-    window.dispatchEvent(new CustomEvent("mamacare:escalate-sos"));
+    window.dispatchEvent(new CustomEvent("nnekahealth:escalate-sos"));
   };
 
   const riskColor =

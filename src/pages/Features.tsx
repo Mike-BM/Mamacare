@@ -17,7 +17,7 @@ const features = [
   },
   {
     icon: Car,
-    title: "MamaRide",
+    title: "NnekaRide",
     description: "Reliable emergency and standard transport for mothers. Integrated with local drivers trained in maternal safety.",
     color: "primary",
   },
@@ -61,7 +61,7 @@ const Features = () => {
           <div className="flex items-center gap-3">
             <Heart className="w-8 h-8 text-primary" fill="currentColor" />
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              MamaCare Africa
+              Nneka Health
             </h1>
           </div>
           <div className="w-20" />
@@ -131,7 +131,7 @@ const Features = () => {
                 Ready to Start Your Journey?
               </h3>
               <p className="text-xl text-foreground/80 mb-8 leading-relaxed">
-                Join thousands of mothers who trust MamaCare Africa for their pregnancy journey. 
+                Join thousands of mothers who trust Nneka Health for their pregnancy journey. 
                 Connect with hospitals, access expert guidance, and never feel alone.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -158,7 +158,7 @@ const Features = () => {
       {/* Footer */}
       <footer className="py-8 border-t border-border/50">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2026 MamaCare Africa. Empowering mothers, nurturing futures.</p>
+          <p>© 2026 Nneka Health. Empowering mothers, nurturing futures.</p>
         </div>
       </footer>
     </div>

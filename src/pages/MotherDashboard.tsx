@@ -232,7 +232,7 @@ export default function MotherDashboard() {
         if (motherData) {
           setMotherId(motherData.id);
           setUserProfile({
-            name: motherData.full_name || session.user.email?.split('@')[0] || "MamaCare Africa User",
+            name: motherData.full_name || session.user.email?.split('@')[0] || "Nneka Health User",
             email: session.user.email || "",
             pregnancy_week: motherData.pregnancy_week || 0,
             avatar_url: motherData.avatar_url || "",
@@ -265,7 +265,7 @@ export default function MotherDashboard() {
         if (posts) setCommunityPosts(posts);
 
       } catch (err) {
-        console.error("Mamacare Error:", err);
+        console.error("Nneka Health Error:", err);
       } finally {
         setIsLoading(false);
       }
@@ -313,7 +313,7 @@ export default function MotherDashboard() {
         <div className={`${isSimpleMode ? 'w-12 h-12' : 'w-10 h-10'} rounded-full bg-tertiary/20 flex items-center justify-center`}>
           <Car className={`${isSimpleMode ? 'w-8 h-8' : 'w-6 h-6'} text-tertiary`} />
         </div>
-        <span className={isSimpleMode ? 'text-xl' : 'text-sm'}>{isSimpleMode ? "MamaRide" : "MamaRide"}</span>
+        <span className={isSimpleMode ? 'text-xl' : 'text-sm'}>{isSimpleMode ? "NnekaRide" : "NnekaRide"}</span>
       </Button>
       <Button 
         variant="outline" 
@@ -396,7 +396,7 @@ export default function MotherDashboard() {
 
     setActiveRequest('ride');
     setRequestProgress(0);
-    const toastId = toast.loading(`Requesting ${type} MamaRide...`);
+    const toastId = toast.loading(`Requesting ${type} NnekaRide...`);
     
     try {
       const { data, error } = await supabase
@@ -461,7 +461,7 @@ export default function MotherDashboard() {
             <Heart className="w-6 h-6 text-primary animate-pulse" fill="currentColor" />
           </div>
           <h1 className="text-xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            MamaCare Africa
+            Nneka Health
           </h1>
         </div>
 
@@ -596,7 +596,7 @@ export default function MotherDashboard() {
                 <Heart className="w-5 h-5 text-primary" fill="currentColor" />
               </div>
             )}
-            <span className="font-bold">MamaCare Africa</span>
+            <span className="font-bold">Nneka Health</span>
           </div>
           
           <div className="hidden md:flex flex-col justify-center">
@@ -759,7 +759,7 @@ export default function MotherDashboard() {
                   </div>
                 ) : (
                   <>
-                    <DynamicGreeting userName={userProfile.is_anonymous ? "MamaCare Africa User" : userProfile.name.split(' ')[0]} />
+                    <DynamicGreeting userName={userProfile.is_anonymous ? "Nneka Health User" : userProfile.name.split(' ')[0]} />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                   {/* Left: Pregnancy Progress (60%) */}
@@ -1456,7 +1456,7 @@ export default function MotherDashboard() {
               <Car className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[10px] uppercase font-black tracking-widest opacity-70">MamaRide Found</p>
+              <p className="text-[10px] uppercase font-black tracking-widest opacity-70">NnekaRide Found</p>
               <p className="font-bold">Driver: John • 4 mins away</p>
             </div>
             <Button variant="ghost" size="icon" onClick={() => setActiveRequest('none')} className="hover:bg-white/10"><XCircle className="w-5 h-5" /></Button>
@@ -1464,14 +1464,14 @@ export default function MotherDashboard() {
         </div>
       )}
 
-      {/* MamaRide Selection Modal */}
+      {/* NnekaRide Selection Modal */}
       <Dialog open={isRideModalOpen} onOpenChange={setIsRideModalOpen}>
         <DialogContent className="glass-card border-white/10 max-w-md p-6 rounded-[32px] bg-[#0f0f1a]/95 backdrop-blur-2xl">
           <h3 className="text-xl font-black mb-6 flex items-center gap-3 text-white">
             <div className="w-8 h-8 rounded-lg bg-tertiary/20 flex items-center justify-center">
               <Car className="w-4 h-4 text-tertiary" />
             </div>
-            Request a MamaRide
+            Request a NnekaRide
           </h3>
           
           <div className="space-y-3">
@@ -1506,7 +1506,7 @@ export default function MotherDashboard() {
           </div>
           
           <p className="mt-6 text-[10px] text-center text-white/30 font-medium italic">
-            "Every MamaRide driver is trained in basic maternal first aid."
+            "Every NnekaRide driver is trained in basic maternal first aid."
           </p>
         </DialogContent>
       </Dialog>

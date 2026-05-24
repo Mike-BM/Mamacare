@@ -138,7 +138,7 @@ const Register = () => {
         <div className="mb-8 flex items-center justify-center gap-3">
           <Heart className="w-10 h-10 text-primary" fill="currentColor" />
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            MamaCare Africa
+            Nneka Health
           </h1>
         </div>
 

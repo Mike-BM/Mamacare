@@ -44,7 +44,7 @@ export const FinancialLayer = () => {
     <TooltipProvider>
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Left Side: MamaCare Plus Card (60%) */}
+          {/* Left Side: Nneka Health Plus Card (60%) */}
           <div className="lg:col-span-3">
             <Card className="p-8 bg-gradient-to-br from-tertiary/10 via-card to-primary/10 border-white/10 glass-card h-full flex flex-col">
               <div className="flex items-center justify-between mb-8">
@@ -54,7 +54,7 @@ export const FinancialLayer = () => {
                   </div>
                   <div>
                     <h3 className="text-2xl font-black bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">
-                      MamaCare Plus
+                      Nneka Health Plus
                     </h3>
                     <p className="text-xs text-white/50 font-bold uppercase tracking-widest">Premium Care Subscription</p>
                   </div>

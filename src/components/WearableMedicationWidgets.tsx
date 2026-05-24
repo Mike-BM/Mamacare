@@ -50,7 +50,7 @@ export const WearableMedicationWidgets = () => {
         return;
       }
 
-      toast.info("Searching for MamaCare Africa Band...");
+      toast.info("Searching for Nneka Health Band...");
       
       const device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,

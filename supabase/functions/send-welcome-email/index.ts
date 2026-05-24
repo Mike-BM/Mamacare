@@ -18,17 +18,17 @@ serve(async (req) => {
     const { email, name, role } = await req.json();
 
     const { data, error } = await resend.emails.send({
-      from: 'MamaCare Africa <onboarding@resend.dev>', // Note: Use your verified domain in production
+      from: 'Nneka Health <onboarding@resend.dev>', // Note: Use your verified domain in production
       to: [email],
-      subject: 'Welcome to MamaCare Africa!',
+      subject: 'Welcome to Nneka Health!',
       html: `
         <div style="font-family: sans-serif; max-w-2xl; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #FF1493;">Welcome to MamaCare Africa, ${name}!</h1>
+          <h1 style="color: #FF1493;">Welcome to Nneka Health, ${name}!</h1>
           <p>We are thrilled to have you join our maternal care community as a <strong>${role}</strong>.</p>
           <p>Your account has been successfully created. You can now log in to your dashboard to explore all our features.</p>
           <br/>
           <p>Best regards,</p>
-          <p><strong>The MamaCare Africa Team</strong></p>
+          <p><strong>The Nneka Health Team</strong></p>
         </div>
       `,
     });

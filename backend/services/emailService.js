@@ -14,9 +14,9 @@ const failedEmailQueue = [];
 const templates = {
   welcome: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px;">
-      <h1>Welcome to MamaCare, {{name}}! 🤰🏾</h1>
+      <h1>Welcome to Nneka Health, {{name}}! 🤰🏾</h1>
       <p>We are thrilled to be part of your pregnancy journey. Log in to your dashboard to start tracking your progress, connect with other mamas, and get personalized advice from Dr. Nneka.</p>
-      <p>Stay radiant,<br>The MamaCare Team</p>
+      <p>Stay radiant,<br>The Nneka Health Team</p>
     </div>
   `),
   appointmentReminder: Handlebars.compile(`
@@ -45,13 +45,13 @@ const templates = {
   paymentReceipt: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px;">
       <h2>Payment Receipt</h2>
-      <p>Thank you for your contribution of <strong>{{amount}}</strong> to your MamaCare wallet.</p>
+      <p>Thank you for your contribution of <strong>{{amount}}</strong> to your Nneka Health wallet.</p>
       <p>Transaction ID: {{transactionId}}</p>
     </div>
   `),
   appointmentConfirmation: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px; border-left: 4px solid #10b981; background-color: #f9fafb; color: #111827;">
-      <h2 style="color: #10b981; margin-top: 0;">MamaCare Appointment Confirmed! 🎉</h2>
+      <h2 style="color: #10b981; margin-top: 0;">Nneka Health Appointment Confirmed! 🎉</h2>
       <p>Dear {{name}},</p>
       <p>Your appointment has been successfully booked with <strong>{{doctorName}}</strong>.</p>
       <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -62,7 +62,7 @@ const templates = {
           <p style="margin: 5px 0;"><strong>Reason/Notes:</strong> {{notes}}</p>
         {{/if}}
       </div>
-      <p>Stay radiant,<br>The MamaCare Team</p>
+      <p>Stay radiant,<br>The Nneka Health Team</p>
     </div>
   `)
 };
@@ -91,8 +91,8 @@ export const emailService = {
   sendWelcomeEmail: async (email, name) => {
     const msg = {
       to: email,
-      from: 'hellomamacareafrica@gmail.com',
-      subject: 'Welcome to MamaCare!',
+      from: 'hellonnekahealth@gmail.com',
+      subject: 'Welcome to Nneka Health!',
       html: templates.welcome({ name })
     };
     await sendEmailWithRetry(msg);
@@ -101,7 +101,7 @@ export const emailService = {
   sendAppointmentReminder: async (email, data) => {
     const msg = {
       to: email,
-      from: 'hellomamacareafrica@gmail.com',
+      from: 'hellonnekahealth@gmail.com',
       subject: 'Reminder: Upcoming Hospital Appointment',
       html: templates.appointmentReminder(data)
     };
@@ -112,7 +112,7 @@ export const emailService = {
     // contacts is an array of emails
     const messages = contacts.map(contact => ({
       to: contact,
-      from: 'hellomamacareafrica@gmail.com',
+      from: 'hellonnekahealth@gmail.com',
       subject: `🚨 EMERGENCY: ${data.patientName}`,
       html: templates.emergencyAlert(data)
     }));
@@ -125,7 +125,7 @@ export const emailService = {
   sendWeeklyReport: async (email, data) => {
     const msg = {
       to: email,
-      from: 'hellomamacareafrica@gmail.com',
+      from: 'hellonnekahealth@gmail.com',
       subject: `Your Week ${data.week} Pregnancy Update!`,
       html: templates.weeklyReport(data)
     };
@@ -135,8 +135,8 @@ export const emailService = {
   sendPaymentReceipt: async (email, data) => {
     const msg = {
       to: email,
-      from: 'hellomamacareafrica@gmail.com',
-      subject: 'MamaCare Payment Receipt',
+      from: 'hellonnekahealth@gmail.com',
+      subject: 'Nneka Health Payment Receipt',
       html: templates.paymentReceipt(data)
     };
     await sendEmailWithRetry(msg);
@@ -145,8 +145,8 @@ export const emailService = {
   sendAppointmentConfirmation: async (email, data) => {
     const msg = {
       to: email,
-      from: 'hellomamacareafrica@gmail.com',
-      subject: 'MamaCare Appointment Booking Confirmation',
+      from: 'hellonnekahealth@gmail.com',
+      subject: 'Nneka Health Appointment Booking Confirmation',
       html: templates.appointmentConfirmation(data)
     };
     await sendEmailWithRetry(msg);

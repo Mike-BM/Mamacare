@@ -6,17 +6,18 @@ import {
   LogOut, CheckCircle, XCircle, Plus, Terminal,
   Lock, Eye, Activity, Database, Server, Bell,
   ChevronRight, ArrowRight, Clock, TrendingUp, Calendar,
-  Car, MapPin, Truck
+  Car, MapPin, Truck, CreditCard, MessageSquare, Settings, CheckCircle2
 } from "lucide-react";
 
 const NAV = [
-  { id: "overview", label: "Overview", icon: Activity },
-  { id: "bookings", label: "Bookings & Consultations", icon: Calendar },
-  { id: "rides", label: "MamaRide Logistics", icon: Car },
-  { id: "providers", label: "Medical Staff", icon: Users },
-  { id: "hospitals", label: "Hospitals", icon: Building2 },
-  { id: "security", label: "Security Logs", icon: Shield },
-  { id: "audit", label: "Audit Trail", icon: FileText },
+  { id: "analytics", label: "Analytics & Overview", icon: Activity },
+  { id: "users", label: "User Management", icon: Users },
+  { id: "verification", label: "Verification Center", icon: Building2 },
+  { id: "rides", label: "NnekaRide Logistics", icon: Car },
+  { id: "payments", label: "Payment Monitoring", icon: CreditCard },
+  { id: "moderation", label: "Content Moderation", icon: AlertTriangle },
+  { id: "support", label: "Support System", icon: MessageSquare },
+  { id: "settings", label: "System Settings", icon: Settings },
 ];
 
 const STATS = [
@@ -49,7 +50,36 @@ const severityColor: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("analytics");
+  const [usersList, setUsersList] = useState([
+    { id: "usr-1", name: "Stacy Mutheu", email: "stacy@example.com", role: "Mother", status: "Active", joined: "2026-04-12" },
+    { id: "usr-2", name: "Jane Keith", email: "jane.keith@example.com", role: "Mother", status: "Active", joined: "2026-05-01" },
+    { id: "usr-3", name: "Obadiah Kemboi", email: "obadiah@example.com", role: "Father", status: "Active", joined: "2026-05-10" },
+    { id: "usr-4", name: "Dr. Eliza Keith", email: "eliza.keith@example.com", role: "Doctor", status: "Active", joined: "2026-01-20" },
+    { id: "usr-5", name: "Admin-Mark", email: "admin@nnekahealth.com", role: "Admin", status: "Active", joined: "2026-01-01" },
+    { id: "usr-6", name: "Malicious User", email: "spammer@gmail.com", role: "Mother", status: "Suspended", joined: "2026-05-22" },
+  ]);
+
+  const [paymentsList, setPaymentsList] = useState([
+    { id: "tx-1001", patient: "Jane Keith", amount: "KES 1,200", method: "M-Pesa", type: "Copay", status: "Completed", date: "Just now" },
+    { id: "tx-1002", patient: "Mariam Osei", amount: "KES 5,500", method: "NHIF Claim", type: "Hospital Bill", status: "Pending Approval", date: "10m ago" },
+    { id: "tx-1003", hospital: "Nairobi General Hospital", amount: "KES 45,000", method: "Bank Payout", type: "Hospital Payout", status: "Completed", date: "2h ago" },
+    { id: "tx-1004", patient: "Stacy Mutheu", amount: "KES 750", method: "Nneka Wallet", type: "Ride Fare", status: "Completed", date: "Yesterday" },
+  ]);
+
+  const [moderationList, setModerationList] = useState([
+    { id: "post-1", user: "Malicious User", content: "Buy cheap baby supplements at scam-url.com! Guaranteed 100% cure for all morning sickness!", flags: 4, reason: "Spam Link", date: "1h ago", status: "Flagged" },
+    { id: "post-2", user: "Jane Keith", content: "Is it normal to have mild cramping in week 24? My doctor told me to rest.", flags: 1, reason: "Sensitive keywords", date: "3h ago", status: "Approved" },
+    { id: "post-3", user: "Anonymous Mama", content: "I hate my nurse she is so mean and doesn't know anything!", flags: 2, reason: "Harassment", date: "1d ago", status: "Flagged" },
+  ]);
+
+  const [ticketsList, setTicketsList] = useState([
+    { id: "tkt-201", user: "Mariam Osei", subject: "Unable to join video call with Dr. Eliza", priority: "High", status: "Open", date: "5m ago" },
+    { id: "tkt-202", user: "John Kamau (Driver)", subject: "App freezing during pickup location routing", priority: "Medium", status: "In Progress", date: "1h ago" },
+    { id: "tkt-203", user: "Stacy Mutheu", subject: "Emergency wallet balance refund request", priority: "Low", status: "Resolved", date: "1d ago" },
+  ]);
+
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [providers, setProviders] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [mamarideRequests, setMamarideRequests] = useState<any[]>([]);
@@ -59,6 +89,47 @@ export default function AdminDashboard() {
   const [timeFilter, setTimeFilter] = useState("all");
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [adminEmail, setAdminEmail] = useState("");
+
+  const handleToggleUserStatus = (userId: string) => {
+    setUsersList(prev => prev.map(u => {
+      if (u.id === userId) {
+        const nextStatus = u.status === "Active" ? "Suspended" : "Active";
+        toast.success(`User ${u.name} status updated to ${nextStatus}!`);
+        return { ...u, status: nextStatus };
+      }
+      return u;
+    }));
+  };
+
+  const handleTogglePaymentStatus = (txId: string, newStatus: string) => {
+    setPaymentsList(prev => prev.map(p => {
+      if (p.id === txId) {
+        toast.success(`Payment claim ${txId} marked as ${newStatus}!`);
+        return { ...p, status: newStatus };
+      }
+      return p;
+    }));
+  };
+
+  const handleModerationAction = (postId: string, action: "Approve" | "Delete") => {
+    if (action === "Delete") {
+      setModerationList(prev => prev.filter(p => p.id !== postId));
+      toast.success("Flagged post deleted from the platform!");
+    } else {
+      setModerationList(prev => prev.map(p => p.id === postId ? { ...p, status: "Approved" } : p));
+      toast.success("Flagged post approved!");
+    }
+  };
+
+  const handleResolveTicket = (ticketId: string) => {
+    setTicketsList(prev => prev.map(t => {
+      if (t.id === ticketId) {
+        toast.success(`Ticket ${ticketId} resolved!`);
+        return { ...t, status: "Resolved" };
+      }
+      return t;
+    }));
+  };
   const [loading, setLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<any[]>([
@@ -142,14 +213,14 @@ export default function AdminDashboard() {
             fetchMamarideRequests();
             const newNotif = {
               id: `db-ride-${payload.new.id}`,
-              title: "🚗 MamaRide Request",
-              message: `New MamaRide transport requested: ${payload.new.ride_type || "standard"}.`,
+              title: "🚗 NnekaRide Request",
+              message: `New NnekaRide transport requested: ${payload.new.ride_type || "standard"}.`,
               time: "Just now",
               read: false,
               type: "ride"
             };
             setNotifications(prev => [newNotif, ...prev]);
-            toast.success("🚗 Real-time: New MamaRide requested!");
+            toast.success("🚗 Real-time: New NnekaRide requested!");
           })
           .on("postgres_changes", { event: "UPDATE", schema: "public", table: "mamaride_requests" }, fetchMamarideRequests)
           .subscribe();
@@ -443,7 +514,7 @@ export default function AdminDashboard() {
         appointment_date: new Date(Date.now() + 86400000 * 2).toISOString(),
         appointment_type: "Antenatal",
         status: "pending",
-        notes: "Automated booking via MamaCare application.",
+        notes: "Automated booking via Nneka Health application.",
         mothers: {
           due_date: "2026-11-20",
           profiles: {
@@ -460,13 +531,13 @@ export default function AdminDashboard() {
       const newAlert = {
         id,
         title: "🚗 Ride Dispatch",
-        message: `${randomName} requested an emergency MamaRide ambulance dispatch.`,
+        message: `${randomName} requested an emergency NnekaRide ambulance dispatch.`,
         time,
         read: false,
         type: "ride"
       };
       setNotifications(prev => [newAlert, ...prev]);
-      toast.success(`🚗 Dispatch: MamaRide requested by ${randomName}.`);
+      toast.success(`🚗 Dispatch: NnekaRide requested by ${randomName}.`);
 
       const newRide = {
         id: `ride-${Date.now()}`,
@@ -549,7 +620,7 @@ export default function AdminDashboard() {
     
     const demoBypass = localStorage.getItem("demoBypass");
     if (demoBypass) {
-      const demoUrl = "https://meet.jit.si/MamaCareDemoAdminConsultation";
+      const demoUrl = "https://meet.jit.si/NnekaHealthDemoAdminConsultation";
       setAppointments(prev => prev.map(a => a.id === apt.id ? { ...a, video_link: demoUrl, status: 'confirmed' } : a));
       toast.success("Consultation link generated! (Demo)");
       window.open(demoUrl, '_blank');
@@ -643,7 +714,7 @@ export default function AdminDashboard() {
         <div className="w-48 h-1 bg-slate-800 rounded overflow-hidden">
           <div className="h-full bg-green-400 animate-[pulse_1s_ease-in-out_infinite] w-3/4 rounded" />
         </div>
-        <p className="text-slate-600 text-xs mt-4 tracking-widest">MAMACARE ADMIN PORTAL v2.0</p>
+        <p className="text-slate-600 text-xs mt-4 tracking-widest">NNEKA HEALTH ADMIN PORTAL v2.0</p>
       </div>
     );
   }
@@ -680,7 +751,7 @@ export default function AdminDashboard() {
         <div className="px-5 py-5 border-b border-slate-800">
           <div className="flex items-center gap-2 mb-1">
             <Shield className="w-5 h-5 text-green-400" />
-            <span className="text-white font-black text-sm tracking-wide">MAMACARE</span>
+            <span className="text-white font-black text-sm tracking-wide">NNEKA HEALTH</span>
           </div>
           <p className="text-[10px] text-slate-600 uppercase tracking-widest font-mono">Admin Control Panel</p>
         </div>
@@ -827,10 +898,9 @@ export default function AdminDashboard() {
         </header>
 
         <div className="p-8">
-
-          {/* ── OVERVIEW ── */}
-          {tab === "overview" && (
-            <div className="space-y-8">
+          {/* ── ANALYTICS & OVERVIEW ── */}
+          {tab === "analytics" && (
+            <div className="space-y-8 animate-fade-in">
               {/* Stats */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {STATS.map((s) => (
@@ -845,6 +915,149 @@ export default function AdminDashboard() {
                     <p className="text-[11px] text-slate-500 uppercase tracking-wider">{s.label}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Bookings & Appointments Scheduler */}
+              <div className="space-y-6">
+                <div className="bg-[#161b22] border border-slate-800 rounded-lg p-4 flex flex-wrap gap-4 items-end">
+                  <div>
+                    <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Hospital</label>
+                    <select
+                      value={selectedHospital}
+                      onChange={(e) => setSelectedHospital(e.target.value)}
+                      className="bg-[#0d1117] border border-slate-800 text-slate-300 text-xs rounded px-3 py-1.5 focus:outline-none focus:border-green-400 w-full sm:w-48"
+                    >
+                      <option value="all">All Hospitals</option>
+                      {hospitals.map(h => (
+                        <option key={h.id} value={h.id}>{h.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Doctor</label>
+                    <select
+                      value={selectedDoctor}
+                      onChange={(e) => setSelectedDoctor(e.target.value)}
+                      className="bg-[#0d1117] border border-slate-800 text-slate-300 text-xs rounded px-3 py-1.5 focus:outline-none focus:border-green-400 w-full sm:w-48"
+                    >
+                      <option value="all">All Doctors</option>
+                      {providers.map(p => (
+                        <option key={p.id} value={p.id}>{p.full_name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Timeframe</label>
+                    <div className="flex bg-[#0d1117] border border-slate-800 rounded p-0.5">
+                      {["all", "today", "upcoming", "past"].map((tf) => (
+                        <button
+                          key={tf}
+                          onClick={() => setTimeFilter(tf)}
+                          className={`px-3 py-1 text-xs rounded capitalize transition-all ${
+                            timeFilter === tf
+                              ? "bg-green-400/10 text-green-400 font-bold"
+                              : "text-slate-500 hover:text-slate-300"
+                          }`}
+                        >
+                          {tf}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                  <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
+                    <div>
+                      <h2 className="text-sm font-bold text-white">Appointments & Consultations Registry</h2>
+                      <p className="text-[11px] text-slate-600 mt-0.5">
+                        {filteredAppointments.length} active scheduling slots
+                      </p>
+                    </div>
+                  </div>
+
+                  {filteredAppointments.length === 0 ? (
+                    <div className="px-6 py-16 text-center">
+                      <Calendar className="w-8 h-8 text-slate-700 mx-auto mb-3" />
+                      <p className="text-slate-600 text-sm">No appointments matching the filters.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Desktop View */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                              <th className="px-6 py-3 text-left font-medium">Patient</th>
+                              <th className="px-6 py-3 text-left font-medium">Hospital</th>
+                              <th className="px-6 py-3 text-left font-medium">Doctor</th>
+                              <th className="px-6 py-3 text-left font-medium">Date & Time</th>
+                              <th className="px-6 py-3 text-left font-medium">Type</th>
+                              <th className="px-6 py-3 text-left font-medium">Status</th>
+                              <th className="px-6 py-3 text-left font-medium">Notes</th>
+                              <th className="px-6 py-3 text-right font-medium">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800/50">
+                            {filteredAppointments.map((apt) => {
+                              const patientName = apt.mothers?.profiles?.full_name || apt.mothers?.profiles?.email || "Unknown";
+                              const doctorName = providers.find(p => p.id === apt.doctor_id)?.full_name || "Unassigned";
+                              const hospitalName = apt.hospitals?.name || "Telehealth/General";
+                              const aptDate = apt.appointment_date ? new Date(apt.appointment_date).toLocaleString() : "TBD";
+                              return (
+                                <tr key={apt.id} className="hover:bg-slate-800/30 transition-colors">
+                                  <td className="px-6 py-4">
+                                    <div className="font-medium text-white">{patientName}</div>
+                                    <div className="text-[10px] text-slate-500 font-mono">{apt.mother_id?.slice(0, 8)}...</div>
+                                  </td>
+                                  <td className="px-6 py-4 text-slate-400">{hospitalName}</td>
+                                  <td className="px-6 py-4 text-slate-400 font-medium">{doctorName}</td>
+                                  <td className="px-6 py-4 font-mono text-xs text-slate-300">{aptDate}</td>
+                                  <td className="px-6 py-4">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+                                      {apt.appointment_type || "General"}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <select
+                                      value={apt.status || "pending"}
+                                      onChange={(e) => handleStatusUpdate(apt.id, e.target.value)}
+                                      className={`text-xs font-bold px-2 py-1 rounded bg-[#0d1117] border focus:outline-none ${
+                                        apt.status === "confirmed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
+                                        apt.status === "completed" ? "text-blue-400 border-blue-700/40 bg-blue-900/10" :
+                                        apt.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
+                                        "text-yellow-400 border-yellow-700/40 bg-yellow-900/10"
+                                      }`}
+                                    >
+                                      <option value="pending">Pending</option>
+                                      <option value="confirmed">Confirmed</option>
+                                      <option value="completed">Completed</option>
+                                      <option value="cancelled">Cancelled</option>
+                                    </select>
+                                  </td>
+                                  <td className="px-6 py-4 text-xs text-slate-500 max-w-[150px] truncate" title={apt.notes}>
+                                    {apt.notes || "—"}
+                                  </td>
+                                  <td className="px-6 py-4 text-right">
+                                    <button
+                                      onClick={() => handleJoinCall(apt)}
+                                      disabled={isGenerating === apt.id}
+                                      className="px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold disabled:opacity-50"
+                                    >
+                                      {isGenerating === apt.id ? "Generating..." : apt.video_link ? "Join Call" : "Create Call"}
+                                    </button>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Recent alerts */}
@@ -871,9 +1084,6 @@ export default function AdminDashboard() {
                     </div>
                   ))}
                 </div>
-                <button onClick={() => setTab("security")} className="w-full px-6 py-3 text-xs text-slate-600 hover:text-green-400 hover:bg-slate-800/30 transition-colors flex items-center gap-1 font-mono">
-                  View all security logs <ArrowRight className="w-3 h-3" />
-                </button>
               </div>
 
               {/* Activity log */}
@@ -898,229 +1108,169 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* ── BOOKINGS ── */}
-          {tab === "bookings" && (
-            <div className="space-y-6">
-              {/* Filters Panel */}
-              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-4 flex flex-wrap gap-4 items-end">
-                <div>
-                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Hospital</label>
-                  <select
-                    value={selectedHospital}
-                    onChange={(e) => setSelectedHospital(e.target.value)}
-                    className="bg-[#0d1117] border border-slate-800 text-slate-300 text-xs rounded px-3 py-1.5 focus:outline-none focus:border-green-400 w-full sm:w-48"
-                  >
-                    <option value="all">All Hospitals</option>
-                    {hospitals.map(h => (
-                      <option key={h.id} value={h.id}>{h.name}</option>
-                    ))}
-                  </select>
+          {/* ── USER MANAGEMENT ── */}
+          {tab === "users" && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-6">
+                <h2 className="text-sm font-bold text-white mb-2">User Registry Directory</h2>
+                <p className="text-xs text-slate-500 mb-6">Manage all patient, partner, CHW, and system admin accounts.</p>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                        <th className="px-6 py-3 text-left font-medium">User ID</th>
+                        <th className="px-6 py-3 text-left font-medium">Name</th>
+                        <th className="px-6 py-3 text-left font-medium">Email</th>
+                        <th className="px-6 py-3 text-left font-medium">Role</th>
+                        <th className="px-6 py-3 text-left font-medium">Date Joined</th>
+                        <th className="px-6 py-3 text-left font-medium">Status</th>
+                        <th className="px-6 py-3 text-right font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {usersList.map((user) => (
+                        <tr key={user.id} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="px-6 py-4 font-mono text-xs text-slate-500">{user.id}</td>
+                          <td className="px-6 py-4 font-medium text-white">{user.name}</td>
+                          <td className="px-6 py-4 text-slate-400 font-mono text-xs">{user.email}</td>
+                          <td className="px-6 py-4">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
+                              {user.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-400 text-xs font-mono">{user.joined}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                              user.status === "Active" ? "text-green-400 bg-green-900/30 border-green-700/40" : "text-red-400 bg-red-900/30 border-red-700/40 animate-pulse"
+                            }`}>
+                              {user.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => handleToggleUserStatus(user.id)}
+                              className={`px-3 py-1 text-xs rounded border font-bold transition-all ${
+                                user.status === "Active"
+                                  ? "bg-red-950/40 hover:bg-red-900/35 text-red-400 border-red-800/40"
+                                  : "bg-green-950/40 hover:bg-green-900/35 text-green-400 border-green-800/40"
+                              }`}
+                            >
+                              {user.status === "Active" ? "Suspend Account" : "Activate"}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Doctor</label>
-                  <select
-                    value={selectedDoctor}
-                    onChange={(e) => setSelectedDoctor(e.target.value)}
-                    className="bg-[#0d1117] border border-slate-800 text-slate-300 text-xs rounded px-3 py-1.5 focus:outline-none focus:border-green-400 w-full sm:w-48"
-                  >
-                    <option value="all">All Doctors</option>
-                    {providers.map(p => (
-                      <option key={p.id} value={p.id}>{p.full_name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block">Timeframe</label>
-                  <div className="flex bg-[#0d1117] border border-slate-800 rounded p-0.5">
-                    {["all", "today", "upcoming", "past"].map((tf) => (
-                      <button
-                        key={tf}
-                        onClick={() => setTimeFilter(tf)}
-                        className={`px-3 py-1 text-xs rounded capitalize transition-all ${
-                          timeFilter === tf
-                            ? "bg-green-400/10 text-green-400 font-bold"
-                            : "text-slate-500 hover:text-slate-300"
-                        }`}
-                      >
-                        {tf}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bookings List Card */}
-              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
-                  <div>
-                    <h2 className="text-sm font-bold text-white">Appointments & Consultations</h2>
-                    <p className="text-[11px] text-slate-600 mt-0.5">
-                      {filteredAppointments.length} matching appointments
-                    </p>
-                  </div>
-                </div>
-
-                {filteredAppointments.length === 0 ? (
-                  <div className="px-6 py-16 text-center">
-                    <Calendar className="w-8 h-8 text-slate-700 mx-auto mb-3" />
-                    <p className="text-slate-600 text-sm">No appointments matching the selected filters.</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Desktop View */}
-                    <div className="hidden md:block overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
-                            <th className="px-6 py-3 text-left font-medium">Patient</th>
-                            <th className="px-6 py-3 text-left font-medium">Hospital</th>
-                            <th className="px-6 py-3 text-left font-medium">Doctor</th>
-                            <th className="px-6 py-3 text-left font-medium">Date & Time</th>
-                            <th className="px-6 py-3 text-left font-medium">Type</th>
-                            <th className="px-6 py-3 text-left font-medium">Status</th>
-                            <th className="px-6 py-3 text-left font-medium">Notes</th>
-                            <th className="px-6 py-3 text-right font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/50">
-                          {filteredAppointments.map((apt) => {
-                            const patientName = apt.mothers?.profiles?.full_name || apt.mothers?.profiles?.email || "Unknown";
-                            const doctorName = providers.find(p => p.id === apt.doctor_id)?.full_name || "Unassigned";
-                            const hospitalName = apt.hospitals?.name || "Telehealth/General";
-                            const aptDate = apt.appointment_date ? new Date(apt.appointment_date).toLocaleString() : "TBD";
-                            return (
-                              <tr key={apt.id} className="hover:bg-slate-800/30 transition-colors">
-                                <td className="px-6 py-4">
-                                  <div className="font-medium text-white">{patientName}</div>
-                                  <div className="text-[10px] text-slate-500 font-mono">{apt.mother_id?.slice(0, 8)}...</div>
-                                </td>
-                                <td className="px-6 py-4 text-slate-400">{hospitalName}</td>
-                                <td className="px-6 py-4 text-slate-400 font-medium">{doctorName}</td>
-                                <td className="px-6 py-4 font-mono text-xs text-slate-300">{aptDate}</td>
-                                <td className="px-6 py-4">
-                                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
-                                    {apt.appointment_type || "General"}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                  <select
-                                    value={apt.status || "pending"}
-                                    onChange={(e) => handleStatusUpdate(apt.id, e.target.value)}
-                                    className={`text-xs font-bold px-2 py-1 rounded bg-[#0d1117] border focus:outline-none ${
-                                      apt.status === "confirmed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
-                                      apt.status === "completed" ? "text-blue-400 border-blue-700/40 bg-blue-900/10" :
-                                      apt.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
-                                      "text-yellow-400 border-yellow-700/40 bg-yellow-900/10"
-                                    }`}
-                                  >
-                                    <option value="pending">Pending</option>
-                                    <option value="confirmed">Confirmed</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                  </select>
-                                </td>
-                                <td className="px-6 py-4 text-xs text-slate-500 max-w-[150px] truncate" title={apt.notes}>
-                                  {apt.notes || "—"}
-                                </td>
-                                <td className="px-6 py-4 text-right">
-                                  <button
-                                    onClick={() => handleJoinCall(apt)}
-                                    disabled={isGenerating === apt.id}
-                                    className="px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold disabled:opacity-50"
-                                  >
-                                    {isGenerating === apt.id ? "Generating..." : apt.video_link ? "Join Call" : "Create Call"}
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Mobile View */}
-                    <div className="block md:hidden p-4 space-y-4">
-                      {filteredAppointments.map((apt) => {
-                        const patientName = apt.mothers?.profiles?.full_name || apt.mothers?.profiles?.email || "Unknown";
-                        const doctorName = providers.find(p => p.id === apt.doctor_id)?.full_name || "Unassigned";
-                        const hospitalName = apt.hospitals?.name || "Telehealth/General";
-                        const aptDate = apt.appointment_date ? new Date(apt.appointment_date).toLocaleString() : "TBD";
-                        return (
-                          <div key={apt.id} className="bg-[#0d1117]/40 border border-slate-800 rounded-lg p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="font-bold text-white text-sm">{patientName}</div>
-                                <div className="text-[10px] text-slate-500 font-mono">ID: {apt.id?.slice(0, 8)}...</div>
-                              </div>
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
-                                {apt.appointment_type || "General"}
-                              </span>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Hospital</span>
-                                <span className="text-slate-300 font-medium">{hospitalName}</span>
-                              </div>
-                              <div>
-                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Doctor</span>
-                                <span className="text-slate-300 font-medium">{doctorName}</span>
-                              </div>
-                              <div>
-                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Date & Time</span>
-                                <span className="text-slate-300 font-mono">{aptDate}</span>
-                              </div>
-                              <div>
-                                <span className="text-slate-500 block uppercase text-[9px] tracking-wider">Status</span>
-                                <select
-                                  value={apt.status || "pending"}
-                                  onChange={(e) => handleStatusUpdate(apt.id, e.target.value)}
-                                  className={`text-[11px] font-bold px-2 py-0.5 rounded bg-[#0d1117] border focus:outline-none mt-0.5 w-full ${
-                                    apt.status === "confirmed" ? "text-green-400 border-green-700/40 bg-green-900/10" :
-                                    apt.status === "completed" ? "text-blue-400 border-blue-700/40 bg-blue-900/10" :
-                                    apt.status === "cancelled" ? "text-red-400 border-red-700/40 bg-red-900/10" :
-                                    "text-yellow-400 border-yellow-700/40 bg-yellow-900/10"
-                                  }`}
-                                >
-                                  <option value="pending">Pending</option>
-                                  <option value="confirmed">Confirmed</option>
-                                  <option value="completed">Completed</option>
-                                  <option value="cancelled">Cancelled</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            {apt.notes && (
-                              <div className="bg-slate-800/20 border border-slate-800/40 p-2 rounded text-xs text-slate-400">
-                                <span className="text-slate-500 block uppercase text-[8px] tracking-wider mb-0.5">Notes</span>
-                                {apt.notes}
-                              </div>
-                            )}
-
-                            <div className="pt-2">
-                              <button
-                                onClick={() => handleJoinCall(apt)}
-                                disabled={isGenerating === apt.id}
-                                className="w-full py-2 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-all font-bold disabled:opacity-50 flex items-center justify-center gap-1.5"
-                              >
-                                {isGenerating === apt.id ? "Generating..." : apt.video_link ? "Join Call" : "Create Call"}
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
               </div>
             </div>
           )}
 
-          {/* ── MAMARIDE LOGISTICS ── */}
+          {/* ── VERIFICATION CENTER ── */}
+          {tab === "verification" && (
+            <div className="space-y-8 animate-fade-in">
+              {/* Doctor Registrations */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-white">Medical Specialist Registry</h2>
+                    <p className="text-[11px] text-slate-600 mt-0.5">Approve or reject doctor license verification requests</p>
+                  </div>
+                  <button onClick={handleInvite} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold">
+                    <Plus className="w-3.5 h-3.5" /> Invite Specialist
+                  </button>
+                </div>
+                {providers.length === 0 ? (
+                  <div className="px-6 py-16 text-center">
+                    <Database className="w-8 h-8 text-slate-700 mx-auto mb-3" />
+                    <p className="text-slate-600 text-sm">No providers registered yet.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                          <th className="px-6 py-3 text-left font-medium">Name</th>
+                          <th className="px-6 py-3 text-left font-medium">Specialty</th>
+                          <th className="px-6 py-3 text-left font-medium">KMPDC License</th>
+                          <th className="px-6 py-3 text-left font-medium">Status</th>
+                          <th className="px-6 py-3 text-right font-medium">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/50">
+                        {providers.map((p, i) => (
+                          <tr key={p.id || i} className="hover:bg-slate-800/30 transition-colors">
+                            <td className="px-6 py-3 font-medium text-white">{p.full_name}</td>
+                            <td className="px-6 py-3 text-slate-500">{p.specialty || "General"}</td>
+                            <td className="px-6 py-3 font-mono text-xs text-slate-600">{p.license_number || "—"}</td>
+                            <td className="px-6 py-3">
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                                p.verification_status === "verified" ? "text-green-400 bg-green-900/30 border-green-700/40" :
+                                p.verification_status === "pending" ? "text-yellow-400 bg-yellow-900/30 border-yellow-700/40" :
+                                "text-red-400 bg-red-900/30 border-red-700/40"
+                              }`}>
+                                {p.verification_status || "unverified"}
+                              </span>
+                            </td>
+                            <td className="px-6 py-3 text-right">
+                              {p.verification_status === "pending" ? (
+                                <div className="flex gap-2 justify-end">
+                                  <button onClick={() => handleVerify(p.id, "verified")} className="text-[11px] px-2.5 py-1 bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 transition-colors font-bold">
+                                    Approve
+                                  </button>
+                                  <button onClick={() => handleVerify(p.id, "rejected")} className="text-[11px] px-2.5 py-1 bg-red-900/40 text-red-400 border border-red-700/40 rounded hover:bg-red-900/70 transition-colors font-bold">
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-slate-600">No Action Required</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Hospital Certifications */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-white">Partner Maternity Facilities</h2>
+                    <p className="text-[11px] text-slate-600 mt-0.5">Facility network and onboarding approvals</p>
+                  </div>
+                  <a href="/register" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-400/10 text-green-400 border border-green-400/20 rounded text-xs font-bold hover:bg-green-400/20 transition-colors">
+                    <Building2 className="w-3.5 h-3.5" /> Onboard Facility
+                  </a>
+                </div>
+                <div className="divide-y divide-slate-800/50">
+                  {hospitals.map((h, i) => (
+                    <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                      <div>
+                        <p className="text-sm font-bold text-white">{h.name}</p>
+                        <p className="text-xs text-slate-600 font-mono">{h.location} · {h.beds} beds</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                          h.status === "Active" || h.status === "verified" ? "text-green-400 bg-green-900/30 border-green-700/40" : "text-yellow-400 bg-yellow-900/30 border-yellow-700/40"
+                        }`}>
+                          {h.status || "Pending"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── NNEKARIDE LOGISTICS ── */}
           {tab === "rides" && (
-            <div className="space-y-6">
+            <div className="space-y-6 animate-fade-in">
               {/* Statistics Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-[#161b22] border border-slate-800 rounded-lg p-5">
@@ -1153,9 +1303,9 @@ export default function AdminDashboard() {
               <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
                 <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
                   <div>
-                    <h2 className="text-sm font-bold text-white">MamaRide Dispatch Console</h2>
+                    <h2 className="text-sm font-bold text-white">NnekaRide Dispatch Console</h2>
                     <p className="text-[11px] text-slate-600 mt-0.5">
-                      Live tracking and transport dispatch
+                      Live emergency transport dispatch dashboard
                     </p>
                   </div>
                 </div>
@@ -1208,7 +1358,7 @@ export default function AdminDashboard() {
                                 </td>
                                 <td className="px-6 py-4 text-slate-400 font-mono text-xs">{ride.pickup_location || "—"}</td>
                                 <td className="px-6 py-4 text-slate-400 font-mono text-xs">{ride.destination || "General Clinic"}</td>
-                                <td className="px-6 py-4 text-slate-300 font-medium">
+                                <td className="px-6 py-3 text-slate-300 font-medium">
                                   {ride.driver ? (
                                     <div>
                                       <div>{ride.driver.full_name}</div>
@@ -1336,62 +1486,63 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* ── PROVIDERS ── */}
-          {tab === "providers" && (
-            <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-bold text-white">Medical Staff Registry</h2>
-                  <p className="text-[11px] text-slate-600 mt-0.5">{providers.length} providers on record</p>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={handleInvite} className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-400/10 text-green-400 border border-green-400/20 rounded hover:bg-green-400/20 transition-colors font-bold">
-                    <Plus className="w-3.5 h-3.5" /> Invite Doctor
-                  </button>
-                </div>
-              </div>
-              {providers.length === 0 ? (
-                <div className="px-6 py-16 text-center">
-                  <Database className="w-8 h-8 text-slate-700 mx-auto mb-3" />
-                  <p className="text-slate-600 text-sm">No providers registered yet.</p>
-                </div>
-              ) : (
+          {/* ── PAYMENT MONITORING ── */}
+          {tab === "payments" && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-6">
+                <h2 className="text-sm font-bold text-white mb-2">NHIF claims & mobile payments</h2>
+                <p className="text-xs text-slate-500 mb-6">Review patient copays, insurance claims, and hospital payouts.</p>
+                
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
-                        <th className="px-6 py-3 text-left font-medium">Name</th>
-                        <th className="px-6 py-3 text-left font-medium">Specialty</th>
-                        <th className="px-6 py-3 text-left font-medium">License</th>
+                        <th className="px-6 py-3 text-left font-medium">Transaction ID</th>
+                        <th className="px-6 py-3 text-left font-medium">Party</th>
+                        <th className="px-6 py-3 text-left font-medium">Amount</th>
+                        <th className="px-6 py-3 text-left font-medium">Type</th>
+                        <th className="px-6 py-3 text-left font-medium">Method</th>
+                        <th className="px-6 py-3 text-left font-medium">Date</th>
                         <th className="px-6 py-3 text-left font-medium">Status</th>
-                        <th className="px-6 py-3 text-left font-medium">Actions</th>
+                        <th className="px-6 py-3 text-right font-medium">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/50">
-                      {providers.map((p, i) => (
-                        <tr key={p.id || i} className="hover:bg-slate-800/30 transition-colors">
-                          <td className="px-6 py-3 font-medium text-white">{p.full_name}</td>
-                          <td className="px-6 py-3 text-slate-500">{p.specialty || "General"}</td>
-                          <td className="px-6 py-3 font-mono text-xs text-slate-600">{p.license_number || "—"}</td>
-                          <td className="px-6 py-3">
+                      {paymentsList.map((tx) => (
+                        <tr key={tx.id} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="px-6 py-4 font-mono text-xs text-slate-500">{tx.id}</td>
+                          <td className="px-6 py-4 font-medium text-white">{tx.patient || tx.hospital}</td>
+                          <td className="px-6 py-4 font-bold text-slate-300 font-mono text-xs">{tx.amount}</td>
+                          <td className="px-6 py-4 text-slate-400 text-xs">{tx.type}</td>
+                          <td className="px-6 py-4 text-slate-400 text-xs">{tx.method}</td>
+                          <td className="px-6 py-4 text-slate-400 text-xs font-mono">{tx.date}</td>
+                          <td className="px-6 py-4">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                              p.verification_status === "verified" ? "text-green-400 bg-green-900/30 border-green-700/40" :
-                              p.verification_status === "pending" ? "text-yellow-400 bg-yellow-900/30 border-yellow-700/40" :
-                              "text-red-400 bg-red-900/30 border-red-700/40"
+                              tx.status === "Completed" ? "text-green-400 bg-green-900/30 border-green-700/40" :
+                              tx.status === "Rejected" ? "text-red-400 bg-red-900/30 border-red-700/40" :
+                              "text-yellow-400 bg-yellow-900/30 border-yellow-700/40 animate-pulse"
                             }`}>
-                              {p.verification_status || "unverified"}
+                              {tx.status}
                             </span>
                           </td>
-                          <td className="px-6 py-3">
-                            {p.verification_status === "pending" && (
-                              <div className="flex gap-2">
-                                <button onClick={() => handleVerify(p.id, "verified")} className="text-[11px] px-2.5 py-1 bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 transition-colors font-bold">
-                                  Approve
+                          <td className="px-6 py-4 text-right">
+                            {tx.status === "Pending Approval" ? (
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => handleTogglePaymentStatus(tx.id, "Completed")}
+                                  className="px-2.5 py-1 text-xs bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 font-bold transition-all"
+                                >
+                                  Approve Claim
                                 </button>
-                                <button onClick={() => handleVerify(p.id, "rejected")} className="text-[11px] px-2.5 py-1 bg-red-900/40 text-red-400 border border-red-700/40 rounded hover:bg-red-900/70 transition-colors font-bold">
-                                  Reject
+                                <button
+                                  onClick={() => handleTogglePaymentStatus(tx.id, "Rejected")}
+                                  className="px-2.5 py-1 text-xs bg-red-900/40 text-red-400 border border-red-700/40 rounded hover:bg-red-900/70 font-bold transition-all"
+                                >
+                                  Reject Claim
                                 </button>
                               </div>
+                            ) : (
+                              <span className="text-xs text-slate-600">Settled</span>
                             )}
                           </td>
                         </tr>
@@ -1399,111 +1550,257 @@ export default function AdminDashboard() {
                     </tbody>
                   </table>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
-          {/* ── HOSPITALS ── */}
-          {tab === "hospitals" && (
-            <div className="space-y-4">
+          {/* ── CONTENT MODERATION ── */}
+          {tab === "moderation" && (
+            <div className="space-y-6 animate-fade-in">
               <div className="bg-[#161b22] border border-slate-800 rounded-lg p-6">
-                <h2 className="text-sm font-bold text-white mb-1">Partner Hospital Onboarding</h2>
-                <p className="text-xs text-slate-500 mb-5">Review and approve hospital partnership requests</p>
-                <a href="/register" className="inline-flex items-center gap-2 px-4 py-2.5 bg-green-400/10 text-green-400 border border-green-400/20 rounded text-sm font-bold hover:bg-green-400/20 transition-colors">
-                  <Building2 className="w-4 h-4" /> Register New Partner Hospital →
-                </a>
-              </div>
-              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
-                <div className="px-6 py-4 border-b border-slate-800">
-                  <span className="text-sm font-bold text-white">Registered Facilities</span>
-                </div>
-                {[
-                  { name: "Nairobi General Hospital", location: "Nairobi, KE", beds: 450, status: "Active" },
-                  { name: "Aga Khan University Hospital", location: "Nairobi, KE", beds: 254, status: "Active" },
-                  { name: "Kenyatta National Hospital", location: "Nairobi, KE", beds: 1800, status: "Active" },
-                  { name: "Mombasa Coast Hospital", location: "Mombasa, KE", beds: 120, status: "Pending" },
-                ].map((h, i) => (
-                  <div key={i} className="px-6 py-4 border-b border-slate-800/50 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
-                    <div>
-                      <p className="text-sm font-bold text-white">{h.name}</p>
-                      <p className="text-xs text-slate-600 font-mono">{h.location} · {h.beds} beds</p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${h.status === "Active" ? "text-green-400 bg-green-900/30 border-green-700/40" : "text-yellow-400 bg-yellow-900/30 border-yellow-700/40"}`}>
-                      {h.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── SECURITY ── */}
-          {tab === "security" && (
-            <div className="bg-[#161b22] border border-red-900/30 rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-red-400" />
-                  <span className="text-sm font-bold text-white">Guardian Security Monitor</span>
-                </div>
-                <span className="text-[10px] font-mono text-red-400 bg-red-900/30 border border-red-700/40 px-2 py-0.5 rounded animate-pulse">
-                  LIVE MONITORING
-                </span>
-              </div>
-              <div className="divide-y divide-slate-800/50">
-                {SECURITY_LOGS.map((log, i) => (
-                  <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
-                    <div>
-                      <p className="text-sm text-slate-200 font-medium">{log.event}</p>
-                      <p className="text-[11px] text-slate-600 font-mono mt-0.5">{log.src} · {log.time}</p>
-                    </div>
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded border ${severityColor[log.severity]}`}>
-                      {log.severity}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── AUDIT ── */}
-          {tab === "audit" && (
-            <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-bold text-white">System-Wide Audit Trail</h2>
-                  <p className="text-[11px] text-slate-600 mt-0.5">Immutable compliance log — ISO 27001</p>
-                </div>
-                <button className="text-xs px-3 py-1.5 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 rounded transition-colors">
-                  Export CSV
-                </button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
-                      <th className="px-6 py-3 text-left font-medium">Timestamp</th>
-                      <th className="px-6 py-3 text-left font-medium">User</th>
-                      <th className="px-6 py-3 text-left font-medium">Action</th>
-                      <th className="px-6 py-3 text-left font-medium">Reference</th>
-                      <th className="px-6 py-3 text-left font-medium">Level</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50 font-mono">
-                    {AUDIT_ROWS.map((r, i) => (
-                      <tr key={i} className="hover:bg-slate-800/20 transition-colors">
-                        <td className="px-6 py-3 text-xs text-slate-600">{r.time}</td>
-                        <td className="px-6 py-3 text-slate-300 font-sans font-bold">{r.user}</td>
-                        <td className="px-6 py-3 text-slate-400 font-sans">{r.action}</td>
-                        <td className="px-6 py-3 text-xs text-green-400">{r.ref}</td>
-                        <td className="px-6 py-3">
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${severityColor[r.level] || severityColor.LOW}`}>
-                            {r.level}
-                          </span>
-                        </td>
+                <h2 className="text-sm font-bold text-white mb-2">Community Forum Moderation</h2>
+                <p className="text-xs text-slate-500 mb-6">Review posts flagged by patients or AI automatic filters.</p>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                        <th className="px-6 py-3 text-left font-medium">User</th>
+                        <th className="px-6 py-3 text-left font-medium">Post Content</th>
+                        <th className="px-6 py-3 text-left font-medium">Reason</th>
+                        <th className="px-6 py-3 text-left font-medium">Flags</th>
+                        <th className="px-6 py-3 text-left font-medium">Date</th>
+                        <th className="px-6 py-3 text-left font-medium">Status</th>
+                        <th className="px-6 py-3 text-right font-medium">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {moderationList.map((post) => (
+                        <tr key={post.id} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="px-6 py-4 font-bold text-white text-xs">{post.user}</td>
+                          <td className="px-6 py-4 text-slate-300 text-xs italic max-w-sm break-words">"{post.content}"</td>
+                          <td className="px-6 py-4 text-orange-400 font-bold text-xs">{post.reason}</td>
+                          <td className="px-6 py-4 font-mono text-xs text-slate-400">{post.flags}</td>
+                          <td className="px-6 py-4 text-slate-400 text-xs font-mono">{post.date}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                              post.status === "Approved" ? "text-green-400 bg-green-900/30 border-green-700/40" : "text-red-400 bg-red-900/30 border-red-700/40 animate-pulse"
+                            }`}>
+                              {post.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            {post.status === "Flagged" ? (
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => handleModerationAction(post.id, "Approve")}
+                                  className="px-2.5 py-1 text-xs bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 font-bold transition-all"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleModerationAction(post.id, "Delete")}
+                                  className="px-2.5 py-1 text-xs bg-red-900/40 text-red-400 border border-red-700/40 rounded hover:bg-red-900/70 font-bold transition-all"
+                                >
+                                  Delete Post
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-slate-600">Moderated</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── SUPPORT SYSTEM ── */}
+          {tab === "support" && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-6">
+                <h2 className="text-sm font-bold text-white mb-2">Helpdesk Support Tickets</h2>
+                <p className="text-xs text-slate-500 mb-6">Manage patient questions, technical issues, and complaint cases.</p>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                        <th className="px-6 py-3 text-left font-medium">Ticket ID</th>
+                        <th className="px-6 py-3 text-left font-medium">User</th>
+                        <th className="px-6 py-3 text-left font-medium">Subject</th>
+                        <th className="px-6 py-3 text-left font-medium">Priority</th>
+                        <th className="px-6 py-3 text-left font-medium">Date</th>
+                        <th className="px-6 py-3 text-left font-medium">Status</th>
+                        <th className="px-6 py-3 text-right font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50">
+                      {ticketsList.map((t) => (
+                        <tr key={t.id} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="px-6 py-4 font-mono text-xs text-slate-500">{t.id}</td>
+                          <td className="px-6 py-4 font-bold text-white text-xs">{t.user}</td>
+                          <td className="px-6 py-4 text-slate-300 text-xs font-semibold">"{t.subject}"</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                              t.priority === "High" ? "bg-red-900/30 text-red-400 border border-red-700/40" :
+                              t.priority === "Medium" ? "bg-yellow-900/30 text-yellow-400 border-yellow-700/40" :
+                              "bg-slate-800 text-slate-400 border border-slate-700"
+                            }`}>
+                              {t.priority}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-400 text-xs font-mono">{t.date}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                              t.status === "Resolved" ? "text-green-400 bg-green-900/30 border-green-700/40" : "text-yellow-400 bg-yellow-900/30 border-yellow-700/40 animate-pulse"
+                            }`}>
+                              {t.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            {t.status !== "Resolved" ? (
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => {
+                                    const reply = window.prompt("Type your reply to the user:");
+                                    if (reply) {
+                                      toast.success(`Reply sent to ${t.user}!`);
+                                    }
+                                  }}
+                                  className="px-2.5 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded font-bold transition-all"
+                                >
+                                  Reply
+                                </button>
+                                <button
+                                  onClick={() => handleResolveTicket(t.id)}
+                                  className="px-2.5 py-1 text-xs bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 font-bold transition-all"
+                                >
+                                  Resolve
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-slate-600">Closed</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── SYSTEM SETTINGS ── */}
+          {tab === "settings" && (
+            <div className="space-y-8 animate-fade-in">
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg p-6">
+                <h2 className="text-base font-bold text-white mb-4">Platform Settings</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Maintenance Mode */}
+                  <div className="p-4 bg-slate-900/40 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-white">Maintenance Mode</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Redirect users to a maintenance screen.</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setMaintenanceMode(!maintenanceMode);
+                        toast.info(`Maintenance Mode ${!maintenanceMode ? "Enabled" : "Disabled"}!`);
+                      }}
+                      className={`px-4 py-1.5 rounded text-xs font-bold transition-all ${
+                        maintenanceMode ? "bg-red-900/40 text-red-400 border border-red-700" : "bg-slate-800 text-slate-400 border border-slate-700"
+                      }`}
+                    >
+                      {maintenanceMode ? "ENABLED" : "DISABLED"}
+                    </button>
+                  </div>
+
+                  {/* Database Actions */}
+                  <div className="p-4 bg-slate-900/40 rounded-lg border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-white">Database Backup</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Trigger an instant secure snapshot.</p>
+                    </div>
+                    <button
+                      onClick={() => toast.success("Snapshot created and uploaded to AWS Glacier!")}
+                      className="px-4 py-1.5 bg-green-900/40 text-green-400 border border-green-700 rounded text-xs font-bold hover:bg-green-900/60"
+                    >
+                      Backup Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security Logs (old security tab) */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-red-400" />
+                    <span className="text-sm font-bold text-white">Guardian Security Monitor (ISO 27001)</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-red-400 bg-red-900/30 border border-red-700/40 px-2 py-0.5 rounded animate-pulse">
+                    LIVE MONITORING
+                  </span>
+                </div>
+                <div className="divide-y divide-slate-800/50">
+                  {SECURITY_LOGS.map((log, i) => (
+                    <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                      <div>
+                        <p className="text-sm text-slate-200 font-medium">{log.event}</p>
+                        <p className="text-[11px] text-slate-600 font-mono mt-0.5">{log.src} · {log.time}</p>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded border ${severityColor[log.severity]}`}>
+                        {log.severity}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Audit Trail (old audit tab) */}
+              <div className="bg-[#161b22] border border-slate-800 rounded-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-white">System-Wide Audit Trail</h2>
+                    <p className="text-[11px] text-slate-600 mt-0.5">Immutable compliance log — ISO 27001</p>
+                  </div>
+                  <button onClick={() => toast.success("CSV export initiated.")} className="text-xs px-3 py-1.5 border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 rounded transition-colors">
+                    Export CSV
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-[11px] text-slate-600 uppercase tracking-widest">
+                        <th className="px-6 py-3 text-left font-medium">Timestamp</th>
+                        <th className="px-6 py-3 text-left font-medium">User</th>
+                        <th className="px-6 py-3 text-left font-medium">Action</th>
+                        <th className="px-6 py-3 text-left font-medium">Reference</th>
+                        <th className="px-6 py-3 text-left font-medium">Level</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/50 font-mono">
+                      {AUDIT_ROWS.map((r, i) => (
+                        <tr key={i} className="hover:bg-slate-800/20 transition-colors">
+                          <td className="px-6 py-3 text-xs text-slate-600">{r.time}</td>
+                          <td className="px-6 py-3 text-slate-300 font-sans font-bold">{r.user}</td>
+                          <td className="px-6 py-3 text-slate-400 font-sans">{r.action}</td>
+                          <td className="px-6 py-3 text-xs text-green-400">{r.ref}</td>
+                          <td className="px-6 py-3">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${severityColor[r.level] || severityColor.LOW}`}>
+                              {r.level}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
