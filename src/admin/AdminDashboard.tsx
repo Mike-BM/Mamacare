@@ -1338,7 +1338,7 @@ export default function AdminDashboard() {
                           <tr key={p.id || i} className="hover:bg-slate-800/30 transition-colors">
                             <td className="px-6 py-3 font-medium text-white">{p.full_name}</td>
                             <td className="px-6 py-3 text-slate-500">{p.specialty || "General"}</td>
-                            <td className="px-6 py-3 font-mono text-xs text-slate-600">{p.license_number || "—"}</td>
+                            <td className="px-6 py-3 font-mono text-xs text-slate-600">{p.kmpdc_license || p.license_number || "—"}</td>
                             <td className="px-6 py-3">
                               <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                                 p.verification_status === "verified" ? "text-green-400 bg-green-900/30 border-green-700/40" :
@@ -1349,7 +1349,7 @@ export default function AdminDashboard() {
                               </span>
                             </td>
                             <td className="px-6 py-3 text-right">
-                              {p.verification_status === "pending" ? (
+                              {p.verification_status !== "verified" ? (
                                 <div className="flex gap-2 justify-end">
                                   <button onClick={() => handleVerify(p.id, "verified")} className="text-[11px] px-2.5 py-1 bg-green-900/40 text-green-400 border border-green-700/40 rounded hover:bg-green-900/70 transition-colors font-bold">
                                     Approve
@@ -1359,7 +1359,14 @@ export default function AdminDashboard() {
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-xs text-slate-600">No Action Required</span>
+                                <div className="flex gap-2 justify-end items-center">
+                                  <span className="text-xs text-green-400 mr-2 flex items-center gap-1 font-bold">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> Verified
+                                  </span>
+                                  <button onClick={() => handleVerify(p.id, "rejected")} className="text-[10px] px-2 py-0.5 bg-red-950/20 text-red-400/80 border border-red-900/30 rounded hover:bg-red-900/35 transition-colors font-mono">
+                                    Revoke
+                                  </button>
+                                </div>
                               )}
                             </td>
                           </tr>
