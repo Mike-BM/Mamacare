@@ -65,12 +65,13 @@ const Register = () => {
     
     setLoading(true);
     try {
+      const cleanEmail = formData.email.trim().toLowerCase();
       // 1. Call backend to create the user and bypass the Supabase confirmation email issue
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: formData.email,
+          email: cleanEmail,
           password: formData.password,
           fullName: formData.name,
           role: role
@@ -84,7 +85,7 @@ const Register = () => {
 
       // 2. The user is created and confirmed. Now log them in!
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
+        email: cleanEmail,
         password: formData.password,
       });
 

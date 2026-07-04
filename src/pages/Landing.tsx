@@ -89,7 +89,7 @@ const Landing = () => {
       }
 
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
