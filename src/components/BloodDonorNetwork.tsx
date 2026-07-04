@@ -61,7 +61,7 @@ export const BloodDonorNetwork = () => {
               size="sm"
               variant={d.available ? "default" : "secondary"}
               disabled={!d.available}
-              onClick={() => toast.success(`Donor ${d.name} contacted 💜`)}
+              onClick={() => toast.success(`Donor ${d.name} contacted`)}
             >
               <Phone className="w-3 h-3 mr-1" />
               {d.available ? "Contact" : "Unavailable"}

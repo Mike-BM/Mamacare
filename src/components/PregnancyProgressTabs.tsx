@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Baby, Check, MapPin } from "lucide-react";
 
 interface PregnancyProgressTabsProps {
   currentWeek: number;
@@ -18,8 +19,8 @@ export const PregnancyProgressTabs = ({ currentWeek, totalWeeks = 40 }: Pregnanc
       <div className="relative z-10 space-y-5">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-          <h3 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-responsive-lg">
-            👶 Week {currentWeek} of {totalWeeks}
+          <h3 className="text-xl sm:text-2xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-responsive-lg flex items-center gap-2">
+            <Baby className="w-5 h-5 text-primary" /> Week {currentWeek} of {totalWeeks}
           </h3>
           <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary uppercase font-bold tracking-wider">
             Trimester 2
@@ -48,7 +49,7 @@ export const PregnancyProgressTabs = ({ currentWeek, totalWeeks = 40 }: Pregnanc
         {/* Baby info */}
         <div className="space-y-1">
           <p className="text-lg font-medium text-white/90">
-            "Your baby is the size of an ear of corn 🌽"
+            "Your baby is the size of an ear of corn"
           </p>
           <p className="text-sm text-white/60 italic">
             Baby's lungs are developing — they can hear your voice!
@@ -59,11 +60,11 @@ export const PregnancyProgressTabs = ({ currentWeek, totalWeeks = 40 }: Pregnanc
         <div className="flex gap-3 overflow-x-auto pb-1 hide-scrollbar">
           <div className="bg-white/5 px-4 py-3 rounded-xl border border-white/10 min-w-[140px] shrink-0">
             <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Week 20</span>
-            <p className="text-sm text-white/90 font-medium mt-0.5">Anatomy Scan ✅</p>
+            <p className="text-sm text-white/90 font-medium mt-0.5 flex items-center gap-1">Anatomy Scan <Check className="w-4 h-4 text-green-400" /></p>
           </div>
           <div className="bg-primary/20 px-4 py-3 rounded-xl border border-primary/30 min-w-[150px] shrink-0">
             <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Week 24</span>
-            <p className="text-sm text-white font-medium mt-0.5">Viability Milestone 📍</p>
+            <p className="text-sm text-white font-medium mt-0.5 flex items-center gap-1">Viability Milestone <MapPin className="w-4 h-4 text-primary" /></p>
           </div>
           <div className="bg-white/5 px-4 py-3 rounded-xl border border-white/10 min-w-[140px] shrink-0 opacity-50">
             <span className="text-[10px] text-white/50 font-bold uppercase tracking-wider">Week 28</span>

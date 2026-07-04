@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Mic, VolumeX, Waves, Activity } from 'lucide-react';
+import { Mic, VolumeX, Waves, Activity, Baby, Calendar, Scale, AlertTriangle } from 'lucide-react';
 import { useVoice } from '../hooks/useVoice';
 import { useVoiceCommands } from '../hooks/useVoiceCommands';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -144,7 +144,7 @@ export const VoiceInterface = ({ userContext }: { userContext?: any }) => {
                 <span className="text-white/70 text-sm">
                   {isListening ? 'Listening...' : 
                    isSpeaking ? 'Speaking...' : 
-                   wakeWordActive ? 'Hey Mama! 👋' : 'Tap mic to talk'}
+                   wakeWordActive ? 'Hey Mama!' : 'Tap mic to talk'}
                 </span>
               </div>
               
@@ -208,17 +208,17 @@ export const VoiceInterface = ({ userContext }: { userContext?: any }) => {
             {!isListening && !isSpeaking && (
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { text: 'How big is my baby?', icon: '👶' },
-                  { text: 'Book appointment', icon: '📅' },
-                  { text: 'Log my weight', icon: '⚖️' },
-                  { text: 'I need help', icon: '🆘' },
+                  { text: 'How big is my baby?', icon: <Baby className="w-4 h-4 text-pink-400" /> },
+                  { text: 'Book appointment', icon: <Calendar className="w-4 h-4 text-pink-400" /> },
+                  { text: 'Log my weight', icon: <Scale className="w-4 h-4 text-pink-400" /> },
+                  { text: 'I need help', icon: <AlertTriangle className="w-4 h-4 text-pink-400" /> },
                 ].map((cmd) => (
                   <button
                     key={cmd.text}
                     onClick={() => { playTone('start'); processVoiceInput(cmd.text); }}
                     className="p-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 hover:border-pink-500/30 transition-all text-left flex items-center gap-2"
                   >
-                    <span>{cmd.icon}</span>
+                    {cmd.icon}
                     {cmd.text}
                   </button>
                 ))}
@@ -231,7 +231,9 @@ export const VoiceInterface = ({ userContext }: { userContext?: any }) => {
                 animate={{ scale: 1 }}
                 className="mt-4 p-4 bg-red-500/20 border border-red-500 rounded-xl text-center"
               >
-                <p className="text-red-300 font-bold text-lg">🚨 Emergency Activated</p>
+                <p className="text-red-300 font-bold text-lg flex items-center justify-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" /> Emergency Activated
+                </p>
                 <p className="text-red-200/70 text-sm mt-1">
                   Location shared • Emergency contact called
                 </p>

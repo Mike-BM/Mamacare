@@ -2,7 +2,7 @@
 
 MamaCare is a digital maternal health platform designed to connect African mothers with trusted hospitals and healthcare providers. We provide quality pregnancy care, AI-powered health assistance, and a supportive community.
 
-## 🚀 Features
+## Features
 
 - **Pregnancy Tracking**: Monitor your journey with week-by-week progress and baby size comparisons.
 - **Dr. Nneka (AI Assistant)**: A warm, culturally-sensitive AI for health advice and symptom triage.
@@ -10,14 +10,14 @@ MamaCare is a digital maternal health platform designed to connect African mothe
 - **Emergency SOS**: Quick-access emergency alerts for immediate medical assistance.
 - **Community Circle**: Connect with other mothers and share experiences.
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Frontend**: React, Vite, TypeScript, Tailwind CSS, shadcn/ui
 - **Backend**: Node.js, Express (server.js)
 - **AI**: Google Gemini (Chat & Triage), ElevenLabs (Voice)
 - **Database**: Supabase
 
-## 📦 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -48,6 +48,6 @@ MamaCare is a digital maternal health platform designed to connect African mothe
    npm run dev:all
    ```
 
-## 📄 License
+## License
 
 This project is proprietary. © 2026 MamaCare.

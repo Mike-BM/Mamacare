@@ -1,9 +1,9 @@
-const { z } = require('zod');
+import { z } from 'zod';
 
 /**
  * Zod Schemas for high-risk actions
  */
-const schemas = {
+export const schemas = {
   // Appointment Validation
   appointment: z.object({
     patient_id: z.string().uuid(),
@@ -27,7 +27,7 @@ const schemas = {
   })
 };
 
-const validate = (schemaKey) => (req, res, next) => {
+export const validate = (schemaKey) => (req, res, next) => {
   try {
     const schema = schemas[schemaKey];
     if (!schema) throw new Error(`Schema ${schemaKey} not found`);
@@ -42,5 +42,3 @@ const validate = (schemaKey) => (req, res, next) => {
     });
   }
 };
-
-module.exports = { validate, schemas };

@@ -38,7 +38,7 @@ export const WearableMedicationWidgets = () => {
   const toggleMed = (id: string, name: string) => {
     setTaken((t) => {
       const next = { ...t, [id]: !t[id] };
-      if (next[id]) toast.success(`${name} logged ✓`);
+      if (next[id]) toast.success(`${name} logged`);
       return next;
     });
   };
@@ -58,7 +58,7 @@ export const WearableMedicationWidgets = () => {
       });
 
       setConnected(true);
-      toast.success(`${device.name || "Pregnancy Band"} connected 💕`);
+      toast.success(`${device.name || "Pregnancy Band"} connected`);
     } catch (error: any) {
       if (error.name === 'NotFoundError') return; // User cancelled
       toast.error("Pairing failed: " + error.message);

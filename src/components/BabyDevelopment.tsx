@@ -11,7 +11,7 @@ interface BabyDevelopmentProps {
 const developmentData: Record<number, { size: string; icon: string; details: string[] }> = {
   24: {
     size: "Papaya",
-    icon: "🥭",
+    icon: "",
     details: [
       "Baby can hear your voice and respond to sounds",
       "Taste buds are developing",
@@ -43,7 +43,9 @@ export const BabyDevelopment = ({ week }: BabyDevelopmentProps) => {
 
         <div className="p-4 rounded-lg bg-gradient-to-r from-tertiary/10 to-primary/10 border border-tertiary/20 mb-4">
           <div className="flex items-center gap-3">
-            <span className="text-5xl">{data.icon}</span>
+            <div className="w-12 h-12 rounded-full bg-tertiary/20 flex items-center justify-center text-tertiary">
+              <Baby className="w-6 h-6" />
+            </div>
             <div>
               <p className="text-sm text-muted-foreground">Your baby is about the size of</p>
               <p className="text-2xl font-bold text-tertiary">{data.size}</p>

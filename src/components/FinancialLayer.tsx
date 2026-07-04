@@ -37,7 +37,7 @@ export const FinancialLayer = () => {
 
   const addFunds = (amount: number) => {
     setWalletBalance((b) => Math.min(b + amount, maxEmergencyFund));
-    toast.success(`Added $${amount.toFixed(2)} to your emergency wallet 💜`);
+    toast.success(`Added $${amount.toFixed(2)} to your emergency wallet`);
   };
 
   return (
@@ -66,7 +66,7 @@ export const FinancialLayer = () => {
               </div>
 
               <div className="mb-8">
-                <p className="text-lg font-black text-white/90">First month: Pay what you can 💕</p>
+                <p className="text-lg font-black text-white/90">First month: Pay what you can</p>
                 <p className="text-sm text-white/50">Support your journey and help another mama in need.</p>
               </div>
 

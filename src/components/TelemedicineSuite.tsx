@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Video, PhoneOff, Mic, MicOff, VideoOff, FileText, Pill, Calendar, Clock, CreditCard } from "lucide-react";
+import { Video, PhoneOff, Mic, MicOff, VideoOff, FileText, Pill, Calendar, Clock, CreditCard, User, Baby } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSound } from "@/hooks/useSound";
@@ -196,14 +196,14 @@ export const TelemedicineSuite = () => {
               {videoOff ? (
                 <VideoOff className="w-20 h-20 text-white/40" />
               ) : (
-                <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-5xl">
-                  👩🏾‍⚕️
+                <div className="w-32 h-32 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                  <User className="w-16 h-16 text-white" />
                 </div>
               )}
             </div>
             {/* Self preview */}
-            <div className="absolute bottom-4 right-4 w-24 h-32 rounded-lg bg-black/60 border-2 border-white/20 flex items-center justify-center text-3xl">
-              🤰🏾
+            <div className="absolute bottom-4 right-4 w-24 h-32 rounded-lg bg-black/60 border-2 border-white/20 flex items-center justify-center">
+              <Baby className="w-10 h-10 text-white" />
             </div>
             {/* HUD */}
             <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
@@ -274,7 +274,7 @@ export const TelemedicineSuite = () => {
               </ul>
             </Card>
 
-            <Button className="w-full" onClick={() => { toast.success("Saved to your records 📂"); setShowSummary(false); }}>
+            <Button className="w-full" onClick={() => { toast.success("Saved to your records"); setShowSummary(false); }}>
               Save to records
             </Button>
           </div>

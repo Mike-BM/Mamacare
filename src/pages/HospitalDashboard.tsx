@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet, TrendingUp, CheckCircle2, MessageCircle, Settings, MapPin, Loader2, Lock } from "lucide-react";
+import { Heart, Calendar, Users, AlertCircle, Bell, LogOut, Droplet, TrendingUp, CheckCircle2, MessageCircle, Settings, MapPin, Loader2, Lock, Building2, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BloodDonorNetwork } from "@/components/BloodDonorNetwork";
@@ -320,7 +320,6 @@ const HospitalDashboard = () => {
   const handleDispatch = (id: number, patient: string) => {
     setSosAlerts(prev => prev.map(alert => alert.id === id ? { ...alert, status: 'dispatched' } : alert));
     toast.error(`Emergency Team Dispatched for ${patient}!`, {
-      icon: '🚨',
       duration: 5000
     });
   };
@@ -422,7 +421,7 @@ const HospitalDashboard = () => {
           </div>
           <div className="flex gap-2 mb-4 flex-wrap">
             <Button size="sm" variant="outline" className="border-white/10 hover:bg-white/5 rounded-xl text-xs font-bold h-11">Export Report</Button>
-            <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11" onClick={() => setIsReferralModalOpen(true)}>Refer to Telemedicine 🏥</Button>
+            <Button size="sm" className="bg-secondary hover:bg-secondary/90 rounded-xl text-xs font-bold h-11" onClick={() => setIsReferralModalOpen(true)}>Refer to Telemedicine</Button>
           </div>
 
           <AnimatePresence mode="wait">
@@ -497,7 +496,7 @@ const HospitalDashboard = () => {
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-4 border-t border-white/5 gap-3">
                           <div className="flex items-center gap-2">
                              <div className="flex -space-x-2">
-                                {[1, 2, 3].map(i => <div key={i} className="w-6 h-6 rounded-full border border-background bg-white/10 flex items-center justify-center text-[8px]">🏥</div>)}
+                                {[1, 2, 3].map(i => <div key={i} className="w-6 h-6 rounded-full border border-background bg-white/10 flex items-center justify-center"><Building2 className="w-3.5 h-3.5 text-white/60" /></div>)}
                              </div>
                              <span className="text-[10px] text-muted-foreground font-bold shrink-0">History Available</span>
                           </div>
@@ -655,14 +654,18 @@ const HospitalDashboard = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">👩‍⚕️</div>
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
                       <span>Dr. Eliza Keith</span>
                     </div>
                     <Badge className="bg-green-500/20 text-green-400">On Duty</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">🏥</div>
+                      <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">
+                        <Building2 className="w-4 h-4 text-secondary" />
+                      </div>
                       <span>Nurse Ivy (Head Nurse)</span>
                     </div>
                     <Badge className="bg-white/10 text-white/50">Off Duty</Badge>

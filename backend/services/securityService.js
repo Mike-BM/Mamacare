@@ -1,5 +1,3 @@
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-
 const securityAlerts = [
   'Multiple failed logins from same IP',
   'Provider accessing records outside work hours',
@@ -12,7 +10,7 @@ const securityAlerts = [
  * Nneka Guardian Service
  * Handles real-time security monitoring and alerting.
  */
-const securityService = {
+export const securityService = {
   /**
    * Send alert to Slack/Email
    * @param {string} alert - The alert message
@@ -33,7 +31,7 @@ const securityService = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          text: `🚨 *[${severity.toUpperCase()}] Nneka Guardian Alert* \n> ${alert}`,
+          text: `*[${severity.toUpperCase()}] Nneka Guardian Alert* \n> ${alert}`,
           icon_emoji: severity === 'critical' ? ':fire:' : ':warning:'
         })
       });
@@ -59,5 +57,3 @@ const securityService = {
     }
   }
 };
-
-module.exports = securityService;

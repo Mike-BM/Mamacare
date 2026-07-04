@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Heart, Volume2, VolumeX, Building2, ShieldCheck, Users, Eye, EyeOff, Zap } from "lucide-react";
+import { Heart, Building2, ShieldCheck, Users, Eye, EyeOff, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +41,6 @@ const Landing = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isSoundOn, setIsSoundOn] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -98,7 +97,7 @@ const Landing = () => {
       
       const role = data.user?.user_metadata?.role || 'mother';
       
-      toast.success("Welcome back! 👋");
+      toast.success("Welcome back!");
       
       if (role === 'hospital') navigate("/hospital-dashboard");
       else if (role === 'admin') window.location.href = "/admin.html";
@@ -114,13 +113,6 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen w-full max-w-[100vw] relative overflow-x-hidden">
-      {/* Ambient Background Audio */}
-      {isSoundOn && (
-        <audio autoPlay loop className="hidden">
-          <source src="/sounds/baby-laugh.mp3" type="audio/mpeg" />
-        </audio>
-      )}
-
       {/* Top Controls */}
       <div className="fixed top-0 left-0 right-0 p-4 sm:p-6 z-50 flex justify-between items-center gap-2 pointer-events-none">
         {/* Navigation Links */}
@@ -142,19 +134,6 @@ const Landing = () => {
             Features
           </Button>
         </div>
-
-        {/* Sound Toggle Button */}
-        <button
-          onClick={() => setIsSoundOn(!isSoundOn)}
-          className="backdrop-blur-xl bg-card/80 border border-border/50 rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-card transition-all duration-300 hover:scale-110 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] shrink-0 pointer-events-auto"
-          aria-label={isSoundOn ? "Mute sound" : "Unmute sound"}
-        >
-          {isSoundOn ? (
-            <Volume2 className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
-          ) : (
-            <VolumeX className="w-4 h-4 sm:w-6 sm:h-6 text-muted-foreground" />
-          )}
-        </button>
       </div>
 
       {/* Carousel Background with zoom animation */}

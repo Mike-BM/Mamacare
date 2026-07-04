@@ -55,8 +55,8 @@ export default function BabaDashboard() {
                 Baby Update (Week {currentWeek})
               </h3>
               <div className="flex items-center gap-6">
-                <div className="w-24 h-24 rounded-full bg-blue-500/20 flex items-center justify-center text-4xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                  🥭
+                <div className="w-24 h-24 rounded-full bg-blue-500/20 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                  <Baby className="w-10 h-10 text-blue-400" />
                 </div>
                 <div>
                   <p className="text-xl font-semibold mb-1">Size of a Mango</p>
@@ -91,7 +91,7 @@ export default function BabaDashboard() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                   <span className="text-sm text-white/80">Current Mood</span>
-                  <span className="text-xl">😊</span>
+                  <span className="text-sm font-bold text-green-400">Happy</span>
                 </div>
                 <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                   <span className="text-sm text-white/80">Next Appointment</span>
@@ -107,9 +107,9 @@ export default function BabaDashboard() {
                 How to Help Today
               </h3>
               <div className="space-y-4 text-sm text-white/80">
-                <p>💡 Eliza mentioned she's having trouble sleeping. Suggest a back massage before bed.</p>
-                <p>💧 Ensure she drinks at least 8 glasses of water today.</p>
-                <p>🎵 Play some calming music; the baby will react to it!</p>
+                <p>Eliza mentioned she's having trouble sleeping. Suggest a back massage before bed.</p>
+                <p>Ensure she drinks at least 8 glasses of water today.</p>
+                <p>Play some calming music; the baby will react to it!</p>
               </div>
               <Button className="w-full mt-6 bg-tertiary hover:bg-tertiary/90 text-white shadow-[0_0_15px_rgba(255,160,122,0.4)]">
                 Message Eliza <ArrowRight className="w-4 h-4 ml-2" />

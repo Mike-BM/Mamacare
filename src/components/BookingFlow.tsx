@@ -119,6 +119,7 @@ export const BookingFlow = ({ onClose, onSuccess, initialAppointment }: BookingF
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: session.user.email,
+          phone: session.user.phone || session.user.user_metadata?.phone || '+254712345678',
           name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
           doctorName: formData.provider?.full_name || 'First Available Specialist',
           date: formData.date,
@@ -176,7 +177,9 @@ export const BookingFlow = ({ onClose, onSuccess, initialAppointment }: BookingF
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl">👩‍⚕️</div>
+                    <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-xl">
+                      <User className="w-6 h-6 text-primary" />
+                    </div>
                     <div>
                       <h4 className="font-bold text-white">{p.full_name}</h4>
                       <p className="text-xs text-white/50">{p.role} • {p.specialty}</p>
@@ -324,7 +327,9 @@ export const BookingFlow = ({ onClose, onSuccess, initialAppointment }: BookingF
           
           <Card className="p-6 bg-primary/5 border border-primary/20 rounded-[32px] space-y-6">
              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-3xl">🤰</div>
+                <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-primary">
+                   <User className="w-8 h-8" />
+                </div>
                  <div>
                     <h4 className="text-xl font-black text-white">{formData.provider.full_name || formData.provider.name}</h4>
                     <p className="text-sm text-primary font-bold">{formData.provider.role} {formData.provider.specialty ? `• ${formData.provider.specialty}` : ''}</p>

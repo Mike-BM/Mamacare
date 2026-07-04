@@ -94,7 +94,7 @@ export const AchievementsTab = () => {
                     ? "border-primary/40 bg-gradient-to-br from-primary/10 to-tertiary/10 hover:scale-105 cursor-pointer"
                     : "border-border bg-muted/10 opacity-50"
                 }`}
-                onClick={() => b.unlocked && toast.success(`🏆 ${b.name}`)}
+                onClick={() => b.unlocked && toast.success(b.name)}
               >
                 <div
                   className={`w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center ${
@@ -117,7 +117,7 @@ export const AchievementsTab = () => {
           <UserPlus className="w-5 h-5 text-secondary" /> Partner Mode
         </h3>
         <p className="text-sm text-muted-foreground mb-4">
-          Invite dad or your partner to track this journey together 💕
+          Invite dad or your partner to track this journey together.
         </p>
         <Dialog>
           <DialogTrigger asChild>
@@ -132,7 +132,7 @@ export const AchievementsTab = () => {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                toast.success(`Invitation sent to ${partnerEmail} 💌`);
+                toast.success(`Invitation sent to ${partnerEmail}`);
                 setPartnerEmail("");
               }}
               className="space-y-3"

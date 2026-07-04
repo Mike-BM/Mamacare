@@ -139,7 +139,7 @@ export default function AdminDashboard() {
   const [notifications, setNotifications] = useState<any[]>([
     {
       id: "notif-1",
-      title: "🚨 Emergency SOS",
+      title: "Emergency SOS",
       message: "Stacy Mutheu triggered an SOS alert from Kibera Sector 3.",
       time: "2m ago",
       read: false,
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
     },
     {
       id: "notif-2",
-      title: "📅 New Booking",
+      title: "New Booking",
       message: "Jane Keith booked an Antenatal consultation with Dr. Eliza Keith.",
       time: "15m ago",
       read: false,
@@ -155,7 +155,7 @@ export default function AdminDashboard() {
     },
     {
       id: "notif-3",
-      title: "🚗 Ride Requested",
+      title: "Ride Requested",
       message: "Mariam Osei requested an ambulance dispatch to Nairobi West.",
       time: "1h ago",
       read: true,
@@ -206,14 +206,14 @@ export default function AdminDashboard() {
             fetchAppointments();
             const newNotif = {
               id: `db-apt-${payload.new.id}`,
-              title: "📅 New Appointment",
+              title: "New Appointment",
               message: `A new appointment has been scheduled in the database.`,
               time: "Just now",
               read: false,
               type: "booking"
             };
             setNotifications(prev => [newNotif, ...prev]);
-            toast.info("📅 Real-time: New appointment booked!");
+            toast.info("Real-time: New appointment booked!");
           })
           .on("postgres_changes", { event: "UPDATE", schema: "public", table: "appointments" }, fetchAppointments)
           .subscribe();
@@ -223,30 +223,30 @@ export default function AdminDashboard() {
             fetchMamarideRequests();
             const newNotif = {
               id: `db-ride-${payload.new.id}`,
-              title: "🚗 NnekaRide Request",
+              title: "NnekaRide Request",
               message: `New NnekaRide transport requested: ${payload.new.ride_type || "standard"}.`,
               time: "Just now",
               read: false,
               type: "ride"
             };
             setNotifications(prev => [newNotif, ...prev]);
-            toast.success("🚗 Real-time: New NnekaRide requested!");
+            toast.success("Real-time: New NnekaRide requested!");
           })
           .on("postgres_changes", { event: "UPDATE", schema: "public", table: "mamaride_requests" }, fetchMamarideRequests)
           .subscribe();
-
+ 
         const ch4 = supabase.channel("admin-alerts")
           .on("postgres_changes", { event: "INSERT", schema: "public", table: "alerts" }, (payload: any) => {
             const newNotif = {
               id: `db-alert-${payload.new.id}`,
-              title: "🚨 SOS Panic Alert",
+              title: "SOS Panic Alert",
               message: payload.new.message || "A mother has triggered an SOS emergency panic alert!",
               time: "Just now",
               read: false,
               type: "sos"
             };
             setNotifications(prev => [newNotif, ...prev]);
-            toast.error("🚨 CRITICAL: Emergency SOS panic triggered!", { duration: 8000 });
+            toast.error("CRITICAL: Emergency SOS panic triggered!", { duration: 8000 });
           })
           .subscribe();
 
@@ -530,14 +530,14 @@ export default function AdminDashboard() {
     if (type === "sos") {
       const newAlert = {
         id,
-        title: "🚨 Emergency SOS",
+        title: "Emergency SOS",
         message: `${randomName} triggered a critical SOS alert. Emergency services standby.`,
         time,
         read: false,
         type: "sos"
       };
       setNotifications(prev => [newAlert, ...prev]);
-      toast.error(`🚨 Critical Alert: SOS triggered by ${randomName}!`, { duration: 5000 });
+      toast.error(`Critical Alert: SOS triggered by ${randomName}!`, { duration: 5000 });
       
       SECURITY_LOGS.unshift({
         event: `Emergency SOS Alert — ${randomName}`,
@@ -548,15 +548,15 @@ export default function AdminDashboard() {
     } else if (type === "booking") {
       const newAlert = {
         id,
-        title: "📅 New Booking",
+        title: "New Booking",
         message: `${randomName} booked an Antenatal checkup at Nairobi General Hospital.`,
         time,
         read: false,
         type: "booking"
       };
       setNotifications(prev => [newAlert, ...prev]);
-      toast.info(`📅 Booking: New appointment created by ${randomName}.`);
-
+      toast.info(`Booking: New appointment created by ${randomName}.`);
+ 
       const newApt = {
         id: `apt-${Date.now()}`,
         mother_id: `m-${Date.now()}`,
@@ -581,14 +581,14 @@ export default function AdminDashboard() {
     } else if (type === "ride") {
       const newAlert = {
         id,
-        title: "🚗 Ride Dispatch",
+        title: "Ride Dispatch",
         message: `${randomName} requested an emergency NnekaRide ambulance dispatch.`,
         time,
         read: false,
         type: "ride"
       };
       setNotifications(prev => [newAlert, ...prev]);
-      toast.success(`🚗 Dispatch: NnekaRide requested by ${randomName}.`);
+      toast.success(`Dispatch: NnekaRide requested by ${randomName}.`);
 
       const newRide = {
         id: `ride-${Date.now()}`,
@@ -1479,8 +1479,8 @@ export default function AdminDashboard() {
                             const motherPhone = ride.mothers?.profiles?.phone || "+254 711 000 000";
                             const reqTime = ride.created_at ? new Date(ride.created_at).toLocaleTimeString() : "TBD";
                             const rideTypeIcon = 
-                              ride.ride_type === 'ambulance' ? '🚨 Ambulance' :
-                              ride.ride_type === 'boda' ? '🏍️ Boda-Boda' : '🚗 Standard Car';
+                              ride.ride_type === 'ambulance' ? 'Ambulance' :
+                              ride.ride_type === 'boda' ? 'Boda-Boda' : 'Standard Car';
                             
                             return (
                               <tr key={ride.id} className="hover:bg-slate-800/30 transition-colors">

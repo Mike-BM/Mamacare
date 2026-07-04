@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, BookmarkPlus, RefreshCw } from "lucide-react";
+import { Lightbulb, BookmarkPlus, RefreshCw, Droplet, Sprout, Footprints, Sparkles, Music } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -10,23 +10,23 @@ import { AudioPlayer } from "./AudioPlayer";
 const tips = [
   {
     tip: "Stay hydrated! Drink at least 8-10 glasses of water daily for optimal health.",
-    emoji: "💧",
+    icon: <Droplet className="w-5 h-5 text-primary" />,
   },
   {
     tip: "Try 10 minutes of calm breathing today — it helps reduce stress and supports baby.",
-    emoji: "🌿",
+    icon: <Sprout className="w-5 h-5 text-primary" />,
   },
   {
     tip: "Gentle walking for 20 minutes can improve circulation and boost your mood.",
-    emoji: "🚶🏾‍♀️",
+    icon: <Footprints className="w-5 h-5 text-primary" />,
   },
   {
     tip: "Listen to your body — rest when you need it. Your body is doing incredible work!",
-    emoji: "💫",
+    icon: <Sparkles className="w-5 h-5 text-primary" />,
   },
   {
     tip: "Talk or sing to your baby — they can hear you and find comfort in your voice.",
-    emoji: "🎵",
+    icon: <Music className="w-5 h-5 text-primary" />,
   },
 ];
 
@@ -83,10 +83,12 @@ export const WeeklyTips = () => {
       </div>
       
       <div className="p-4 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 mb-4">
-        <p className="text-sm text-foreground mb-2 flex items-center gap-2">
-          <span className="text-2xl">{currentTip.emoji}</span>
-          {currentTip.tip}
-        </p>
+        <div className="text-sm text-foreground mb-2 flex items-start gap-3">
+          <div className="shrink-0 p-1.5 bg-primary/10 rounded-lg">
+            {currentTip.icon}
+          </div>
+          <p className="flex-1 self-center">{currentTip.tip}</p>
+        </div>
         <div className="mt-4">
           <AudioPlayer text={currentTip.tip} title="Listen to this tip" />
         </div>

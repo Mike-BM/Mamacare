@@ -1,4 +1,4 @@
-const securityService = require('../services/securityService');
+import { securityService } from '../services/securityService.js';
 
 /**
  * Session Security Middleware
@@ -29,4 +29,4 @@ const sessionGuard = async (req, res, next) => {
   next();
 };
 
-module.exports = sessionGuard;
+export default sessionGuard;

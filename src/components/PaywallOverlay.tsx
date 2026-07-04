@@ -81,7 +81,7 @@ export const PaywallOverlay = ({
                 </div>
 
                 <div className="text-center space-y-2 mb-6 sm:mb-8 px-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-white">🔒 Mama {requiredTier}</h2>
+                  <h2 className="text-xl sm:text-2xl font-black text-white">Mama {requiredTier}</h2>
                   <p className="text-[10px] sm:text-base text-white/70 italic px-2">"{featureValue}"</p>
                 </div>
 
@@ -193,7 +193,7 @@ export const PaywallOverlay = ({
                 </Button>
                 <div className="flex items-center justify-center gap-2 text-[10px] text-white/40 font-bold uppercase tracking-wider">
                   <Lock className="w-3 h-3" />
-                  Your data is encrypted 🔒
+                  Your data is encrypted
                 </div>
                 <p className="text-[10px] text-center text-white/30">Cancel anytime • No hidden fees</p>
               </div>
@@ -217,7 +217,7 @@ export const PaywallOverlay = ({
               </motion.div>
 
               <div className="space-y-4 mb-8">
-                <h2 className="text-3xl font-black text-white">Welcome to Mama {requiredTier}! 💕</h2>
+                <h2 className="text-3xl font-black text-white">Welcome to Mama {requiredTier}!</h2>
                 <p className="text-white/70">Payment confirmed. {featureName} is now unlocked for you.</p>
                 <p className="text-xs text-white/40">A digital receipt has been sent to your email.</p>
               </div>

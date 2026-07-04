@@ -14,7 +14,7 @@ const failedEmailQueue = [];
 const templates = {
   welcome: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px;">
-      <h1>Welcome to Nneka Health, {{name}}! 🤰🏾</h1>
+      <h1>Welcome to Nneka Health, {{name}}!</h1>
       <p>We are thrilled to be part of your pregnancy journey. Log in to your dashboard to start tracking your progress, connect with other mamas, and get personalized advice from Dr. Nneka.</p>
       <p>Stay radiant,<br>The Nneka Health Team</p>
     </div>
@@ -28,7 +28,7 @@ const templates = {
   `),
   emergencyAlert: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px; border: 2px solid red;">
-      <h1 style="color: red;">EMERGENCY ALERT 🚨</h1>
+      <h1 style="color: red;">EMERGENCY ALERT</h1>
       <p><strong>{{patientName}}</strong> has triggered an emergency SOS!</p>
       <p><strong>Location:</strong> {{location}}</p>
       <p><strong>Symptoms:</strong> {{symptoms}}</p>
@@ -37,7 +37,7 @@ const templates = {
   `),
   weeklyReport: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px; background-color: #fce4ec;">
-      <h2>Week {{week}} Progress 👶🏾</h2>
+      <h2>Week {{week}} Progress</h2>
       <p>Hi {{name}}, your baby is the size of a <strong>{{babySize}}</strong>!</p>
       <p>{{tips}}</p>
     </div>
@@ -51,7 +51,7 @@ const templates = {
   `),
   appointmentConfirmation: Handlebars.compile(`
     <div style="font-family: sans-serif; padding: 20px; border-left: 4px solid #10b981; background-color: #f9fafb; color: #111827;">
-      <h2 style="color: #10b981; margin-top: 0;">Nneka Health Appointment Confirmed! 🎉</h2>
+      <h2 style="color: #10b981; margin-top: 0;">Nneka Health Appointment Confirmed!</h2>
       <p>Dear {{name}},</p>
       <p>Your appointment has been successfully booked with <strong>{{doctorName}}</strong>.</p>
       <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -75,13 +75,13 @@ async function sendEmailWithRetry(msg, retries = 3) {
 
   try {
     await sgMail.send(msg);
-    console.log(`✅ Email sent successfully to ${msg.to}`);
+    console.log(`Email sent successfully to ${msg.to}`);
   } catch (error) {
-    console.error(`❌ Failed to send email to ${msg.to}. Retries left: ${retries}`);
+    console.error(`Failed to send email to ${msg.to}. Retries left: ${retries}`);
     if (retries > 0) {
       setTimeout(() => sendEmailWithRetry(msg, retries - 1), 5000);
     } else {
-      console.log(`📥 Adding email to failed queue for manual retry later.`);
+      console.log(`Adding email to failed queue for manual retry later.`);
       failedEmailQueue.push(msg);
     }
   }
@@ -113,7 +113,7 @@ export const emailService = {
     const messages = contacts.map(contact => ({
       to: contact,
       from: 'hellonnekahealth@gmail.com',
-      subject: `🚨 EMERGENCY: ${data.patientName}`,
+      subject: `EMERGENCY: ${data.patientName}`,
       html: templates.emergencyAlert(data)
     }));
     

@@ -8,6 +8,16 @@ import { createClient } from '@supabase/supabase-js';
 import { validateEnv } from './backend/config/env.js';
 import { standardLimiter, tierBasedLimiter } from './backend/middleware/rateLimiter.js';
 import { emailService } from './backend/services/emailService.js';
+import { smsService } from './backend/services/smsService.js';
+import { whatsappService } from './backend/services/whatsappService.js';
+import { parseAppointmentDateTime } from './backend/services/agentTools.js';
+
+
+import authRouter from './backend/routes/auth.js';
+import paymentsRouter from './backend/routes/payments.js';
+import communicationRouter from './backend/routes/communication.js';
+import agentRouter from './backend/routes/agent.js';
+import { authGuard } from './backend/middleware/authGuard.js';
 
 dotenv.config();
 validateEnv(); // Fail fast if critical env vars are missing
@@ -18,6 +28,12 @@ app.use(express.json());
 
 // Apply rate limiting
 app.use('/api/', standardLimiter);
+
+// Mount Modular API routers
+app.use('/api/auth', authRouter);
+app.use('/api/payments', paymentsRouter);
+app.use('/api/communication', communicationRouter);
+app.use('/api/ai/agent', agentRouter);
 
 // Root and API health check endpoint
 app.get(['/', '/api', '/api/'], (req, res) => {
@@ -282,13 +298,14 @@ app.post('/api/ai/speak', async (req, res) => {
 
 // --- NEW: Appointments & Payments ---
 
-app.post('/api/appointments/book', async (req, res) => {
-  const { userId, doctorId, time, amount } = req.body;
+app.post('/api/appointments/book', authGuard, async (req, res) => {
+  const userId = req.user.id;
+  const { doctorId, time, amount } = req.body;
   
   // 1. First, find the mother_id from the mothers table using the user's auth ID
   const { data: motherData, error: motherError } = await supabase
     .from('mothers')
-    .select('id')
+    .select('id, profiles(full_name, email)')
     .eq('user_id', userId)
     .single();
 
@@ -296,80 +313,77 @@ app.post('/api/appointments/book', async (req, res) => {
     return res.status(400).json({ error: "Mother profile not found. Please complete your profile." });
   }
 
+  // Parse fuzzy/relative date
+  const appointmentDateTime = parseAppointmentDateTime(time);
+  const appointmentDate = appointmentDateTime.toISOString();
+
   // 2. Insert into appointments using the existing schema
-  const { data, error } = await supabase
+  const { data: appointment, error } = await supabase
     .from('appointments')
     .insert({
       mother_id: motherData.id,
-      doctor_id: doctorId, 
-      appointment_date: time, 
+      doctor_id: doctorId || '00000000-0000-0000-0000-000000000002', // default fallback Dr. Eliza Keith
+      appointment_date: appointmentDate, 
       status: 'pending',
-      amount: amount
+      amount: amount || 1500
     })
-    .select()
+    .select('*, providers(full_name)')
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
   
-  res.json({ success: true, appointment: data });
+  // Send notifications immediately!
+  let motherName = motherData.profiles?.full_name || 'MamaCare Mother';
+  let motherEmail = motherData.profiles?.email;
+  let motherPhone = req.user.phone || req.user.user_metadata?.phone || '+254712345678';
+  const doctorName = appointment.providers?.full_name || 'Dr. Eliza Keith';
+  
+  const dateStr = appointmentDateTime.toLocaleDateString();
+  const timeStr = appointmentDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const smsBody = `Hello ${motherName}, your appointment with ${doctorName} has been booked for ${dateStr} at ${timeStr}. Keep track on MamaCare!`;
+
+  try {
+    // 1. Email confirmation
+    if (motherEmail) {
+      await emailService.sendAppointmentConfirmation(motherEmail, {
+        name: motherName,
+        doctorName: doctorName,
+        date: dateStr,
+        slot: timeStr,
+        type: 'video',
+        notes: 'Booked via MamaCare Booking Service.'
+      });
+    }
+
+    // 2. SMS confirmation
+    await smsService.sendSMS(motherPhone, smsBody);
+
+    // 3. WhatsApp confirmation
+    await whatsappService.sendWhatsApp(motherPhone, smsBody);
+
+    // 4. Admin Email Notification
+    await emailService.sendAppointmentConfirmation('hellonnekahealth@gmail.com', {
+      name: `${motherName} (Web API Booking)`,
+      doctorName: doctorName,
+      date: dateStr,
+      slot: timeStr,
+      type: 'video',
+      notes: 'Booked via MamaCare Booking Service.'
+    });
+  } catch (notifyErr) {
+    console.error('Failed to send web API booking notifications:', notifyErr);
+  }
+
+  res.json({ success: true, appointment });
 });
 
 // Flutterwave Webhook
-app.post('/api/webhooks/flutterwave', async (req, res) => {
-  const secretHash = process.env.FLUTTERWAVE_WEBHOOK_HASH;
-  const signature = req.headers['verif-hash'];
-
-  if (!signature || signature !== secretHash) {
-    return res.status(401).end();
-  }
-
-  const payload = req.body;
-
-  if (payload.status === 'successful' && payload.meta.purpose === 'appointment') {
-    const appointmentId = payload.meta.appointment_id;
-
-    try {
-      // 1. Create Daily.co Room
-      const dailyResponse = await fetch('https://api.daily.co/v1/rooms', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.DAILY_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          properties: {
-            exp: Math.floor(Date.now() / 1000) + 86400, // Room expires in 24 hours
-            enable_chat: true
-          }
-        })
-      });
-      
-      const roomData = await dailyResponse.json();
-      const secureVideoLink = roomData.url;
-
-      // 2. Update Supabase: Confirm appointment & attach link
-      await supabase
-        .from('appointments')
-        .update({ 
-          status: 'confirmed', 
-          video_room_url: secureVideoLink 
-        })
-        .eq('id', appointmentId);
-
-      // 3. Optional: Send Email/SMS notification via emailService
-      // await emailService.sendAppointmentConfirmation(payload.customer.email, secureVideoLink);
-
-      console.log(`Appointment ${appointmentId} confirmed with link: ${secureVideoLink}`);
-    } catch (err) {
-      console.error('Webhook processing error:', err);
-    }
-  }
-
-  res.status(200).end();
+app.post('/api/webhooks/flutterwave', (req, res) => {
+  res.redirect(307, '/api/payments/webhook/flutterwave');
 });
 
 app.post('/api/appointments/notify', async (req, res) => {
-  const { email, name, doctorName, date, slot, type, notes } = req.body;
+  const { email, phone, name, doctorName, date, slot, type, notes } = req.body;
   try {
     const emailData = {
       name,
@@ -386,9 +400,26 @@ app.post('/api/appointments/notify', async (req, res) => {
       ...emailData,
       name: `${name} (Admin Notification)`
     });
+
+    // Also send SMS and WhatsApp confirmations!
+    const targetPhone = phone || '+254712345678';
+    const smsBody = `Hello ${name}, your appointment with ${doctorName} has been booked for ${date} at ${slot}. Keep track on MamaCare!`;
+
+    try {
+      await smsService.sendSMS(targetPhone, smsBody);
+    } catch (smsErr) {
+      console.error("SMS notification trigger failed:", smsErr);
+    }
+
+    try {
+      await whatsappService.sendWhatsApp(targetPhone, smsBody);
+    } catch (waErr) {
+      console.error("WhatsApp notification trigger failed:", waErr);
+    }
+
     res.json({ success: true });
   } catch (error) {
-    console.error("Error triggering appointment confirmation email:", error);
+    console.error("Error triggering appointment confirmation notifications:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -564,7 +595,7 @@ app.post('/api/v1/hospital/referral', async (req, res) => {
           conversation_id: conv.id,
           sender_id: patientUserId,
           sender_type: 'hospital',
-          content: `🏥 REFERRAL RECEIVED\nFrom: ${hospital_id}\nReferred by: ${referring_doctor}\nPatient: ${patient.name}\nUrgency: ${referral.urgency?.toUpperCase()}\nMRN: ${hospital_mrn}\nClinical Notes: ${referral.notes || ''}`,
+          content: `REFERRAL RECEIVED\nFrom: ${hospital_id}\nReferred by: ${referring_doctor}\nPatient: ${patient.name}\nUrgency: ${referral.urgency?.toUpperCase()}\nMRN: ${hospital_mrn}\nClinical Notes: ${referral.notes || ''}`,
           message_type: 'appointment_update',
           appointment_id: appt.id
         });

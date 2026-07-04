@@ -46,7 +46,7 @@ const Register = () => {
     }
 
     if (formData.email.endsWith('@example.com')) {
-      toast.success("Registration successful! 🎉");
+      toast.success("Registration successful!");
       setLoading(false);
       setTimeout(() => {
         if (role === "mother") navigate("/mother-dashboard");
@@ -65,36 +65,33 @@ const Register = () => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // 1. Call backend to create the user and bypass the Supabase confirmation email issue
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.name,
+          role: role
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Registration failed");
+      }
+
+      // 2. The user is created and confirmed. Now log them in!
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: {
-            full_name: formData.name,
-            role: role
-          }
-        }
       });
 
       if (error) throw error;
 
-      // Optional: Call Resend Edge Function to send a Welcome Email
-      try {
-        await supabase.functions.invoke('send-welcome-email', {
-          body: { 
-            email: formData.email, 
-            name: formData.name, 
-            role: role 
-          }
-        });
-      } catch (emailError) {
-        console.error("Failed to send welcome email:", emailError);
-        // We don't throw here because registration was successful
-      }
-
       if (data.session) {
-        toast.success("Registration successful! 🎉");
+        toast.success("Registration successful!");
         setTimeout(() => {
           if (role === "mother") navigate("/mother-dashboard");
           else if (role === "doctor") navigate("/provider-dashboard");
@@ -156,7 +153,7 @@ const Register = () => {
                 className="w-full justify-center text-lg hover:border-primary"
                 onClick={() => setRole("mother")}
               >
-                Expecting Mother 🤰
+                Expecting Mother
               </Button>
               <Button
                 variant="glass"
@@ -164,7 +161,7 @@ const Register = () => {
                 className="w-full justify-center text-lg hover:border-secondary"
                 onClick={() => setRole("hospital")}
               >
-                Healthcare Provider 🏥
+                Healthcare Provider
               </Button>
               <Button
                 variant="glass"
@@ -172,7 +169,7 @@ const Register = () => {
                 className="w-full justify-center text-lg hover:border-tertiary"
                 onClick={() => setRole("doctor")}
               >
-                Specialist / Doctor 👩‍⚕️
+                Specialist / Doctor
               </Button>
             </div>
           ) : (

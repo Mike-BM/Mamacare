@@ -68,7 +68,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           {
             id: 'conv-1',
             name: 'Dr. Eliza Keith',
-            avatar: '👩‍⚕️',
+            avatar: 'EK',
             type: 'provider',
             subtitle: 'Maternal Specialist',
             lastMessage: 'Let\'s check your BP again tomorrow morning.',
@@ -84,7 +84,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           {
             id: 'conv-2',
             name: 'Aga Khan Referral Circle',
-            avatar: '🏥',
+            avatar: 'AK',
             type: 'hospital',
             subtitle: 'Hospital Team',
             lastMessage: 'Referral processed successfully.',
@@ -98,7 +98,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           {
             id: 'conv-3',
             name: 'Kiambu Support Circle',
-            avatar: '👥',
+            avatar: 'KS',
             type: 'group',
             subtitle: 'You + Doctor + CHW Wanjiku',
             lastMessage: 'CHW Wanjiku: How are you feeling Ann?',
@@ -112,10 +112,10 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           {
             id: 'conv-1',
             name: 'Mary Muthoni',
-            avatar: '🤰',
+            avatar: 'MM',
             type: 'patient',
             subtitle: 'Week 24 · High Risk',
-            lastMessage: 'Okay, thank you doctor! 🙏',
+            lastMessage: 'Okay, thank you doctor!',
             time: '2m ago',
             unread: 1,
             metadata: {
@@ -129,7 +129,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           {
             id: 'conv-2',
             name: 'Grace Wanjiku',
-            avatar: '🤰',
+            avatar: 'GW',
             type: 'patient',
             subtitle: 'Week 28 · Pre-eclampsia Alert',
             lastMessage: 'Thank you doctor.',
@@ -146,7 +146,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           {
             id: 'conv-3',
             name: 'Ann Mwangi (CHW Referral)',
-            avatar: '🤰',
+            avatar: 'AM',
             type: 'patient',
             subtitle: 'Week 12 · Rural Githunguri',
             lastMessage: 'Can I take iron supplements with milk?',
@@ -182,7 +182,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
             { id: '1', sender_id: 'provider', sender_type: 'provider', content: 'Hi Mary, I see your booking for Friday 10 AM. Can you check your blood pressure before our call? Any pharmacy can do it.', created_at: '9:30 AM' },
             { id: '2', sender_id: 'patient', sender_type: 'patient', content: 'Yes, it\'s 140/90. Is that bad?', created_at: '9:45 AM' },
             { id: '3', sender_id: 'provider', sender_type: 'provider', content: 'Slightly high. Let\'s move to tomorrow morning. I\'ll send a new link.', created_at: '10:00 AM' },
-            { id: '4', sender_id: 'patient', sender_type: 'patient', content: 'Okay, thank you doctor! 🙏', created_at: '10:05 AM' }
+            { id: '4', sender_id: 'patient', sender_type: 'patient', content: 'Okay, thank you doctor!', created_at: '10:05 AM' }
           ];
         } else {
           // Doctor perspective viewing Mary Muthoni chat
@@ -190,18 +190,18 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
             { id: '1', sender_id: 'provider', sender_type: 'provider', content: 'Hi Mary, I see your booking for Friday 10 AM. Can you check your blood pressure before our call? Any pharmacy can do it.', created_at: '9:30 AM' },
             { id: '2', sender_id: 'patient', sender_type: 'patient', content: 'Yes, it\'s 140/90. Is that bad?', created_at: '9:45 AM' },
             { id: '3', sender_id: 'provider', sender_type: 'provider', content: 'Slightly high. Let\'s move to tomorrow morning. I\'ll send a new link.', created_at: '10:00 AM' },
-            { id: '4', sender_id: 'patient', sender_type: 'patient', content: 'Okay, thank you doctor! 🙏', created_at: '10:05 AM' }
+            { id: '4', sender_id: 'patient', sender_type: 'patient', content: 'Okay, thank you doctor!', created_at: '10:05 AM' }
           ];
         }
       } else if (activeConv.id === 'conv-2') {
         initialMsgs = [
-          { id: '1', sender_id: 'hospital', sender_type: 'hospital', content: '🏥 REFERRAL RECEIVED\nFrom: Aga Khan Hospital\nReferred by: Dr. James Ochieng\nPatient: Grace Wanjiku\nUrgency: URGENT\nMRN: AKH-2026-4457\nClinical Notes: Pre-eclampsia monitoring. BP is 150/95. Needs urgent telemedicine consult.', created_at: '5h ago', message_type: 'appointment_update' },
+          { id: '1', sender_id: 'hospital', sender_type: 'hospital', content: 'REFERRAL RECEIVED\nFrom: Aga Khan Hospital\nReferred by: Dr. James Ochieng\nPatient: Grace Wanjiku\nUrgency: URGENT\nMRN: AKH-2026-4457\nClinical Notes: Pre-eclampsia monitoring. BP is 150/95. Needs urgent telemedicine consult.', created_at: '5h ago', message_type: 'appointment_update' },
           { id: '2', sender_id: 'provider', sender_type: 'provider', content: 'I have reviewed the clinical chart. Grace, please rest and avoid salt. I will connect with you via video call at 2:00 PM today.', created_at: '4h ago' },
           { id: '3', sender_id: 'patient', sender_type: 'patient', content: 'Thank you doctor.', created_at: '1h ago' }
         ];
       } else {
         initialMsgs = [
-          { id: '1', sender_id: 'chw', sender_type: 'chw', content: '👩‍⚕️ CHW REFERRAL\nFrom: CHW Wanjiku, Kiambu\nPatient: Ann Mwangi\nVillage: Githunguri\nPregnancy: 12 weeks\nCHW Notes: No transport to clinic, minor morning sickness.', created_at: 'Yesterday', message_type: 'system_alert' },
+          { id: '1', sender_id: 'chw', sender_type: 'chw', content: 'CHW REFERRAL\nFrom: CHW Wanjiku, Kiambu\nPatient: Ann Mwangi\nVillage: Githunguri\nPregnancy: 12 weeks\nCHW Notes: No transport to clinic, minor morning sickness.', created_at: 'Yesterday', message_type: 'system_alert' },
           { id: '2', sender_id: 'patient', sender_type: 'patient', content: 'Can I take iron supplements with milk?', created_at: '3h ago' }
         ];
       }
@@ -248,7 +248,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
           id: Math.random().toString(),
           sender_id: 'system',
           sender_type: 'system',
-          content: '🚨 DANGER SIGN DETECTED: Symptoms matching maternal emergency risk. Patient advised to visit nearest clinic immediately. Telehealth triage triggered.',
+          content: 'DANGER SIGN DETECTED: Symptoms matching maternal emergency risk. Patient advised to visit nearest clinic immediately. Telehealth triage triggered.',
           created_at: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           message_type: 'system_alert'
         };
@@ -339,7 +339,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
                     : 'bg-transparent border-transparent text-white/70 hover:bg-white/5 hover:text-white'
                 }`}
               >
-                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-sm font-bold text-primary shrink-0 group-hover:scale-105 transition-transform">
                   {conv.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -365,7 +365,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
             {/* Thread Header */}
             <div className="p-5 border-b border-white/10 flex items-center justify-between bg-[#161b22]/20 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xl shrink-0">
+                <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xs font-bold text-primary shrink-0">
                   {activeConv.avatar}
                 </div>
                 <div>
@@ -452,7 +452,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
                   return (
                     <div key={msg.id || index} className={`flex gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
                       {!isMe && (
-                        <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xs">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 text-[10px] font-bold text-primary">
                           {activeConv.avatar}
                         </div>
                       )}
@@ -479,7 +479,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
 
                 {isLoading && (
                   <div className="flex gap-3 justify-start items-center">
-                    <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-xs">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 text-[10px] font-bold text-primary">
                       {activeConv.avatar}
                     </div>
                     <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-4 py-3 text-xs text-white/50 flex items-center gap-2">
@@ -530,17 +530,17 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
               {/* Quick Actions Panel */}
               <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/5 flex-wrap">
                 <span className="text-[10px] text-white/30 uppercase font-black tracking-widest mr-2">Quick Actions:</span>
-                <Button variant="ghost" size="sm" onClick={() => toast.success('Patient history retrieved (compliance ISO 27001).')} className="h-7 text-[10px] font-bold text-white/60 hover:bg-white/5 border border-white/10 rounded-lg">
-                  📋 Record
+                <Button variant="ghost" size="sm" onClick={() => toast.success('Patient history retrieved (compliance ISO 27001).')} className="h-7 text-[10px] font-bold text-white/60 hover:bg-white/5 border border-white/10 rounded-lg flex items-center gap-1">
+                  <FileText className="w-3 h-3" /> Record
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => toast.success('Opening reschedule wizard...')} className="h-7 text-[10px] font-bold text-white/60 hover:bg-white/5 border border-white/10 rounded-lg">
-                  📅 Reschedule
+                <Button variant="ghost" size="sm" onClick={() => toast.success('Opening reschedule wizard...')} className="h-7 text-[10px] font-bold text-white/60 hover:bg-white/5 border border-white/10 rounded-lg flex items-center gap-1">
+                  <Calendar className="w-3 h-3" /> Reschedule
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => toast.success('Loading prescription catalog...')} className="h-7 text-[10px] font-bold text-white/60 hover:bg-white/5 border border-white/10 rounded-lg">
-                  💊 Prescribe
+                <Button variant="ghost" size="sm" onClick={() => toast.success('Loading prescription catalog...')} className="h-7 text-[10px] font-bold text-white/60 hover:bg-white/5 border border-white/10 rounded-lg flex items-center gap-1">
+                  <Plus className="w-3 h-3" /> Prescribe
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => toast.error('Emergency dispatch SOS logged Kenyan Ministry of Health.')} className="h-7 text-[10px] font-bold text-red-400 hover:bg-red-950/20 border border-red-900/40 rounded-lg">
-                  🚨 SOS
+                <Button variant="ghost" size="sm" onClick={() => toast.error('Emergency dispatch SOS logged Kenyan Ministry of Health.')} className="h-7 text-[10px] font-bold text-red-400 hover:bg-red-950/20 border border-red-900/40 rounded-lg flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3 text-red-400" /> SOS
                 </Button>
               </div>
             </div>
@@ -559,7 +559,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
         <div className="w-[280px] shrink-0 border-l border-white/10 bg-[#161b22]/30 p-6 flex flex-col justify-between shrink-0">
           <div className="space-y-6">
             <div className="text-center pb-6 border-b border-white/10">
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+              <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-lg font-bold text-primary mx-auto mb-3 shadow-inner">
                 {activeConv.avatar}
               </div>
               <h4 className="font-bold text-white">{activeConv.name}</h4>
@@ -644,7 +644,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
                 <div className="bg-[#075e54] border border-[#128c7e] rounded-[32px] overflow-hidden">
                   <div className="bg-[#075e54] px-6 py-4 flex items-center justify-between border-b border-[#128c7e]">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[#128c7e] flex items-center justify-center text-sm font-black text-white">🩺</div>
+                      <div className="w-9 h-9 rounded-full bg-[#128c7e] flex items-center justify-center text-white"><Phone className="w-4 h-4" /></div>
                       <div>
                         <h4 className="font-bold text-white text-sm">Nneka Health Support</h4>
                         <p className="text-[10px] text-[#25d366] font-bold">Business Account</p>
@@ -653,7 +653,7 @@ export const DoctorChat = ({ perspective = 'patient' }: DoctorChatProps) => {
                   </div>
                   <div className="p-6 bg-[#efeae2] space-y-4 min-h-[240px] flex flex-col justify-end">
                     <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none p-4 text-xs max-w-[85%] text-slate-800 leading-relaxed shadow-sm relative">
-                      <span className="text-[10px] font-black text-green-700 block mb-1">🩺 Nneka Health Chat Link</span>
+                      <span className="text-[10px] font-black text-green-700 block mb-1">Nneka Health Chat Link</span>
                       *Dr. Eliza Keith sent you a message:*<br/><br/>
                       "Hi Mary, I see your booking for Friday 10 AM. Can you check your blood pressure at any pharmacy before our call? Share the reading with me."<br/><br/>
                       <span className="text-gray-400 italic block mt-2 text-[10px]">*Reply to this message to chat with your doctor.*</span>

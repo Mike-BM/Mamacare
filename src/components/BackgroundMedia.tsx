@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import africanMother1 from "@/assets/african-mother-1.jpg";
 import africanMother2 from "@/assets/african-mother-2.jpg";
 import familyMoment from "@/assets/family-moment.jpg";
@@ -15,7 +13,6 @@ const mediaSlides = [
 
 export const BackgroundMedia = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -46,25 +43,6 @@ export const BackgroundMedia = () => {
           </div>
         ))}
       </div>
-
-      {/* Ambient Music Control */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsMuted(!isMuted)}
-        className="fixed top-20 right-4 z-50 w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 hover:shadow-[var(--shadow-glow-pink)] transition-all duration-300"
-      >
-        {isMuted ? (
-          <VolumeX className="w-4 h-4" />
-        ) : (
-          <Volume2 className="w-4 h-4" />
-        )}
-      </Button>
-
-      {/* Ambient Audio */}
-      {!isMuted && (
-        <audio src="/sounds/baby-laugh.mp3" autoPlay loop className="hidden" />
-      )}
     </>
   );
 };

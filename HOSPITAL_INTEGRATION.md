@@ -187,7 +187,7 @@ class WhatsAppIntegration {
 
   async sendAppointmentToClinic(clinicPhone, appointmentData) {
     const message = `
-🏥 *New MamaCare Appointment*
+*New MamaCare Appointment*
 
 *Patient:* ${appointmentData.patientName}
 *Phone:* ${appointmentData.patientPhone}

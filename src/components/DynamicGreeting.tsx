@@ -6,11 +6,11 @@ interface DynamicGreetingProps {
 }
 
 const motivationalPhrases = [
-  "You're doing amazing, Mama 💕",
-  "Baby is growing strong 🌱",
-  "Remember to hydrate 💧",
-  "Every day you're creating magic ✨",
-  "Your journey is beautiful 💖",
+  "You're doing amazing, Mama",
+  "Baby is growing strong",
+  "Remember to hydrate",
+  "Every day you're creating magic",
+  "Your journey is beautiful",
 ];
 
 export const DynamicGreeting = ({ userName = "Eliza" }: DynamicGreetingProps) => {

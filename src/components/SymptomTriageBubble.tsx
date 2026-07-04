@@ -18,7 +18,7 @@ export const SymptomTriageBubble = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "bot", text: "Hi mama 🌸 I'm here to help. What symptom are you feeling right now?" },
+    { role: "bot", text: "Hi mama! I'm here to help. What symptom are you feeling right now?" },
   ]);
   const { play, SOUNDS } = useSound();
   const scrollRef = useRef<HTMLDivElement>(null);

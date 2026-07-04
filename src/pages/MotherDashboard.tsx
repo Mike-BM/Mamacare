@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ArrowLeft, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock, Phone } from "lucide-react";
+import { Heart, Calendar, MessageCircle, Users, Bell, User, CheckCircle2, Bot, Activity, QrCode, TrendingUp, Search, Home, Settings, Wallet, Video, ArrowRight, ArrowLeft, ShieldCheck, Download, Plus, Smartphone, SmartphoneNfc, FileText, LogOut, Car, CloudOff, Mic, Smile, Edit3, Pill, Loader2, MapPin, XCircle, AlertCircle, Lock, Phone, Bike } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AIChat } from "@/components/AIChat";
 import { DynamicGreeting } from "@/components/DynamicGreeting";
@@ -87,6 +87,13 @@ export default function MotherDashboard() {
   const { play, stop, SOUNDS } = useSound();
   const [isCalling, setIsCalling] = useState<string | null>(null);
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   // Navigation History tracking for the "Back" button
   const [navHistory, setNavHistory] = useState<string[]>([]);
 
@@ -164,14 +171,14 @@ export default function MotherDashboard() {
   };
 
   const SUPPORTIVE_MESSAGES = [
-    "You're doing amazing, Mama 💕",
-    "Baby is growing strong today 🌱",
-    "Remember to hydrate, Mama 💧",
-    "Only 16 weeks to go! 🎉",
-    "Your last checkup looked great 👏",
-    "Baby can hear your voice now 🎵",
-    "Rest well, you and baby deserve it 🌙",
-    "Logged! You're taking great care 💕"
+    "You're doing amazing, Mama",
+    "Baby is growing strong today",
+    "Remember to hydrate, Mama",
+    "Only 16 weeks to go!",
+    "Your last checkup looked great",
+    "Baby can hear your voice now",
+    "Rest well, you and baby deserve it",
+    "Logged! You're taking great care"
   ];
   const [messageIndex, setMessageIndex] = useState(0);
 
@@ -479,7 +486,7 @@ export default function MotherDashboard() {
     setTimeout(() => {
       setIsDecrypting(false);
       setIsWalletUnlocked(true);
-      toast.success("Wallet Decrypted Successfully", { icon: "🔐" });
+      toast.success("Wallet Decrypted Successfully");
     }, 1500);
   };
 
@@ -646,7 +653,7 @@ export default function MotherDashboard() {
           
           <div className="hidden md:flex flex-col justify-center">
             <h1 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent truncate max-w-[300px] lg:max-w-none">
-              Good Evening, {userProfile.name.split(' ')[0]} ✨
+              {getGreeting()}, {userProfile.name.split(' ')[0]}
             </h1>
             <span key={messageIndex} className="text-sm text-primary font-medium animate-fade-in-up mt-1">
               {SUPPORTIVE_MESSAGES[messageIndex]}
@@ -664,7 +671,7 @@ export default function MotherDashboard() {
               size="sm" 
               onClick={() => {
                 setIsSimpleMode(!isSimpleMode);
-                toast.success(isSimpleMode ? "Back to Modern Mode" : "Mama Mboga Mode Active 🇰🇪");
+                toast.success(isSimpleMode ? "Back to Modern Mode" : "Mama Mboga Mode Active");
                 if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
               }} 
               className={`flex items-center gap-2 rounded-full px-4 h-10 font-black border transition-all ${isSimpleMode ? 'bg-primary text-white border-primary' : 'bg-white/5 border-white/10 text-white/50'}`}
@@ -741,9 +748,9 @@ export default function MotherDashboard() {
                   <div className="p-6 bg-black/40 rounded-2xl border border-destructive/10">
                     <p className="text-sm font-medium mb-4">Deleting your account will permanently remove:</p>
                     <ul className="text-xs space-y-2 text-white/50 mb-6">
-                      <li className="flex items-center gap-2">❌ All medical health records & logs</li>
-                      <li className="flex items-center gap-2">❌ Your encrypted MamaFund wallet balance</li>
-                      <li className="flex items-center gap-2">❌ Community posts and messages</li>
+                      <li className="flex items-center gap-2">- All medical health records & logs</li>
+                      <li className="flex items-center gap-2">- Your encrypted MamaFund wallet balance</li>
+                      <li className="flex items-center gap-2">- Community posts and messages</li>
                     </ul>
                     <Button 
                       variant="destructive" 
@@ -774,7 +781,7 @@ export default function MotherDashboard() {
                   <div className="space-y-8 animate-in fade-in zoom-in-95 duration-500">
                     <div className="text-center p-6 bg-gradient-to-b from-primary/20 to-transparent rounded-[40px] border border-white/10">
                       <h2 className="text-4xl font-black mb-2">Habari, {userProfile.name.split(' ')[0]}!</h2>
-                      <p className="text-xl text-white/70 font-bold">Uko wiki ya {userProfile.pregnancy_week}. Mtoto anaendelea vizuri. ❤️</p>
+                      <p className="text-xl text-white/70 font-bold">Uko wiki ya {userProfile.pregnancy_week}. Mtoto anaendelea vizuri.</p>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6">
@@ -920,7 +927,7 @@ export default function MotherDashboard() {
                     {(communityPosts.length > 0 ? communityPosts : [
                       { id: 1, topic: "#ThirdTrimesterSleep", mamas: 12, text: "I've found that using a C-shaped pillow helps with the back pain. Anyone else struggling with side-sleeping positions lately?", trending: true },
                       { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
-                      { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
+                      { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real!", trending: false }
                     ]).map((topic: any) => (
                       <motion.div 
                         key={topic.id}
@@ -940,7 +947,9 @@ export default function MotherDashboard() {
                             <div className="flex items-center gap-2">
                               <div className="flex -space-x-2">
                                 {[1, 2].map(i => (
-                                  <div key={i} className="w-6 h-6 rounded-full border-2 border-background bg-white/10 flex items-center justify-center text-[8px] shadow-sm">🤰</div>
+                                  <div key={i} className="w-6 h-6 rounded-full border-2 border-background bg-white/10 flex items-center justify-center shadow-sm">
+                                    <User className="w-3 h-3 text-white/50" />
+                                  </div>
                                 ))}
                               </div>
                               <span className="text-[10px] text-white/50 font-bold">{topic.likes || topic.mamas || 0} mamas discussing</span>
@@ -1232,7 +1241,7 @@ export default function MotherDashboard() {
                      {[
                        { id: 1, topic: "#ThirdTrimesterSleep", mamas: 12, text: "I've found that using a C-shaped pillow helps with the back pain. Anyone else struggling with side-sleeping positions lately?", trending: true },
                        { id: 2, topic: "#BabyKickCounters", mamas: 45, text: "My little one is so active at 10 PM! Is it normal for them to have a specific 'playtime' every night?", trending: false },
-                       { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real! 🧹✨", trending: false }
+                       { id: 3, topic: "#NestingMode", mamas: 8, text: "Just organized the baby clothes for the 5th time. The urge to clean everything is getting real!", trending: false }
                      ].map(topic => (
                        <Card 
                         key={topic.id} 
@@ -1526,7 +1535,7 @@ export default function MotherDashboard() {
             {[
               { id: 'standard', label: 'Standard Ride', sub: 'Comfortable car for checkups', eta: '4-6 mins', icon: Car, color: 'text-tertiary' },
               { id: 'ambulance', label: 'Emergency Ambulance', sub: 'Urgent medical transport', eta: '2-4 mins', icon: ShieldCheck, color: 'text-destructive' },
-              { id: 'boda', label: 'Quick Boda-Boda', sub: 'Fast navigation through traffic', eta: '3 mins', iconRaw: '🏍️', color: 'text-secondary' }
+              { id: 'boda', label: 'Quick Boda-Boda', sub: 'Fast navigation through traffic', eta: '3 mins', icon: Bike, color: 'text-secondary' }
             ].map((option) => (
               <button
                 key={option.id}
@@ -1658,7 +1667,7 @@ export default function MotherDashboard() {
 
                 <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-all">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-tertiary/20 flex items-center justify-center text-lg">🛡️</div>
+                    <div className="w-10 h-10 rounded-xl bg-tertiary/20 flex items-center justify-center"><ShieldCheck className="w-5 h-5 text-tertiary" /></div>
                     <div>
                       <p className="font-bold text-white text-sm">Community Anonymity</p>
                       <p className="text-[10px] text-white/40">Hide your real name from other mamas</p>

@@ -18,12 +18,12 @@ export function validateEnv() {
   });
   
   if (missingKeys.length > 0) {
-    console.error('❌ CRITICAL ERROR: Missing environment variables:');
+    console.error('CRITICAL ERROR: Missing environment variables:');
     missingKeys.forEach(key => console.error(`   - ${key}`));
     console.error('Please save your .env file and ensure all keys are present.');
     process.exit(1);
   } else {
-    console.log('✅ Environment variables validated successfully.');
+    console.log('Environment variables validated successfully.');
   }
 }
 

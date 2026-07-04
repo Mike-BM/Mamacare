@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Heart, Calendar, Users, Clock, CheckCircle2, XCircle, 
-  Plus, Video, FileText, Settings, LogOut,
+  Plus, Video, FileText, Settings, LogOut, Lock,
   ChevronRight, CalendarDays, User, Phone, Info, Loader2,
   MessageSquare, Shield
 } from "lucide-react";
@@ -67,6 +67,13 @@ const ProviderDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("schedule");
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
   const [currentRoomUrl, setCurrentRoomUrl] = useState(""); 
@@ -96,7 +103,7 @@ const ProviderDashboard = () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (payload) => {
           fetchSchedule();
           if (payload.eventType === 'INSERT') {
-            toast.success("📅 New Appointment Booked: A patient has requested a consultation!", {
+            toast.success("New Appointment Booked: A patient has requested a consultation!", {
               duration: 8000,
             });
           }
@@ -111,7 +118,7 @@ const ProviderDashboard = () => {
           (payload: any) => {
             setProviderProfile(payload.new);
             if (payload.new.verification_status === 'verified') {
-              toast.success("🎉 Congratulations! Your medical license has been verified. Access granted!");
+              toast.success("Congratulations! Your medical license has been verified. Access granted!");
             }
           }
         )
@@ -349,8 +356,8 @@ const ProviderDashboard = () => {
 
         <div className="pt-6 border-t border-white/10 mt-auto">
           <div className="flex items-center gap-3 p-2 mb-4">
-             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-lg">
-               {providerProfile?.avatar_url ? <img src={providerProfile.avatar_url} className="w-full h-full rounded-full" /> : "👩‍⚕️"}
+             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+               {providerProfile?.avatar_url ? <img src={providerProfile.avatar_url} className="w-full h-full rounded-full" /> : <User className="w-5 h-5 text-primary" />}
              </div>
              <div className="flex-1 min-w-0">
                <p className="font-bold text-white truncate">{providerProfile?.full_name || "Doctor"}</p>
@@ -382,7 +389,7 @@ const ProviderDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto relative z-10">
         <header className="mb-8">
-           <h2 className="text-3xl font-black text-white mb-1">Good Morning, Doctor! ✨</h2>
+           <h2 className="text-3xl font-black text-white mb-1">{getGreeting()}, Doctor!</h2>
            <p className="text-white/60 font-medium">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
         </header>
 
@@ -439,8 +446,8 @@ const ProviderDashboard = () => {
 
         {providerProfile && providerProfile.verification_status !== 'verified' && activeTab !== 'settings' ? (
           <div className="flex flex-col items-center justify-center py-20 text-center max-w-xl mx-auto space-y-6">
-            <div className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center text-3xl animate-pulse">
-              🔒
+            <div className="w-20 h-20 bg-orange-500/10 border border-orange-500/20 rounded-full flex items-center justify-center animate-pulse">
+              <Lock className="w-8 h-8 text-orange-400" />
             </div>
             <h3 className="text-2xl font-black text-white">Verification in Progress</h3>
             <p className="text-sm text-white/60 leading-relaxed">
@@ -582,7 +589,9 @@ const ProviderDashboard = () => {
                   
                   <div className="space-y-6">
                     <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-3xl">🤰</div>
+                      <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                        <User className="w-8 h-8 text-primary" />
+                      </div>
                       <div>
                         <h4 className="text-xl font-black text-white">{selectedPatient.name}</h4>
                         <p className="text-sm text-primary font-bold">Week 24 • High Risk</p>
@@ -750,7 +759,9 @@ const ProviderDashboard = () => {
                 ].map((p, i) => (
                   <div key={i} className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all cursor-pointer group">
                      <div className="flex items-center gap-3 mb-4">
-                       <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">🤰</div>
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <User className="w-5 h-5 text-white/60" />
+                        </div>
                        <div>
                          <p className="font-bold text-white">{p.name}</p>
                          <p className="text-[10px] text-white/40 uppercase font-black">Week {p.week}</p>
