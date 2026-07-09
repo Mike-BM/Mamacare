@@ -37,10 +37,10 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Registration Failed', message: error.message });
     }
 
-    // Wait a brief moment for DB trigger to complete, then query profile
+    // Wait a brief moment for DB trigger to complete, then query profile (fetch only required fields)
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, email, role')
       .eq('id', data.user.id)
       .single();
 
@@ -94,7 +94,7 @@ router.post('/login', async (req, res) => {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, email, role')
       .eq('id', data.user.id)
       .single();
 
@@ -177,10 +177,10 @@ router.put('/profile', authGuard, async (req, res) => {
       }
     }
 
-    // Fetch updated profile
+    // Fetch updated profile (only required fields)
     const { data: profile } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, email, role')
       .eq('id', userId)
       .single();
 

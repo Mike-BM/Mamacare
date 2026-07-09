@@ -81,7 +81,8 @@ Rule of thumb for risk:
 - low: general questions, nutrition, normal pregnancy symptoms.`;
 
 const analyzeRiskAndRespond = async (messages, modelName = 'gemini-2.5-flash') => {
-  const candidates = [modelName, 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-flash-latest', 'gemini-2.0-flash-lite'];
+  // Prefer fastest/lightweight models first to reduce latency and cost
+  const candidates = [modelName, 'gemini-2.0-flash'];
   const startTime = Date.now();
   let lastError = null;
 
@@ -544,7 +545,8 @@ app.post('/api/v1/hospital/referral', async (req, res) => {
       .from('providers')
       .select('id, specialty')
       .eq('verification_status', 'verified')
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .limit(20);
       
     if (doctors && doctors.length > 0) {
       // Try to find matching specialty

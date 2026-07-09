@@ -23,10 +23,10 @@ export const authGuard = async (req, res, next) => {
       });
     }
 
-    // Retrieve profile from the database to attach role and information
+    // Retrieve profile from the database to attach role and information (only needed columns)
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, email, role')
       .eq('id', user.id)
       .single();
 
